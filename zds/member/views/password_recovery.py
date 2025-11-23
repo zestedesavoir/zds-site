@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse
 from django.db.models import Q
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.forms import NewPasswordForm, UsernameAndEmailForm
@@ -20,7 +20,6 @@ def forgot_password(request):
     if request.method == "POST":
         form = UsernameAndEmailForm(request.POST)
         if form.is_valid():
-
             # Get data from form
             data = form.data
             username = data["username"]

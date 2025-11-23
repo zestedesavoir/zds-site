@@ -4,7 +4,7 @@ Ou bien peut être avez-vous l'idée de LA plateforme d'échange qui va révolut
 
 Alors ce tutoriel est fait pour vous !
 
-De nos jours, un site doit agir comme une véritable application : 
+De nos jours, un site doit agir comme une véritable application :
 
 - offrir un contenu *dynamique*, tel que la possibilité de commenter un article, de discuter sur un forum, etc.
 - permettre d'interagir rapidement et avec fluidité avec l'utilisateur.

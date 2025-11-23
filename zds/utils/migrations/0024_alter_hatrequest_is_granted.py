@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0023_move_potential_spam_to_comment_model"),
     ]

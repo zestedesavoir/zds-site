@@ -1,6 +1,6 @@
-from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Post
@@ -38,7 +38,16 @@ class PagesMemberTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse("pages-about"),
+            reverse("pages-technologies"),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_accessibility(self):
+        """Test: check that accessibility page is alive."""
+
+        result = self.client.get(
+            reverse("pages-accessibility"),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -98,7 +107,16 @@ class PagesStaffTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse("pages-about"),
+            reverse("pages-technologies"),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_accessibility(self):
+        """Test: check that accessibility page is alive."""
+
+        result = self.client.get(
+            reverse("pages-accessibility"),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -154,7 +172,16 @@ class PagesGuestTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse("pages-about"),
+            reverse("pages-technologies"),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_accessibility(self):
+        """Test: check that accessibility page is alive."""
+
+        result = self.client.get(
+            reverse("pages-accessibility"),
         )
 
         self.assertEqual(result.status_code, 200)

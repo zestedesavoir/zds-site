@@ -123,7 +123,7 @@ Voici un extrait du dossier contenant les gabaris :
     │   ...
     │
     ├── pages/  # Dossier contenant les pages du site
-    │   ├── about.html
+    │   ├── technologies.html
     │   ├── contact.html
     │   ...
     │

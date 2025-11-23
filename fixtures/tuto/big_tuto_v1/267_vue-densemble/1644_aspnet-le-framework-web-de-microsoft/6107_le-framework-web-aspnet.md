@@ -17,24 +17,24 @@ La première partie (ASP) est un acronyme de **A**ctive **S**erver **P**ages et 
 [[attention]]
 | Attention à ne pas confondre ASP.NET et ASP : ce sont deux technologies différentes provenant du même éditeur. ASP est une technologie beaucoup plus vieille.
 
-Et enfin la seconde partie signifie qu'il est basé sur **.NET**, la technologie phare de Microsoft.  
+Et enfin la seconde partie signifie qu'il est basé sur **.NET**, la technologie phare de Microsoft.
 ASP.NET inclut la génération du code HTML du code côté serveur, l'utilisation de la programmation orientée objet et des bibliothèques du Framework .NET.
 
 [[information]]
-|A noter que ASP.NET offre de bonnes performances du fait que votre programme est *compilé*. 
+|A noter que ASP.NET offre de bonnes performances du fait que votre programme est *compilé*.
 |Lorsque vous envoyez votre code sur le serveur, celui-ci reçoit un fichier *exécutable* et que le compilateur a déjà optimisé.
-|Cela permet d'avoir une exécution accélérée comparée à des langages comme python ou PHP. 
+|Cela permet d'avoir une exécution accélérée comparée à des langages comme python ou PHP.
 
 -> ![](/media/galleries/304/fe70d3e4-56a1-4cf4-a6be-a7981b7a14c4.png.960x960_q85.png) <-
 
 Lorsque le client va demander une page web, le moteur d'ASP.NET va décider quelle est l'**action** à effectuer, l'exécuter et générer la page HTML à partir des données traitées par l'action.
 
-ASP.NET est un framework qui vous offrira énormément de possibilités pour créer des applications web. Ci-dessous un schéma montrant les différentes couches de ASP.NET. 
+ASP.NET est un framework qui vous offrira énormément de possibilités pour créer des applications web. Ci-dessous un schéma montrant les différentes couches de ASP.NET.
 
 -> ![](/media/galleries/304/49edeb53-0d2a-4eba-b981-cf3afbd9e38e.png.960x960_q85.jpg)
 Figure: Les possibilités d'ASP.NET <-
 
-Le gros avantage d'ASP.NET, c'est qu'il se repose sur le framework .NET, ce qui lui donne accès à tout ce 
+Le gros avantage d'ASP.NET, c'est qu'il se repose sur le framework .NET, ce qui lui donne accès à tout ce
 que .NET a de mieux à vous offrir. Citons par exemple l'accès aux données, les tests unitaires, linq to SQL, etc.
 
 Nous découvrirons dans les chapitres suivants les deux dernières couches qui composent ASP.NET, à savoir ce qui concerne les Web Forms, les Web Pages et MVC.

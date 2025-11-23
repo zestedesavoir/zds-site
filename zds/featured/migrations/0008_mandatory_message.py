@@ -14,7 +14,6 @@ def revert(*_):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("featured", "0007_featuredrequested"),
     ]

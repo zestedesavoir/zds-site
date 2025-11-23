@@ -1,13 +1,14 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
-from django.urls import reverse, is_valid_path
+from django.urls import is_valid_path, reverse
 
+from zds.member.decorator import BlockedIPMixin
 from zds.member.forms import LoginForm
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
-class LoginView(LoginView):
+class LoginView(BlockedIPMixin, LoginView):
     form_class = LoginForm
     template_name = "member/login.html"
 
@@ -36,8 +37,9 @@ class LoginView(LoginView):
 
     def get_success_url(self):
         """In case of success, redirect to homepage for some special 'next' targets or non-existing pages."""
-        url = self.get_redirect_url()
-        if self.is_special(url) or not is_valid_path(url):
+        url = self.get_redirect_url()  # This is the value of the `next` GET param
+        # We want to keep GET parameters included in the `next` param, so validate only part before GET parameters:
+        if self.is_special(url) or not is_valid_path(url.split("?")[0]):
             url = settings.LOGIN_REDIRECT_URL
         return url
 

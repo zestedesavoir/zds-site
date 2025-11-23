@@ -1,5 +1,5 @@
 #title=Arch
-#desc=Utilisation de pacman / Testé sur Arch
+#desc=Utilisation de pacman / Non testé sur les versions récentes
 #updatecmd=pacman -Syu --noconfirm
 #installcmd=pacman -S --noconfirm
 git

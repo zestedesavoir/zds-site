@@ -1,8 +1,8 @@
 import os
 
-from django.http import HttpResponsePermanentRedirect, Http404
+from django.http import Http404, HttpResponsePermanentRedirect
 
-from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, DownloadViewMixin, MustRedirect
+from zds.tutorialv2.mixins import DownloadViewMixin, MustRedirect, SingleOnlineContentViewMixin
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
@@ -24,7 +24,6 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)
 
     def get(self, context, **response_kwargs):
-
         # fill the variables
         try:
             self.public_content_object = self.get_public_object()
@@ -69,15 +68,12 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
 
 class DownloadOnlineArticle(DownloadOnlineContent):
-
     current_content_type = "ARTICLE"
 
 
 class DownloadOnlineTutorial(DownloadOnlineContent):
-
     current_content_type = "TUTORIAL"
 
 
 class DownloadOnlineOpinion(DownloadOnlineContent):
-
     current_content_type = "OPINION"

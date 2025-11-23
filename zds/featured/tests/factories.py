@@ -2,7 +2,7 @@ from datetime import datetime
 
 import factory
 
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedMessage, FeaturedResource
 
 
 class FeaturedResourceFactory(factory.django.DjangoModelFactory):

@@ -9,12 +9,12 @@
 
 
 {% block content_out %}
-    <article class="content-wrapper" {% block article_schema %}{% endblock %}>
+    <article class="content-wrapper" itemscope itemtype="http://schema.org/Article">
         <header>
             {% block headline %}{% endblock %}
         </header>
         {% block content_page %}
-            <section class="article-content" {% block article_centent_schema %}{% endblock %}>
+            <section class="article-content">
                 {% block content %}{% endblock %}
             </section>
         {% endblock %}

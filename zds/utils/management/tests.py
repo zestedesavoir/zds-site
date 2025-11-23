@@ -1,27 +1,24 @@
+from django.contrib.auth.models import Permission, User
 from django.core.management import call_command
 from django.test import TestCase
 
-from django.contrib.auth.models import User, Permission
-from zds.member.models import Profile
-from zds.forum.models import Forum, Topic, ForumCategory
-from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
-from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.member.tests.factories import ProfileFactory
-from zds.tutorialv2.models.database import (
-    PublishableContent,
-    PublishedContent,
-    ContentReaction,
-    Validation as CValidation,
-)
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.forum.models import Forum, ForumCategory, Topic
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.gallery.models import Gallery, UserGallery
+from zds.member.models import Profile
+from zds.member.tests.factories import ProfileFactory
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import Validation as CValidation
+from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.management.commands.load_fixtures import Command as FixtureCommand
+from zds.utils.models import Category as TCategory
+from zds.utils.models import CategorySubCategory, Licence, SubCategory, Tag
 
 
 @override_for_contents()
 class CommandsTestCase(TutorialTestMixin, TestCase):
     def test_load_fixtures(self):
-
         args = []
         opts = {"modules": FixtureCommand.zds_resource_config}
         call_command("load_fixtures", *args, **opts)
@@ -62,3 +59,23 @@ class CommandsTestCase(TutorialTestMixin, TestCase):
 
         result = self.client.get("/?prof", follow=True)
         self.assertEqual(result.status_code, 200)
+
+    def test_remove_old_ip_addresses(self):
+        category = ForumCategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        user = ProfileFactory().user
+        topic = TopicFactory(forum=forum, author=user)
+        old_post = PostFactory(topic=topic, author=user, position=1)
+        old_post.pubdate = old_post.pubdate.replace(year=1999)
+        old_post.save()
+        recent_post = PostFactory(topic=topic, author=user, position=2)
+
+        self.assertNotEqual(old_post.ip_address, "")
+        self.assertNotEqual(recent_post.ip_address, "")
+
+        call_command("remove_one_year_old_ip_addresses")
+        old_post.refresh_from_db()
+        recent_post.refresh_from_db()
+
+        self.assertEqual(old_post.ip_address, "")
+        self.assertNotEqual(recent_post.ip_address, "")

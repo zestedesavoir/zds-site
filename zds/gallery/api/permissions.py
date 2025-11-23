@@ -1,6 +1,6 @@
-from rest_framework import permissions, exceptions
+from rest_framework import exceptions, permissions
 
-from zds.gallery.models import UserGallery, Gallery
+from zds.gallery.models import Gallery, UserGallery
 from zds.tutorialv2.models.database import PublishableContent
 
 

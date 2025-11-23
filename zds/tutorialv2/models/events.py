@@ -1,23 +1,28 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.dispatch import receiver
 
-from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2 import signals
-from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
+from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.views.authors import AddAuthorView, RemoveAuthorView
 from zds.tutorialv2.views.beta import ManageBetaContent
+from zds.tutorialv2.views.canonical import EditCanonicalLinkView
+from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
-from zds.tutorialv2.views.editorialization import EditContentTags, AddSuggestion, RemoveSuggestion
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.help import ChangeHelp
+from zds.tutorialv2.views.labels import EditLabels
+from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
+from zds.tutorialv2.views.tags import EditTags
+from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.validations_contents import (
-    ReserveValidation,
+    AcceptValidation,
+    ActivateJSFiddleInContent,
     AskValidationForContent,
     CancelValidation,
     RejectValidation,
-    AcceptValidation,
+    ReserveValidation,
     RevokeValidation,
-    ActivateJSFiddleInContent,
 )
 from zds.tutorialv2.views.validations_opinions import PublishOpinion, UnpublishOpinion
 
@@ -45,12 +50,16 @@ types = {
     signals.contributors_management: "contributors_management",
     signals.beta_management: "beta_management",
     signals.validation_management: "validation_management",
+    signals.thumbnail_management: "thumbnail_management",
     signals.tags_management: "tags_management",
+    signals.canonical_link_management: "canonical_link_management",
     signals.goals_management: "goals_management",
+    signals.labels_management: "labels_management",
     signals.suggestions_management: "suggestions_management",
     signals.help_management: "help_management",
     signals.jsfiddle_management: "jsfiddle_management",
     signals.opinions_management: "opinions_management",
+    signals.categories_management: "categories_management",
 }
 
 
@@ -90,8 +99,8 @@ def record_event_beta_management(sender, performer, signal, content, version, ac
     ).save()
 
 
-@receiver(signals.authors_management, sender=AddAuthorToContent)
-@receiver(signals.authors_management, sender=RemoveAuthorFromContent)
+@receiver(signals.authors_management, sender=AddAuthorView)
+@receiver(signals.authors_management, sender=RemoveAuthorView)
 def record_event_author_management(sender, performer, signal, content, author, action, **_):
     Event(
         performer=performer,
@@ -130,7 +139,16 @@ def record_event_validation_management(sender, performer, signal, content, versi
     ).save()
 
 
-@receiver(signals.tags_management, sender=EditContentTags)
+@receiver(signals.thumbnail_management, sender=EditThumbnailView)
+def record_event_thumbnail_management(sender, performer, signal, content, **_):
+    Event.objects.create(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    )
+
+
+@receiver(signals.tags_management, sender=EditTags)
 def record_event_tags_management(sender, performer, signal, content, **_):
     Event(
         performer=performer,
@@ -139,8 +157,17 @@ def record_event_tags_management(sender, performer, signal, content, **_):
     ).save()
 
 
-@receiver(signals.suggestions_management, sender=AddSuggestion)
-@receiver(signals.suggestions_management, sender=RemoveSuggestion)
+@receiver(signals.canonical_link_management, sender=EditCanonicalLinkView)
+def record_event_canonical_link_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    ).save()
+
+
+@receiver(signals.suggestions_management, sender=AddSuggestionView)
+@receiver(signals.suggestions_management, sender=RemoveSuggestionView)
 def record_event_suggestion_management(sender, performer, signal, content, action, **_):
     Event(
         performer=performer,
@@ -152,6 +179,24 @@ def record_event_suggestion_management(sender, performer, signal, content, actio
 
 @receiver(signals.goals_management, sender=EditGoals)
 def record_event_goals_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    ).save()
+
+
+@receiver(signals.labels_management, sender=EditLabels)
+def record_event_labels_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    ).save()
+
+
+@receiver(signals.categories_management, sender=EditCategoriesView)
+def record_event_categories_management(sender, performer, signal, content, **_):
     Event(
         performer=performer,
         type=types[signal],

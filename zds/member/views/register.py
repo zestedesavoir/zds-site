@@ -1,6 +1,5 @@
+import logging
 from datetime import datetime, timedelta
-
-from oauth2_provider.models import AccessToken
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,50 +7,26 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse
-from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView
 
-from zds.forum.models import Topic
-from zds.gallery.models import UserGallery
 from zds.member import NEW_ACCOUNT
-from zds.member.commons import (
-    ProfileCreate,
-    TokenGenerator,
-)
-from zds.member.forms import RegisterForm, UsernameAndEmailForm, LoginForm, UnregisterForm
-from zds.member.models import (
-    Profile,
-    TokenRegister,
-    KarmaNote,
-    Ban,
-    BannedEmailProvider,
-    NewEmailProvider,
-)
-from zds.member.utils import get_bot_account, get_anonymous_account, get_external_account
-from zds.member.views import get_client_ip
-from zds.mp.models import PrivatePost, PrivateTopic
-from zds.tutorialv2.models.database import PickListOperation
-from zds.tutorialv2.models.events import Event
-from zds.utils.models import (
-    Comment,
-    CommentVote,
-    Alert,
-    CommentEdit,
-    HatRequest,
-    get_hat_from_settings,
-)
-import logging
-
+from zds.member.commons import ProfileCreate, TokenGenerator
+from zds.member.decorator import BlockedIPMixin
+from zds.member.forms import LoginForm, RegisterForm, UnregisterForm, UsernameAndEmailForm
+from zds.member.models import NewEmailProvider, Profile, TokenRegister
+from zds.member.utils import get_anonymous_account, get_bot_account, get_client_ip
+from zds.member.utils import unregister as do_unregister
 from zds.mp.utils import send_mp
+from zds.utils.models import get_hat_from_settings
 
 
-class RegisterView(CreateView, ProfileCreate, TokenGenerator):
+class RegisterView(BlockedIPMixin, CreateView, ProfileCreate, TokenGenerator):
     """Create a profile."""
 
     form_class = RegisterForm
@@ -101,7 +76,6 @@ class SendValidationEmailView(FormView, TokenGenerator):
     usr = None
 
     def get_user(self, username, email):
-
         if username:
             self.usr = get_object_or_404(User, username=username)
 
@@ -167,7 +141,6 @@ def warning_unregister(request):
 
 @login_required
 @require_POST
-@transaction.atomic
 def unregister(request):
     """Allow members to unregister."""
 
@@ -181,79 +154,9 @@ def unregister(request):
             request, "member/settings/unregister.html", {"user": request.user, "unregister_form": unregister_form}
         )
 
-    anonymous = get_anonymous_account()
-    external = get_external_account()
-    current = request.user
-    # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
-    PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
-    PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
-
-    Event.objects.filter(performer=current).update(performer=external)
-    Event.objects.filter(author=current).update(author=external)
-    Event.objects.filter(contributor=current).update(contributor=external)
-
-    # Comments likes / dislikes
-    votes = CommentVote.objects.filter(user=current)
-    for vote in votes:
-        if vote.positive:
-            vote.comment.like -= 1
-        else:
-            vote.comment.dislike -= 1
-        vote.comment.save()
-    votes.delete()
-    # All contents anonymization
-    Comment.objects.filter(author=current).update(author=anonymous)
-    PrivatePost.objects.filter(author=current).update(author=anonymous)
-    CommentEdit.objects.filter(editor=current).update(editor=anonymous)
-    CommentEdit.objects.filter(deleted_by=current).update(deleted_by=anonymous)
-    # Karma notes, alerts and sanctions anonymization (to keep them)
-    KarmaNote.objects.filter(moderator=current).update(moderator=anonymous)
-    Ban.objects.filter(moderator=current).update(moderator=anonymous)
-    Alert.objects.filter(author=current).update(author=anonymous)
-    Alert.objects.filter(moderator=current).update(moderator=anonymous)
-    BannedEmailProvider.objects.filter(moderator=current).update(moderator=anonymous)
-    # Solved hat requests anonymization
-    HatRequest.objects.filter(moderator=current).update(moderator=anonymous)
-    # In case current user has been moderator in the past
-    Comment.objects.filter(editor=current).update(editor=anonymous)
-    for topic in PrivateTopic.objects.filter(Q(author=current) | Q(participants__in=[current])):
-        if topic.one_participant_remaining():
-            topic.delete()
-        else:
-            topic.remove_participant(current)
-            topic.save()
-    Topic.objects.filter(solved_by=current).update(solved_by=anonymous)
-    Topic.objects.filter(author=current).update(author=anonymous)
-
-    # Any content exclusively owned by the unregistering member will
-    # be deleted just before the User object (using a pre_delete
-    # receiver).
-    #
-    # Regarding galleries, there are two cases:
-    #
-    # - "personal galleries" with one owner (the unregistering
-    #   user). The user's ownership is removed and replaced by an
-    #   anonymous user in order not to lost the gallery.
-    #
-    # - "personal galleries" with many other owners. It is safe to
-    #   remove the user's ownership, the gallery won't be lost.
-
-    galleries = UserGallery.objects.filter(user=current)
-    for gallery in galleries:
-        if gallery.gallery.get_linked_users().count() == 1:
-            anonymous_gallery = UserGallery()
-            anonymous_gallery.user = external
-            anonymous_gallery.mode = "w"
-            anonymous_gallery.gallery = gallery.gallery
-            anonymous_gallery.save()
-    galleries.delete()
-
-    # Remove API access (tokens + applications)
-    for token in AccessToken.objects.filter(user=current):
-        token.revoke()
-
+    do_unregister(request.user)
     logout(request)
-    User.objects.filter(pk=current.pk).delete()
+
     return redirect(reverse("homepage"))
 
 

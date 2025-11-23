@@ -1,17 +1,17 @@
 from datetime import datetime, timedelta
-
-from django.conf import settings
-from django.test import TestCase
-from django.contrib.auth.models import Group
 from hashlib import md5
 
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.notification.models import TopicAnswerSubscription
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, DevProfileFactory
-from zds.member.models import TokenForgotPassword, TokenRegister, Profile
-from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.test import TestCase
+
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister
+from zds.member.tests.factories import DevProfileFactory, ProfileFactory, StaffProfileFactory
+from zds.notification.models import TopicAnswerSubscription
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory
 from zds.utils.models import Alert, Hat
 
 
@@ -29,22 +29,23 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
     def test_get_absolute_url_for_details_of_member(self):
         self.assertEqual(self.user1.get_absolute_url(), f"/@{self.user1.user.username}")
 
-    def test_get_avatar_url(self):
-        # if no url was specified -> gravatar !
-        self.assertIn("gravatar.com", self.user1.get_avatar_url())
+    def test_get_absolute_avatar_url(self):
+        # if no url was specified -> nothing !
+        self.assertEqual(self.user1.get_absolute_avatar_url(), None)
 
         # if an url is specified -> take it !
         user2 = ProfileFactory()
         testurl = "http://test.com/avatar.jpg"
         user2.avatar_url = testurl
-        self.assertEqual(user2.get_avatar_url(), testurl)
+        self.assertEqual(user2.get_absolute_avatar_url(), testurl)
 
         # if url is relative, send absolute url
-        gallerie_avtar = GalleryFactory()
-        image_avatar = ImageFactory(gallery=gallerie_avtar)
+        gallerie_avatar = GalleryFactory()
+        image_avatar = ImageFactory(gallery=gallerie_avatar)
         user2.avatar_url = image_avatar.physical.url
-        self.assertNotEqual(user2.get_avatar_url(), image_avatar.physical.url)
-        self.assertIn("http", user2.get_avatar_url())
+        self.assertNotEqual(user2.get_absolute_avatar_url(), image_avatar.physical.url)
+        self.assertIn(image_avatar.physical.url, user2.get_absolute_avatar_url())
+        self.assertIn("http", user2.get_absolute_avatar_url())
 
     def test_get_post_count(self):
         # Start with 0
@@ -61,17 +62,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         TopicFactory(forum=self.forum, author=self.user1.user)
         # Should be 1
         self.assertEqual(self.user1.get_topic_count(), 1)
-
-    def test_get_tuto_count(self):
-        # Start with 0
-        self.assertEqual(self.user1.get_tuto_count(), 0)
-        # Create Tuto !
-        minituto = PublishableContentFactory(type="TUTORIAL")
-        minituto.authors.add(self.user1.user)
-        minituto.gallery = GalleryFactory()
-        minituto.save()
-        # Should be 1
-        self.assertEqual(self.user1.get_tuto_count(), 1)
 
     def test_get_tutos(self):
         # Start with 0
@@ -139,17 +129,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         betatetutos = self.user1.get_beta_tutos()
         self.assertEqual(len(betatetutos), 1)
         self.assertEqual(betatetuto, betatetutos[0])
-
-    def test_get_article_count(self):
-        # Start with 0
-        self.assertEqual(self.user1.get_tuto_count(), 0)
-        # Create article !
-        minituto = PublishableContentFactory(type="ARTICLE")
-        minituto.authors.add(self.user1.user)
-        minituto.gallery = GalleryFactory()
-        minituto.save()
-        # Should be 1
-        self.assertEqual(self.user1.get_article_count(), 1)
 
     def test_get_articles(self):
         # Start with 0
@@ -257,7 +236,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertEqual(self.user1.get_active_alerts_count(), 1)
 
     def test_can_read_now(self):
-
         profile = ProfileFactory()
         profile.is_active = True
         profile.can_read = True
@@ -284,7 +262,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertFalse(self.user1.can_read_now())
 
     def test_can_write_now(self):
-
         self.user1.user.is_active = True
         self.user1.user.can_write = True
         self.assertTrue(self.user1.can_write_now())

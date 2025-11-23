@@ -54,38 +54,30 @@ Les autres verbes ne sont pas supportés.
 Les formats d'entrées/sorties
 -----------------------------
 
-Par défaut, le serveur renvoie les réponses au format ``JSON`` mais il gère aussi le ``XML``. Pour demander au serveur de renvoyer les réponses en ``XML``, il faut utiliser l'en-tête ``Accept`` en spécifiant ``application/xml`` comme valeur (``application/json`` pour recevoir du ``JSON``).
-
-.. sourcecode:: bash
-
-    $ curl -H "Accept: application/xml" https://zestedesavoir.com/api/membres/
-
-Les `formats de sortie (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
+Par défaut, le serveur renvoie les réponses au format ``JSON``. Les `formats de sortie (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``zds/settings/abstract_base/django.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
 
 .. sourcecode:: python
 
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
-            'rest_framework.renderers.XMLRenderer',
             'rest_framework.renderers.BrowsableAPIRenderer',
         ),
     }
 
-Plusieurs formats d'entrées sont supportés par le serveur, à savoir le ``JSON`` (par défaut), l'``XML``, le formulaire et le multi part (``x-www-form-urlencoded``). Ces formats peuvent être renseignées avec l'en-tête ``Content-Type``.
+Plusieurs formats d'entrées sont supportés par le serveur, à savoir le ``JSON`` (par défaut), le formulaire et le multi part (``x-www-form-urlencoded``). Ces formats peuvent être renseignées avec l'en-tête ``Content-Type``.
 
 .. sourcecode:: bash
 
-    $ curl -H "Content-Type: application/xml" https://zestedesavoir.com/api/membres/
+    $ curl -H "Content-Type: application/x-www-form-urlencoded" https://zestedesavoir.com/api/membres/
 
-Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
+Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``zds/settings/abstract_base/django.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
 
 .. sourcecode:: python
 
     REST_FRAMEWORK = {
         'DEFAULT_PARSER_CLASSES': (
             'rest_framework.parsers.JSONParser',
-            'rest_framework.parsers.XMLParser',
             'rest_framework.parsers.FormParser',
             'rest_framework.parsers.MultiPartParser',
         ),
@@ -149,7 +141,7 @@ Si le serveur constate qu'il n'y a aucun changement dans la ressource, il renver
 Throttling
 ----------
 
-Le `throttling` permet d'imposer des limites au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier ``settings.py`` du projet sous l'attribut ``DEFAULT_THROTTLE_CLASSES`` du dictionnaire ``REST_FRAMEWORK`` pour spécifier les types de throttling à appliquer et sous ``DEFAULT_THROTTLE_RATES`` pour spécifier les taux.
+Le `throttling` permet d'imposer des limites au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier ``zds/settings/abstract_base/django.py`` du projet sous l'attribut ``DEFAULT_THROTTLE_CLASSES`` du dictionnaire ``REST_FRAMEWORK`` pour spécifier les types de throttling à appliquer et sous ``DEFAULT_THROTTLE_RATES`` pour spécifier les taux.
 
 .. sourcecode:: python
 
@@ -171,14 +163,12 @@ Pagination
 
 La pagination permet d'éviter au serveur de faire des requêtes trop lourdes sur la base de données. Par exemple, si un client désire récupérer la liste de tous les utilisateurs de la plateforme et que cette même plateforme dispose d'un très grand nombre d'utilisateurs, la requête en base de données pourrait être lourde. Coupler à ceci des intentions malveillantes pour faire tomber le serveur, paginer les listes de ressources est presque une mesure de sécurité.
 
-La pagination peut être configurée directement dans les vues de l'API mais aussi dans le fichier ``settings.py`` pour s'appliquer à l'ensemble des listes des ressources de l'API. Dans le fichier ``settings.py``, ``PAGINATE_BY`` renseigne la taille d'une page, ``PAGINATE_BY_PARAM`` permet aux clients de modifier la taille d'une page et ``MAX_PAGINATE_BY`` permet d'imposer une taille maximale.
+La pagination peut être configurée directement dans les vues de l'API mais aussi par le biais d'une classe Python. Cette classe doit être renseignée dans le configuration de l'API dans le fichier ``zds/settings/abstract_base/django.py``.
 
 .. sourcecode:: python
 
     REST_FRAMEWORK = {
-        'PAGINATE_BY': 10,                  # Default to 10
-        'PAGINATE_BY_PARAM': 'page_size',   # Allow client to override, using `?page_size=xxx`.
-        'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
+        "DEFAULT_PAGINATION_CLASS": "zds.api.pagination.DefaultPagination",
     }
 
 Toutes les informations complémentaires à ce sujet sont disponibles dans la `documentation de la pagination (en) <http://www.django-rest-framework.org/api-guide/pagination/>`_.

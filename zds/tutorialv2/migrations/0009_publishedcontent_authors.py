@@ -1,5 +1,5 @@
-from django.db import models, migrations
 from django.conf import settings
+from django.db import migrations, models
 
 
 def put_authors(apps, schema_editor):
@@ -11,7 +11,6 @@ def put_authors(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("tutorialv2", "0008_publishedcontent_update_date"),

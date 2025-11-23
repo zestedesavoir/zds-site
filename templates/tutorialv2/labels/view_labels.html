@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load profile %}
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+{% load times %}
+
+
+{% block title %}
+    {{ headline }}
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <li>{{ headline }}</li>
+{% endblock %}
+
+{% block headline %}
+    {{ headline }}
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
+        <h3>Filtrer</h3>
+        <ul>
+            {% for label in labels %}
+                <li>
+                    <a href="{% url 'content:view-labels' label.slug %}" class="{% if current_filter_pk == label.pk %}selected{% endif %}">{{ label.name }} ({{ label.num_contents }})</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="flexpage-wrapper">
+    {% if current_description %}
+        <p>{{ current_description }}</p>
+    {% endif %}
+    {% if not contents %}
+        <p>{% trans "Il n'y a pas de publication avec ce label." %}</p>
+    {% else %}
+        {% include "misc/paginator.html" with position="top" %}
+        <div class="content-item-list">
+            {% for content in contents %}
+                {% include "tutorialv2/includes/content_item.part.html" with public_content=content.public_version show_description=True show_reactions=True ignore_categories=ignore_categories %}
+            {% endfor %}
+            {% for i in 1|times %}
+                <div class="fill"></div>
+            {% endfor %}
+        </div>
+        {% include "misc/paginator.html" with position="bottom" %}
+    {% endif %}
+
+</section>
+{% endblock %}

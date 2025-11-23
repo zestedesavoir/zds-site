@@ -1,48 +1,27 @@
-import ipaddress
+import logging
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpResponseBadRequest
-from django.urls import reverse
 from django.http import Http404
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from zds.member.commons import (
-    TemporaryReadingOnlySanction,
-    ReadingOnlySanction,
-    DeleteReadingOnlySanction,
-    TemporaryBanSanction,
     BanSanction,
     DeleteBanSanction,
+    DeleteReadingOnlySanction,
+    ReadingOnlySanction,
+    TemporaryBanSanction,
+    TemporaryReadingOnlySanction,
 )
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import MiniProfileForm
-from zds.member.models import Profile, KarmaNote
-import logging
-
-
-@login_required
-@permission_required("member.change_profile", raise_exception=True)
-def member_from_ip(request, ip_address):
-    """List users connected from a particular IP, and an IPV6 subnetwork."""
-
-    members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
-    members_and_ip = {"members": members, "ip": ip_address}
-
-    if ":" in ip_address:  # Check if it's an IPV6
-        network_ip = ipaddress.ip_network(ip_address + "/64", strict=False).network_address  # Get the network / block
-        # Remove the additional ":" at the end of the network adresse, so we can filter the IP adresses on this network
-        network_ip = str(network_ip)[:-1]
-        network_members = Profile.objects.filter(last_ip_address__startswith=network_ip).order_by("-last_visit")
-        members_and_ip["network_members"] = network_members
-        members_and_ip["network_ip"] = network_ip
-
-    return render(request, "member/admin/memberip.html", members_and_ip)
+from zds.member.models import KarmaNote, Profile
 
 
 @login_required
@@ -163,19 +142,24 @@ def modify_profile(request, user_pk):
 
     try:
         ban = state.get_sanction(request.user, profile.user)
-    except ValueError:
-        raise HttpResponseBadRequest
-
-    state.apply_sanction(profile, ban)
-
-    if "un-ls" in request.POST or "un-ban" in request.POST:
-        msg = state.get_message_unsanction()
+    except (ValueError, TypeError):
+        # These exception can be raised if content of the POST parameters are
+        # not correctly (eg, empty string instead of integer), making the
+        # object state having invalid data. The validity of parameters should
+        # be checked when creating the `state` object above.
+        messages.error(request, _("Une erreur est survenue lors de la récupération de la sanction."))
     else:
-        msg = state.get_message_sanction()
+        state.apply_sanction(profile, ban)
 
-    msg = msg.format(
-        ban.user, ban.moderator, ban.type, state.get_detail(), ban.note, settings.ZDS_APP["site"]["literal_name"]
-    )
+        if "un-ls" in request.POST or "un-ban" in request.POST:
+            msg = state.get_message_unsanction()
+        else:
+            msg = state.get_message_sanction()
 
-    state.notify_member(ban, msg)
+        msg = msg.format(
+            ban.user, ban.moderator, ban.type, state.get_detail(), ban.note, settings.ZDS_APP["site"]["literal_name"]
+        )
+
+        state.notify_member(ban, msg)
+
     return redirect(profile.get_absolute_url())

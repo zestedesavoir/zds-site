@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% if user.is_authenticated and user not in content.authors.all %}
+    <div class="warn-typo">
+        <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">
+            {% if not container %}
+                {% trans "Signaler une faute dans cette publication" %}
+            {% elif container.is_chapter %}
+                {% trans "Signaler une faute dans ce chapitre" %}
+            {% else %}
+                {% trans "Signaler une faute dans cette partie" %}
+            {% endif %}
+        </a>
+
+        {% crispy form_warn_typo %}
+    </div>
+
+{% endif %}

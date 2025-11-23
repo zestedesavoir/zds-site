@@ -1,27 +1,26 @@
+import os
 from uuid import uuid4
 
+from django.conf import settings
 from django.core.cache import caches
 from django.urls import reverse
-from django.conf import settings
-
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds.gallery.tests.factories import UserGalleryFactory, GalleryFactory, ImageFactory
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image, GALLERY_READ
+from zds.api.utils import authenticate_oauth2_client
+from zds.gallery.models import GALLERY_READ, GALLERY_WRITE, Gallery, Image, UserGallery
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
-from zds.member.api.tests import create_oauth2_client, authenticate_client
-from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import PublishableContentFactory
 
 
 class GalleryListAPITest(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -34,7 +33,6 @@ class GalleryListAPITest(APITestCase):
         self.assertIsNone(response.data.get("previous"))
 
     def test_get_list_of_gallery(self):
-
         gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=gallery)
         response = self.client.get(reverse("api:gallery:list"))
@@ -92,8 +90,7 @@ class GalleryDetailAPITest(TutorialTestMixin, APITestCase):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
 
@@ -209,7 +206,6 @@ class GalleryDetailAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(UserGallery.objects.filter(gallery=self.gallery).count(), 1)
 
     def test_delete_fail_linked_content(self):
-
         response = self.client.delete(reverse("api:gallery:detail", kwargs={"pk": self.gallery_tuto.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -223,8 +219,7 @@ class ImageListAPITest(APITestCase):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
@@ -281,21 +276,24 @@ class ImageListAPITest(APITestCase):
     def test_post_fail_add_image_not_an_image(self):
         title = "un super titre pour une image"
         legend = "une super legende aussi"
-        file_id = str(uuid4())
+        filename = str(uuid4()) + ".svgz"
         # generate a bare empty file so that the test continues and sends error message
-        with open(file_id + ".svgz", "w"):
+        with open(filename, "w"):
             pass
-        response = self.client.post(
-            reverse("api:gallery:list-images", kwargs={"pk_gallery": self.gallery.pk}),
-            {
-                "title": title,
-                "legend": legend,
-                "physical": open(file_id + ".svgz", "rb"),
-            },
-            format="multipart",
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+        try:
+            response = self.client.post(
+                reverse("api:gallery:list-images", kwargs={"pk_gallery": self.gallery.pk}),
+                {
+                    "title": title,
+                    "legend": legend,
+                    "physical": open(filename, "rb"),
+                },
+                format="multipart",
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+        finally:
+            os.remove(filename)
 
     def test_post_can_add_image_svg_image(self):
         title = "un super titre pour une image svg"
@@ -356,8 +354,7 @@ class ImageDetailAPITest(APITestCase):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
@@ -504,8 +501,7 @@ class ParticipantListAPITest(TutorialTestMixin, APITestCase):
         self.other = ProfileFactory()
         self.client = APIClient()
         self.new_participant = ProfileFactory()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
@@ -618,8 +614,7 @@ class ParticipantDetailAPITest(TutorialTestMixin, APITestCase):
         self.other = ProfileFactory()
         self.new_participant = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)

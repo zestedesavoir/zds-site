@@ -1,19 +1,18 @@
 from django.test import TestCase
 
-from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import (
-    RegisterForm,
-    MiniProfileForm,
-    ProfileForm,
-    ChangeUserForm,
     ChangePasswordForm,
-    NewPasswordForm,
+    ChangeUserForm,
     KarmaForm,
-    UsernameAndEmailForm,
+    MiniProfileForm,
+    NewPasswordForm,
+    ProfileForm,
+    RegisterForm,
     UnregisterForm,
+    UsernameAndEmailForm,
 )
 from zds.member.models import BannedEmailProvider
-from zds.member.tests.factories import StaffProfileFactory
+from zds.member.tests.factories import NonAsciiProfileFactory, ProfileFactory, StaffProfileFactory
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
 stringof251chars = (
@@ -163,6 +162,17 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
+    def test_username_character_null(self):
+        ProfileFactory()
+        data = {
+            "email": "test@gmail.com",
+            "username": "foo\x00bar",
+            "password": "ZePassword",
+            "password_confirm": "ZePassword",
+        }
+        form = RegisterForm(data=data)
+        self.assertFalse(form.is_valid())
+
 
 class UnregisterFormTest(TestCase):
     """
@@ -213,7 +223,6 @@ class MiniProfileFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_too_long_site_url_miniprofile_form(self):
-
         # url is one char too long
         data = {"biography": "", "site": stringof2001chars, "avatar_url": "", "sign": ""}
         form = MiniProfileForm(data=data)

@@ -72,7 +72,8 @@
                         {% for validation in validations %}
                             <tr>
                                 <td>
-                                    <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}">
+                                    {% url "content:validation-view" pk=validation.content.pk slug=validation.content.slug as url_validation_version %}
+                                    <a href="{{ url_validation_version }}">
                                         {{ validation.versioned_content.title }}
                                     </a>
                                     <br>

@@ -1,23 +1,23 @@
-from django.contrib.auth.models import Group
-
 import datetime
+
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
+    PublishableContentFactory,
     PublishedContentFactory,
     ValidationFactory,
 )
-from zds.tutorialv2.publication_utils import publish_content
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.gallery.tests.factories import UserGalleryFactory
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
-from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import CategoryFactory, LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()
@@ -118,7 +118,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         context_categories = list(resp.context_data["categories"])
         self.assertEqual(context_categories[0].contents_count, 10)
-        self.assertEqual(context_categories[0].subcategories, [subcategory_1, subcategory_2])
+        self.assertCountEqual(context_categories[0].subcategories, [subcategory_1, subcategory_2])
         self.assertIn(category_1, context_categories)
 
     def test_private_lists(self):

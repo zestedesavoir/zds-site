@@ -1,11 +1,11 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder
+from crispy_forms.layout import ButtonHolder, Field, Layout
 from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedMessage, FeaturedResource
 
 
 class FeaturedResourceForm(forms.ModelForm):
@@ -31,20 +31,8 @@ class FeaturedResourceForm(forms.ModelForm):
     )
 
     pubdate = forms.DateTimeField(
-        label=_("Date de publication (exemple: 25/12/2015 15:00 ou 2015-12-25T15:00)"),
-        input_formats=[
-            "%d/%m/%Y %H:%M:%S",
-            "%Y-%m-%d %H:%M:%S",  # full format with second
-            "%Y-%m-%dT%H:%M",  # datetime field format
-            "%Y-%m-%d %H:%M",
-            "%d/%m/%Y %H:%M",  # without second
-            "%Y-%m-%d",
-            "%d/%m/%Y",  # day only
-        ],
-        widget=forms.DateTimeInput(
-            attrs={"placeholder": _("Exemple : 25/12/2016 10:00"), "type": "text"},
-            format="%d/%m/%Y %H:%M",  # datetime field format
-        ),
+        label=_("Date de publication (exemple: 25/12/2015 15:00)"),
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
     )
 
     request = forms.IntegerField(widget=forms.HiddenInput(), required=False)

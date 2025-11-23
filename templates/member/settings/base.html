@@ -40,6 +40,7 @@
                 {% if user.profile.is_dev %}
                     <li><a href="{% url "update-github" %}">{% trans "Token GitHub" %}</a></li>
                 {% endif %}
+                <li><a href="{% url "list-sessions" %}">{% trans "Gestion des sessions" %}</a></li>
                 <li><a href="{% url "member-warning-unregister" %}">{% trans "Désinscription" %}</a></li>
             </ul>
         </div>

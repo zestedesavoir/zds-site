@@ -1,7 +1,7 @@
-Comme nous l'avons vu dans la première partie, lorsque l'utilisateur veut obtenir une page, il envoie une *requête* au serveur.  
+Comme nous l'avons vu dans la première partie, lorsque l'utilisateur veut obtenir une page, il envoie une *requête* au serveur.
 Le premier défi du serveur sera de comprendre quel contrôleur vous désirez utiliser et quelle action vous désirez faire. Une **action** est simplement une méthode d'une classe de contrôleur.
 
-Cette étape s'appelle le **routage**[^route].  
+Cette étape s'appelle le **routage**[^route].
 
 Une fois que le serveur sait quelle action il doit appeler, il va regarder s'il a le droit de l'appeler : la requête va passer par des **filtres**.
 

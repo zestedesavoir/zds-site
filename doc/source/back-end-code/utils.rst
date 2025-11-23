@@ -39,4 +39,3 @@ Autres (``misc.py``)
 
 .. automodule:: zds.utils.misc
     :members:
-

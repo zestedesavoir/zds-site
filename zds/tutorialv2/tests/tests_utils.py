@@ -1,40 +1,45 @@
+import datetime
 import os
 import shutil
 from pathlib import Path
-import datetime
 
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-    ContentReactionFactory,
-)
+from zds import json_handler
 from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.database import ContentReaction, ContentRead, PublishableContent, PublishedContent
 from zds.tutorialv2.models.versioned import Container
+from zds.tutorialv2.publication_utils import (
+    Publicator,
+    PublicatorRegistry,
+    ZMarkdownRebberLatexPublicator,
+    publish_content,
+    unpublish_content,
+)
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import (
+    ContainerFactory,
+    ContentReactionFactory,
+    ExtractFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+)
 from zds.tutorialv2.utils import (
+    BadManifestError,
+    get_commit_author,
+    get_content_from_json,
     get_target_tagged_tree_for_container,
     get_target_tagged_tree_for_extract,
     last_participation_is_old,
-    BadManifestError,
-    get_content_from_json,
-    get_commit_author,
 )
-from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError, check_slug
-from zds.tutorialv2.publication_utils import publish_content, unpublish_content
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
-from django.core.management import call_command
-from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry, ZMarkdownRebberLatexPublicator
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds import json_handler
-from zds.utils.tests.factories import LicenceFactory
-from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
+from zds.utils.models import Alert
+from zds.utils.tests.factories import LicenceFactory
+from zds.utils.validators import InvalidSlugError, check_slug, slugify_raise_on_invalid
 
 
 @override_for_contents()
@@ -342,8 +347,6 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = True  # this test need PDF build, if any
-
         tuto = PublishedContentFactory(type="TUTORIAL")  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
 
@@ -556,7 +559,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         reaction = ContentReactionFactory(
             related_content=published, author=ProfileFactory().user, position=1, pubdate=datetime.datetime.now()
         )
-        Alert.objects.create(
+        alert = Alert.objects.create(
             scope="CONTENT",
             comment=reaction,
             text="a text",
@@ -568,6 +571,15 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(1, get_header_notifications(staff)["alerts"]["total"])
         unpublish_content(published, staff)
         self.assertEqual(0, get_header_notifications(staff)["alerts"]["total"])
+
+        # Try to solve the alert anyway (related to #6478):
+        self.client.force_login(self.staff)
+        result = self.client.post(
+            reverse("content:resolve-content", kwargs={"pk": published.pk}),
+            {"alert_pk": alert.pk, "text": "Anéfé!"},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 404)
 
     def tearDown(self):
         super().tearDown()
@@ -587,9 +599,6 @@ class UtilsExportOnlyReadyToPublishTests(TutorialTestMixin, TestCase):
         self.user_author = ProfileFactory().user
 
         self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
-        self.old_build_pdf_when_published = self.overridden_zds_app["content"]["build_pdf_when_published"]
-
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = True
 
     def get_latex_file_path(self, published: PublishedContent):
         """
@@ -847,4 +856,3 @@ class UtilsExportOnlyReadyToPublishTests(TutorialTestMixin, TestCase):
     def tearDown(self):
         super().tearDown()
         PublicatorRegistry.registry = self.old_registry
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = self.old_build_pdf_when_published

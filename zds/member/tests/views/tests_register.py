@@ -3,28 +3,26 @@ from datetime import datetime
 from smtplib import SMTPException
 from unittest.mock import Mock
 
-from oauth2_provider.models import AccessToken, Application
-
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core import mail
 from django.core.mail.backends.base import BaseEmailBackend
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.html import escape
-from django.test import TestCase, override_settings
+from oauth2_provider.models import AccessToken, Application
 
-from zds.member.tests.factories import ProfileFactory, UserFactory, StaffProfileFactory
-from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.member.models import KarmaNote, NewEmailProvider
+from zds.forum.models import Post, Topic
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.gallery.models import Gallery, UserGallery
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
+from zds.member.models import Ban, KarmaNote, NewEmailProvider, TokenRegister
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.member.models import TokenRegister, Ban
-from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
+from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.forum.models import Topic, Post
-from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
-from zds.gallery.models import Gallery, UserGallery
+from zds.tutorialv2.tests.factories import BetaContentFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils.models import CommentVote
 
 
@@ -80,22 +78,27 @@ class TestRegister(TutorialTestMixin, TestCase):
         # check if the new user is active.
         self.assertTrue(User.objects.get(username="firm1").is_active)
 
-    def test_unregister(self):
-        """
-        To test that unregistering user is working.
-        """
-
-        # test not logged user can't unregister.
+    def test_unauthenticated_user_cant_unregister(self):
+        """An unauthenticated user shall not be able to unregister."""
         self.client.logout()
         result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # test logged user can unregister.
+    def test_unregister_base_case(self):
+        """
+        An authenticated user shall be able to unregister.
+        Base case with no content, API keys, etc. attached to the user.
+        """
         user = ProfileFactory()
         self.client.force_login(user.user)
         result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
+
+    def test_unregister_with_attached_artefacts(self):
+        """
+        Test unregistering a user with many contents, PM, API keys...
+        """
 
         # Attach a user at tutorials, articles, topics and private topics. After that,
         # unregister this user and check that he is well removed in all contents.
@@ -323,7 +326,14 @@ class TestRegister(TutorialTestMixin, TestCase):
             },
             # username with utf8mb4 chars
             {
-                "username": " firm1",
+                "username": "🍆firm1",
+                "password": "flavour",
+                "password_confirm": "flavour",
+                "email": "firm1@zestedesavoir.com",
+            },
+            # username with non-printable-character
+            {
+                "username": "\u0020\u202efirm1",
                 "password": "flavour",
                 "password_confirm": "flavour",
                 "email": "firm1@zestedesavoir.com",

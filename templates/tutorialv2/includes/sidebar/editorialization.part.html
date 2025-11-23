@@ -1,0 +1,102 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% if display_config.enable_editorialization %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
+        <h3>Éditorialisation</h3>
+        <ul>
+            <li>
+                <a href="#edit-tags" class="open-modal ico-after gear blue">
+                    {% trans "Modifier les tags" %}
+                </a>
+                {% crispy form_edit_tags %}
+            </li>
+
+            <li>
+                <a href="#edit-canonical-link" class="open-modal ico-after gear blue">
+                    {% trans "Modifier le lien canonique" %}
+                </a>
+                {% crispy form_edit_canonical_link %}
+            </li>
+
+            {% if perms.tutorialv2.change_publishablecontent %}
+                <li>
+                    <a href="#edit-goals" class="open-modal ico-after gear blue">
+                        {% trans "Modifier les objectifs" %}
+                    </a>
+                    {% crispy form_edit_goals %}
+                </li>
+            {% endif %}
+
+            {% if perms.tutorialv2.change_publishablecontent %}
+                <li>
+                    <a href="#edit-labels" class="open-modal ico-after gear blue">
+                        {% trans "Modifier les labels" %}
+                    </a>
+                    {% crispy form_edit_labels %}
+                </li>
+            {% endif %}
+
+            {% if perms.tutorialv2.change_publishablecontent %}
+                <li>
+                    <a href="#add-suggestion" class="open-modal ico-after more blue">
+                        {% trans "Ajouter une suggestion" %}
+                    </a>
+                    {% crispy form_add_suggestion %}
+                </li>
+                <li>
+                    <a href="#manage-suggestion" class="open-modal ico-after gear blue">
+                        {% trans "Gérer les suggestions" %}
+                    </a>
+                    <form action="{% url "content:remove-suggestion" content.pk  %}" method="post" class="modal modal-large" id="manage-suggestion" data-modal-close="Fermer">
+                        <table class="fullwidth">
+                            <thead>
+                                <th>{% trans "Contenus suggérés" %}</th>
+                                <th width="15%">{% trans "Actions" %}</th>
+                            </thead>
+                            <tbody>
+                                {% for content_suggestion in content_suggestions %}
+                                    <tr>
+                                        <td>{{content_suggestion.suggestion.title}}</td>
+                                        <td>
+                                            <button type="submit" data-value="{{ content_suggestion.pk }}" name="pk_suggestion" value="{{ content_suggestion.pk }}" class="modal-inner">
+                                                {% trans "Supprimer" %}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="2">Aucune suggestion de contenu.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% csrf_token %}
+                    </form>
+                </li>
+            {% endif %}
+
+            {% if perms.tutorialv2.change_validation %}
+               <li>
+                    <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="ico-after alert blue">
+                            {% if is_obsolete %}
+                                {% trans "Marquer comme non obsolète" %}
+                            {% else %}
+                                {% trans "Marquer comme obsolète" %}
+                            {% endif %}
+                        </button>
+                    </form>
+                </li>
+            {% endif %}
+
+            {% if perms.featured.change_featuredresource %}
+                <li>
+                    <a href="{% url "featured:resource-create" %}?content_type=published_content&amp;content_id={{ content.pk }}"
+                       class="ico-after star blue">
+                        {% trans "Ajouter en une" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

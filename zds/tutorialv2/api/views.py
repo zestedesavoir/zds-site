@@ -10,23 +10,15 @@ from rest_framework.fields import empty
 from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer, CharField, BooleanField
+from rest_framework.serializers import BooleanField, CharField, Serializer
 from rest_framework.views import APIView
 
-from zds.member.api.permissions import (
-    CanReadAndWriteNowOrReadOnly,
-    IsNotOwnerOrReadOnly,
-    IsAuthorOrStaff,
-)
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsAuthorOrStaff, IsNotOwnerOrReadOnly
+from zds.tutorialv2.api.serializers import PublicationEventSerializer
+from zds.tutorialv2.models.database import ContentReaction, PublicationEvent, PublishableContent
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
-from zds.tutorialv2.api.serializers import PublicationEventSerializer
-from zds.tutorialv2.models.database import (
-    ContentReaction,
-    PublishableContent,
-    PublicationEvent,
-)
 
 
 class ContainerReadinessSerializer(Serializer):
@@ -99,10 +91,8 @@ class ExportView(APIView):
     def ensure_directories(self, content: PublishableContent):
         final_directory = Path(content.public_version.get_extra_contents_directory())
         building_directory = Path(str(final_directory.parent) + "__building", final_directory.name)
-        with contextlib.suppress(FileExistsError):
-            final_directory.mkdir(parents=True)
-        with contextlib.suppress(FileExistsError):
-            building_directory.mkdir(parents=True)
+        final_directory.mkdir(parents=True, exist_ok=True)
+        building_directory.mkdir(parents=True, exist_ok=True)
         return building_directory, final_directory
 
     def post(self, request, *args, **kwargs):

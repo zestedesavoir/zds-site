@@ -1,9 +1,8 @@
 import datetime
+import os
 import shutil
 import tempfile
 import zipfile
-
-import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -11,51 +10,42 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.http import HttpResponseNotAllowed
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
-from zds.forum.models import Topic, Post, TopicRead
+from zds import json_handler
+from zds.forum.models import Post, Topic, TopicRead
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.gallery.models import UserGallery, Gallery
-from zds.gallery.models import Image
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.mp.models import PrivateTopic, PrivatePost
-from zds.notification.models import (
-    ContentReactionAnswerSubscription,
-    NewPublicationSubscription,
-    Notification,
-)
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-    tricky_text_content,
-    BetaContentFactory,
-    HelpWritingFactory,
-)
-from zds.tutorialv2.models.database import (
-    PublishableContent,
-    Validation,
-    PublishedContent,
-)
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription, Notification
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, Validation
+from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.publication_utils import (
-    PublicatorRegistry,
     Publicator,
-    ZMarkdownRebberLatexPublicator,
+    PublicatorRegistry,
     ZMarkdownEpubPublicator,
+    ZMarkdownRebberLatexPublicator,
 )
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds import json_handler
+from zds.tutorialv2.tests.factories import (
+    BetaContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+    HelpWritingFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+    tricky_text_content,
+)
+from zds.tutorialv2.tests.utils import request_validation
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()
 class ContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
@@ -85,11 +75,16 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
-
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=self.overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=self.overridden_zds_app["member"]["external_account"], password="anything")
+
+        bot_group = Group(name=self.overridden_zds_app["member"]["bot_group"])
+        bot_group.save()
+
+        self.profile_external = ProfileFactory()
+        self.profile_external.user.username = settings.ZDS_APP["member"]["external_account"]
+        self.profile_external.user.save()
+        self.profile_external.user.groups.add(bot_group)
+
         self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
 
         class TestPdfPublicator(Publicator):
@@ -231,10 +226,25 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
-    def test_basic_tutorial_workflow(self):
-        """General test on the basic workflow of a tutorial: creation, edition, deletion for the author"""
+    def test_create_tutorial(self):
+        """Test the creation of a new content."""
+        self.client.force_login(self.user_author)
 
-        # login with author
+        title = "un titre"
+        result = self.client.post(
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
+            {"title": title, "type": "TUTORIAL"},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+
+        tuto = PublishableContent.objects.last()
+        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
+
+    def test_basic_tutorial_workflow(self):
+        """General test on the basic workflow of a tutorial: edition, deletion for the author"""
         self.client.force_login(self.user_author)
 
         # create tutorial
@@ -245,92 +255,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         random = "un truc à la rien à voir"
         random_with_md = "un text contenant du **markdown** ."
 
-        response = self.client.post(
-            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "text": random_with_md,
-                "preview": "",
-            },
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
-
-        self.assertEqual(200, response.status_code)
-
-        result_string = "".join(str(a, "utf-8") for a in response.streaming_content)
-        self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
-
-        result = self.client.post(
-            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": title,
-                "description": description,
-                "introduction": intro,
-                "conclusion": conclusion,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "image": (settings.BASE_DIR / "fixtures" / "noir_black.png").open("rb"),
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.all().count(), 2)
-
-        tuto = PublishableContent.objects.last()
+        tuto = PublishableContentFactory(type="TUTORIAL")
+        tuto.authors.add(self.user_author)
         pk = tuto.pk
         slug = tuto.slug
-        versioned = tuto.load_version()
-
-        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
-        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
-        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
-
-        # access to tutorial
-        result = self.client.get(reverse("content:edit", args=[pk, slug]), follow=False)
-        self.assertEqual(result.status_code, 200)
-
-        # preview tutorial
-        result = self.client.post(
-            reverse("content:edit", args=[pk, slug]),
-            {"text": random_with_md, "last_hash": versioned.compute_hash(), "preview": ""},
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
-
-        self.assertEqual(result.status_code, 200)
-
-        result_string = "".join(a.decode() for a in result.streaming_content)
-        self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
-
-        result = self.client.post(
-            reverse("content:edit", args=[pk, slug]),
-            {
-                "title": random,
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-
-        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 2)  # new icon is uploaded
-
-        tuto = PublishableContent.objects.get(pk=pk)
-        self.assertEqual(tuto.title, random)
-        self.assertEqual(tuto.description, random)
-        self.assertEqual(tuto.licence, None)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
-        self.assertEqual(versioned.description, random)
-        self.assertEqual(versioned.licence, None)
-        self.assertNotEqual(versioned.slug, slug)
-
-        slug = tuto.slug  # make the title change also change the slug !!
 
         # preview container
         result = self.client.post(
@@ -633,7 +561,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        versioned = tuto.load_version()
 
         # check access
         result = self.client.get(reverse("content:view", args=[tuto.pk, tuto.slug]), follow=False)
@@ -665,21 +592,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         old_slug_tuto = tuto.slug
         version_1 = tuto.sha_draft  # 'version 1' is the one before any change
 
-        new_licence = LicenceFactory()
-        random = "Pâques, c'est bientôt?"
-
         result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": random,
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": new_licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": "Pâques, c'est bientôt?"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -716,41 +631,36 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 404)
 
         # check access with old slug and version
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, old_slug_tuto]) + "?version=" + version_1, follow=False
-        )
+        route_parameters = {"pk": tuto.pk, "slug": old_slug_tuto, "version": version_1}
+        url = reverse("content:view-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": self.part1.slug},
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "container_slug": self.part1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": old_slug_tuto,
-                    "parent_container_slug": self.part1.slug,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "parent_container_slug": self.part1.slug,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # edit container:
         old_slug_part = self.part1.slug
         part1 = tuto.load_version().children[0]
+        random = "Un, deux, trois, je vais dans les bois"
         result = self.client.post(
             reverse(
                 "content:edit-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": self.part1.slug}
@@ -766,84 +676,55 @@ class ContentTests(TutorialTestMixin, TestCase):
         current_slug_part = versioned.children[0].slug
 
         # we can still access to the container using old slug !
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part, "version": version_2}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_2,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # and even to it using version 1 and old tuto slug !!
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part, "version": version_1}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": old_slug_tuto,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # but you can also access it with the current slug (for retro-compatibility)
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part, "version": version_1}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # delete part
@@ -854,84 +735,54 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # we can still access to the part in version 3:
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": current_slug_part}
-            )
-            + "?version="
-            + version_3,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": current_slug_part, "version": version_3}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": current_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_3,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": current_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_3,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
 
         # version 2:
         self.assertEqual(result.status_code, 200)
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part, "version": version_2}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_2,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # version 1:
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part, "version": version_1}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": old_slug_tuto,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
     def test_if_none(self):
@@ -1025,18 +876,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         given_title = "Oh, le beau titre à lire !"
         some_text = "À lire à un moment ou un autre, Über utile"  # accentuated characters are important for the test
 
-        # create a tutorial
+        # Create a tutorial and modify its introduction and conclusion
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1045,6 +888,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
@@ -1188,14 +1045,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # create a tutorial
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1204,6 +1054,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
@@ -1304,15 +1168,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # create a tutorial
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1321,6 +1177,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
@@ -1712,7 +1582,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_staff)
 
         result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
+            reverse("content:view-version", kwargs={"pk": tuto.pk, "slug": tuto.slug, "version": validation.version}),
             follow=False,
         )
         self.assertEqual(result.status_code, 200)
@@ -1747,21 +1617,12 @@ class ContentTests(TutorialTestMixin, TestCase):
         # Re-ask a new validation
         self.client.force_login(self.user_author)
 
+        # Update the title to spice things up
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version()
         self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": "new title so that everything explode",
-                "description": tuto.description,
-                "introduction": tuto.load_version().get_introduction(),
-                "conclusion": tuto.load_version().get_conclusion(),
-                "type": "ARTICLE",
-                "licence": tuto.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": tuto.load_version(tuto.sha_draft).compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": "new title so that everything explode"},
             follow=False,
         )
 
@@ -1784,10 +1645,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         # validate with staff
         self.client.force_login(self.user_staff)
 
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "version": validation.version}
+        url = reverse("content:view-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # reserve tuto:
@@ -1837,15 +1697,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
-            {"text": "", "version": self.tuto_draft.current_version},
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
-        self.assertEqual(validation_management.send.call_count, 0)
-
-        result = self.client.post(
-            reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
             {"text": text_validation, "version": self.tuto_draft.current_version},
             follow=False,
         )
@@ -1876,31 +1727,20 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(Validation.objects.filter(content=tuto).last().status, "PENDING")
 
-        # logout, then login with guest
+        # No access for unauthenticated users
         self.client.logout()
+        url = reverse("content:view-version", kwargs={"pk": tuto.pk, "slug": tuto.slug, "version": validation.version})
+        result = self.client.get(url, follow=False)
+        self.assertEqual(result.status_code, 302)  # public cannot access a tutorial in validation ...
 
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)  # no, public cannot access a tutorial in validation ...
-
+        # No access for simple members
         self.client.force_login(self.user_guest)
-
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 403)  # ... Same for guest ...
 
-        # then try with staff
-        self.client.logout()
+        # Access for staff
         self.client.force_login(self.user_staff)
-
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)  # ... But staff can, obviously !
 
         # reserve tuto:
@@ -2184,6 +2024,35 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(validation.status, "PENDING_V")
         self.assertEqual(validation.validator, self.user_staff)
 
+    def test_validation_external_author(self):
+        """Test we can reserve and reject a validation of a content without any reachable author"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.authors.clear()
+        tuto.authors.add(self.profile_external.user)  # external author is not a reachable author
+        tuto.save()
+
+        validation = request_validation(tuto)
+
+        self.client.force_login(self.user_staff)
+
+        result = self.client.post(
+            reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        validation.refresh_from_db()
+        self.assertEqual(validation.status, "PENDING_V")
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse("validation:reject", kwargs={"pk": validation.pk}), {"text": "Reject"}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        validation.refresh_from_db()
+        self.assertEqual(validation.status, "REJECT")
+
     def test_delete_while_validating(self):
         """this test ensure that the validator is warned if the content he is validing is removed"""
 
@@ -2250,7 +2119,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.jsfiddle_management")
     def test_js_fiddle_activation(self, jsfiddle_management):
-
         self.client.force_login(self.staff)
         result = self.client.post(
             reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": "on"}, follow=True
@@ -2276,7 +2144,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(jsfiddle_management.send.call_count, 2)
 
     def test_validate_unexisting(self):
-
         self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}),
@@ -2650,55 +2517,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.client.force_login(self.user_author)
 
-        # no hash, no edition
-        result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": tuto.title,
-                "description": tuto.description,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": "",
-            },
-            follow=True,
-        )
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertNotEqual(versioned.get_introduction(), random)
-        self.assertNotEqual(versioned.get_conclusion(), random)
-
-        result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": tuto.title,
-                "description": tuto.description,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),  # good hash
-            },
-            follow=True,
-        )
-        self.assertEqual(result.status_code, 200)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
-
         # edit container:
         result = self.client.post(
             reverse(
@@ -2939,8 +2757,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         NOTE: this test will take time !"""
         PublicatorRegistry.registry["pdf"] = ZMarkdownRebberLatexPublicator(".pdf")
         PublicatorRegistry.registry["epub"] = ZMarkdownEpubPublicator()
-        # obviously, PDF builds have to be enabled
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = True
 
         title = "C'est pas le plus important ici !"
 
@@ -3003,12 +2819,12 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.has_type(extra), f'no extra content of format "{extra}" was found')
+            self.assertTrue(published.has_type(extra), msg=f'no extra content of format "{extra}" was found')
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
-        self.assertNotEqual(0, published.get_size_file_type("pdf"), "pdf must have content")
-        self.assertNotEqual(0, published.get_size_file_type("epub"), "epub must have content")
+        self.assertNotEqual(0, published.get_size_file_type("pdf"), msg="pdf must have content")
+        self.assertNotEqual(0, published.get_size_file_type("epub"), msg="epub must have content")
 
         # test that deletion give a 404
         markdown_url = published.get_absolute_url_md()
@@ -3025,7 +2841,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         for extra in avail_extra:
-
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         # test for visitor:

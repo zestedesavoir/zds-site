@@ -1,30 +1,28 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder
+from crispy_forms.layout import ButtonHolder, Field, Layout
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.forms import (
-    forms,
-    ModelMultipleChoiceField,
-    CheckboxSelectMultiple,
-    IntegerField,
     BooleanField,
+    CheckboxSelectMultiple,
     HiddenInput,
+    IntegerField,
+    ModelMultipleChoiceField,
+    forms,
 )
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views import View
-from django.views.generic import TemplateView
 from django.views.generic.edit import BaseFormView
 
 from zds.tutorialv2 import signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.goals import Goal
 from zds.utils import get_current_user
 from zds.utils.paginator import ZdSPagingListView
@@ -114,20 +112,21 @@ class ContentsByGoalMixin:
     def get_queryset(self):
         self.current_filter_pk = None
 
-        self.base_queryset = PublishableContent.objects.exclude(public_version=None)
+        self.base_queryset = PublishableContent.objects.exclude(public_version=None).prefetch_related("goals")
         self.num_all = self.base_queryset.count()
 
         queryset_not_classified = self.base_queryset.filter(goals=None)
         self.num_not_classified = queryset_not_classified.count()
 
-        self.only_not_classified = "non-classes" in self.request.GET
+        self.only_not_classified = Goal.SLUG_UNCLASSIFIED in self.request.GET
         if self.only_not_classified:
             return queryset_not_classified
-        else:
-            for goal in Goal.objects.all():
-                if f"objectif_{goal.pk}" in self.request.GET:
-                    self.current_filter_pk = goal.pk
-                    return self.base_queryset.filter(goals__in=[goal])
+        elif len(self.request.GET) > 0:
+            slug = list(self.request.GET.keys())[0]
+            goal = Goal.objects.filter(slug=slug).first()
+            if goal is not None:
+                self.current_filter_pk = goal.pk
+                return self.base_queryset.filter(goals__in=[goal])
         return self.base_queryset
 
     def get_context_data(self, **kwargs):
@@ -154,12 +153,7 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, C
 
     def get_context_data(self, **kwargs):
         context = {
-            "goals": Goal.objects.all().annotate(num_contents=Count("contents")),
-            "current_filter_pk": self.current_filter_pk,
-            "only_not_classified": self.only_not_classified,
-            "all": self.current_filter_pk is None and not self.only_not_classified,
-            "num_all": self.num_all,
-            "num_not_classified": self.num_not_classified,
+            "url_not_classified": reverse("content:mass-edit-goals") + "?" + Goal.SLUG_UNCLASSIFIED,
         }
         context.update(kwargs)
         return super().get_context_data(**context)
@@ -192,6 +186,9 @@ class ViewContentsByGoal(ContentsByGoalMixin, ZdSPagingListView):
             )
         else:
             headline = _("Toutes les publications")
-        context = {"headline": headline}
+        context = {
+            "headline": headline,
+            "url_not_classified": reverse("content:view-goals") + "?" + Goal.SLUG_UNCLASSIFIED,
+        }
         context.update(kwargs)
         return super().get_context_data(**context)

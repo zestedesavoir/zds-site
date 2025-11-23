@@ -2,8 +2,8 @@ from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 
-from .config import config
 from .base_dir import BASE_DIR
+from .config import config
 
 zds_config = config.get("zds", {})
 
@@ -12,18 +12,18 @@ LOGOUT_REDIRECT_URL = "homepage"
 GEOIP_PATH = str(BASE_DIR / "geodata")
 GEOIP_CITY = "GeoLite2-City.mmdb"
 
-ES_ENABLED = True
+SEARCH_ENABLED = True
 
-ES_CONNECTIONS = {
-    "default": {
-        "hosts": ["localhost:9200"],
-    }
-}
-
-ES_SEARCH_INDEX = {
-    "name": "zds_search",
-    "shards": 3,
-    "replicas": 0,
+SEARCH_CONNECTION = {
+    "nodes": [
+        {
+            "host": "localhost",
+            "port": "8108",
+            "protocol": "http",
+        }
+    ],
+    "api_key": "xyz",
+    "connection_timeout_seconds": 10,  # seconds; Gunicorn's default timeout is 30 s
 }
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
@@ -51,6 +51,11 @@ THUMBNAIL_ALIASES = {
 
 DEFAULT_ASSO_LINK = "https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018"
 
+global_weight_publishedcontent = 2
+global_weight_topic = 2
+global_weight_chapter = 1.5
+global_weight_post = 0.8
+
 ZDS_APP = {
     "site": {
         "name": "ZesteDeSavoir",
@@ -60,6 +65,8 @@ ZDS_APP = {
         "url": "https://zestedesavoir.com",
         "dns": "zestedesavoir.com",
         "email_contact": "zestedesavoir@gmail.com",
+        "email_asso_accessibility": "association+accessibilite@zestedesavoir.com",
+        "email_tech_accessibility": "technique+accessibilite@zestedesavoir.com",
         "email_noreply": "noreply@zestedesavoir.com",
         "forum_feedback_users": "/forums/communaute/bug-suggestions/",
         "contribute_link": "https://docs.zestedesavoir.com/contributing.html",
@@ -110,9 +117,9 @@ ZDS_APP = {
         "social": {
             "mastodon": "https://framapiaf.org/@ZesteDeSavoir",
             "facebook": "https://www.facebook.com/ZesteDeSavoir",
-            "twitter": "https://twitter.com/ZesteDeSavoir",
+            "X": "https://x.com/ZesteDeSavoir",
             "github": "https://github.com/zestedesavoir/zds-site",
-            # 'discord': 'https://discord.gg/ue5MTKq'
+            "discord": "https://discord.com/invite/ue5MTKq",
         },
         "cnil": "1771020",
     },
@@ -138,6 +145,7 @@ ZDS_APP = {
         "users_in_hats_list": 5,
         "requested_hats_per_page": 100,
         "update_last_visit_interval": 600,  # seconds
+        "topics_on_profile": 5,
     },
     "hats": {
         "moderation": "Staff",
@@ -145,16 +153,17 @@ ZDS_APP = {
         "hats_management": "Staff",
     },
     "gallery": {
-        "image_max_size": 1024 * 1024,
+        "image_max_size": 1024 * 1024,  # bytes, also hard-coded in editor JS scripts
         "gallery_per_page": 21,
         "images_per_page": 21,
     },
-    "tutorial": {
-        "home_number": 4,
+    "homepage": {
+        "contents_count": 5,
+        "opinions_count": 6,
+        "topics_count": 5,
+        "features_count": 5,
     },
-    "article": {"home_number": 3},
     "opinions": {
-        "home_number": 5,
         "allow_pdf": zds_config.get("opinions_allow_pdf", True),
         "allow_epub": zds_config.get("opinions_allow_epub", True),
         "allow_zip": zds_config.get("opinions_allow_zip", True),
@@ -177,13 +186,14 @@ ZDS_APP = {
         "helps_per_page": 20,
         "commits_per_page": 20,
         "suggestions_per_page": 2,
+        "max_suggestion_search_results": 10,
         "mass_edit_goals_content_per_page": 25,
         "view_contents_by_goal_content_per_page": 42,
+        "view_contents_by_label_content_per_page": 42,
         "feed_length": 5,
         "user_page_number": 5,
         "default_image": BASE_DIR / "fixtures" / "noir_black.png",
         "import_image_prefix": "archive",
-        "build_pdf_when_published": True,
         "maximum_slug_size": 150,
         "characters_per_minute": 1500,
         "editorial_line_link": "https://zestedesavoir.com/articles/3978/la-ligne-editoriale-officielle-de-zeste-de-savoir-2/",
@@ -202,23 +212,19 @@ ZDS_APP = {
         "beta_forum_id": zds_config.get("publications_being_written_forum_id", 1),
         "max_post_length": 1000000,
         "top_tag_max": 5,
-        "home_number": 6,
         "old_post_limit_days": 90,
         # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
         # Be warned exclude too much tags can restrict performance
         "top_tag_exclu": ["bug", "suggestion", "tutoriel", "beta", "article"],
         "greetings": ["salut", "bonjour", "yo ", "hello", "bon matin", "tout le monde se secoue"],
         "description_size": 120,
-    },
-    "topic": {
-        "home_number": 5,
+        "max_similar_topics": 10,
     },
     "comment": {
         "max_pings": 15,
     },
     "featured_resource": {
         "featured_per_page": 100,
-        "home_number": 5,
         "request_per_page": 50,
     },
     "notification": {
@@ -226,37 +232,58 @@ ZDS_APP = {
     },
     "paginator": {"folding_limit": 4},
     "search": {
-        "mark_keywords": ["javafx", "haskell", "groovy", "powershell", "latex", "linux", "windows"],
         "results_per_page": 20,
         "search_groups": {
-            "content": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
+            "publishedcontent": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
             "topic": (_("Sujets du forum"), ["topic"]),
             "post": (_("Messages du forum"), ["post"]),
         },
+        "search_content_type": {
+            "tutorial": (_("Tutoriels"), ["tutorial"]),
+            "article": (_("Articles"), ["article"]),
+            "opinion": (_("Billet"), ["opinion"]),
+        },
+        "search_validated_content": {
+            "validated": (_("Contenus validés"), ["validated"]),
+            "no_validated": (_("Contenus libres"), ["no_validated"]),
+        },
         "boosts": {
             "publishedcontent": {
-                "global": 3.0,
-                "if_article": 1.0,
-                "if_tutorial": 1.0,
-                "if_medium_or_big_tutorial": 1.5,
-                "if_opinion": 0.66,
-                "if_opinion_not_picked": 0.5,
-            },
-            "topic": {
-                "global": 2.0,
-                "if_solved": 1.1,
-                "if_sticky": 1.2,
-                "if_locked": 0.1,
+                "global": global_weight_publishedcontent,
+                "if_validated": global_weight_publishedcontent * 1.5,
+                "if_validated_and_multipage": global_weight_publishedcontent * 1.7,
+                "if_opinion": global_weight_publishedcontent * 1.3,
+                "if_opinion_not_picked": global_weight_publishedcontent * 1.1,
+                "title": global_weight_publishedcontent * 4,
+                "description": global_weight_publishedcontent * 2,
+                "categories": global_weight_publishedcontent * 1,
+                "subcategories": global_weight_publishedcontent * 1,
+                "tags": global_weight_publishedcontent * 1,
+                "text": global_weight_publishedcontent * 2,
             },
             "chapter": {
-                "global": 1.5,
+                "global": global_weight_chapter,
+                "title": global_weight_chapter * 3,
+                "categories": global_weight_chapter * 1,
+                "subcategories": global_weight_chapter * 1,
+                "text": global_weight_chapter * 2,
+            },
+            "topic": {
+                "global": global_weight_topic,
+                "if_solved": global_weight_topic * 1.1,
+                "if_sticky": global_weight_topic * 1.2,
+                "if_locked": global_weight_topic * 0.1,
+                "title": global_weight_topic * 3,
+                "subtitle": global_weight_topic * 2,
+                "tags": global_weight_topic * 1,
             },
             "post": {
-                "global": 1.0,
-                "if_first": 1.2,
-                "if_useful": 1.5,
-                "ld_ratio_above_1": 1.05,
-                "ld_ratio_below_1": 0.95,
+                "global": global_weight_post,
+                "if_first": global_weight_post * 1.5,
+                "if_useful": global_weight_post * 1.2,
+                "ld_ratio_above_1": global_weight_post * 1.05,
+                "ld_ratio_below_1": global_weight_post * 0.95,
+                "text": global_weight_post,
             },
         },
     },

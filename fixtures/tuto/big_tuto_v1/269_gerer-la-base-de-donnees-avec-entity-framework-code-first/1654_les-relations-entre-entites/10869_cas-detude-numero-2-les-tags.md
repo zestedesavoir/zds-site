@@ -70,7 +70,7 @@ Code: Les classes Tag et Article
 
 [[i]]
 |Vous l'avez peut-être remarqué, j'ai utilisé l'attribut `[Index]`. Ce dernier permet de spécifier que notre Slug sera unique dans la bdd ET qu'en plus trouver un tag à partir de son slug sera presque aussi rapide que de le trouver par sa clef primaire.
- 
+
 Dans notre base de données, nous aurons par contre un léger changement. Allons voir notre explorateur de serveur une fois que la classe Tag a été ajoutée à notre DbContext.
 
 ![L'explorateur de serveur](http://zestedesavoir.com/media/galleries/304/218e0ef6-4f06-41b2-9ee5-988197e369ca.png.960x960_q85.png)
@@ -104,13 +104,13 @@ Je mets le code "final" en caché, mais voici ce qu'il vous faudra faire :
 |             {
 |                 return View(articleCreation);
 |             }
-| 
+|
 |             string fileName = "";
 |             if (!handleImage(articleCreation, out fileName))
 |             {
 |                 return View(articleCreation);
 |             }
-| 
+|
 |             Article article = new Article
 |             {
 |                 Contenu = articleCreation.Contenu,
@@ -120,11 +120,11 @@ Je mets le code "final" en caché, mais voici ce qu'il vous faudra faire :
 |                 Tags = new List<Tag>()
 |             };
 |             IEnumerable<Tag> askedTags = new List<Tag>();
-|             
+|
 |             SlugHelper slugifier = new SlugHelper();
 |             if(articleCreation.Tags.Trim().Length > 0)
 |             {
-|                 askedTags = from tagName in articleCreation.Tags.Split(',') select new Tag { Name = tagName.Trim(), Slug = slugifier.GenerateSlug(tagName.Trim()) };                
+|                 askedTags = from tagName in articleCreation.Tags.Split(',') select new Tag { Name = tagName.Trim(), Slug = slugifier.GenerateSlug(tagName.Trim()) };
 |             }
 |             foreach (Tag tag in askedTags)
 |             {
@@ -138,14 +138,14 @@ Je mets le code "final" en caché, mais voici ce qu'il vous faudra faire :
 |                     article.Tags.Add(tag);
 |                 }
 |             }
-| 
+|
 |             bdd.Articles.Add(article);
-|             
+|
 |             bdd.SaveChanges();
 |             return RedirectToAction("List", "Article");
 |         }
 | ```
-| Code: La méthode Create du contrôleur avec les tags. 
+| Code: La méthode Create du contrôleur avec les tags.
 
 Si vous avez réussi à produire un code similaire à la correction que je vous propose, bravo!
 
@@ -166,7 +166,7 @@ Vous allez pouvoir faire la même chose pour la fonction d'édition. Par contre,
 |             string fileName;
 |             if (!handleImage(articleCreation, out fileName))
 |             {
-| 
+|
 |                 return View(articleCreation);
 |             }
 |             DbEntityEntry<Article> entry = bdd.Entry(entity);
@@ -180,13 +180,13 @@ Vous allez pouvoir faire la même chose pour la fonction d'édition. Par contre,
 |             };
 |             entry.CurrentValues.SetValues(article);
 |             IEnumerable<Tag> askedTags = new List<Tag>();
-| 
+|
 |             SlugHelper slugifier = new SlugHelper();
 |             if (articleCreation.Tags.Trim().Length > 0)
 |             {
 |                 askedTags = from tagName in articleCreation.Tags.Split(',') select new Tag { Name = tagName.Trim(), Slug = slugifier.GenerateSlug(tagName.Trim()) };
 |             }
-| 
+|
 |             foreach (Tag tag in askedTags)
 |             {
 |                 Tag foundInDatabase = bdd.Tags.FirstOrDefault(t => t.Slug == tag.Slug);
@@ -199,16 +199,16 @@ Vous allez pouvoir faire la même chose pour la fonction d'édition. Par contre,
 |                     article.Tags.Add(tag);
 |                 }
 |             }
-|             
+|
 |             bdd.SaveChanges();
-| 
+|
 |             return RedirectToAction("List");
 |         }
 | ```
 | Code: La méthode d'édition avec la prise en charge des tags
 
 [[i]]
-|Vous l'aurez peut-être remarqué, nous avons plusieurs fois dupliqué du code. Je sais, c'est mal ! 
+|Vous l'aurez peut-être remarqué, nous avons plusieurs fois dupliqué du code. Je sais, c'est mal !
 |Ne vous inquiétez, pas nous y reviendront. En effet, pour simplifier énormément notre code, nous allons devoir apprendre comment créer nos propres validateurs, ainsi que la notion de ModelBinder. Cela sera fait dans la prochaine partie.
 
 # Allons plus loin avec les relations Plusieurs à Plusieurs
@@ -221,7 +221,7 @@ Une personne peut voter pour plusieurs articles, et chaque article peut avoir un
 
 Et là, il vous faudra vous souvenir de ce qu'il s'était passé au sein de la BDD quand on avait créé une relation n-n : une table intermédiaire avait été créée.
 
-Eh bien nous allons devoir faire la même chose : nous allons créer une *entité intermédiaire* qui aura une relation 1-n avec les articles et une relation 1-n avec les utilisateurs.  
+Eh bien nous allons devoir faire la même chose : nous allons créer une *entité intermédiaire* qui aura une relation 1-n avec les articles et une relation 1-n avec les utilisateurs.
 De plus, pour s'assurer qu'on ne peut voter qu'une fois à un article, il faudra configurer un peu notre entité.
 
 Je vous poste le code, il constitue un modèle pour vos futurs besoins :

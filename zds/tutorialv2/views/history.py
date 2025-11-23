@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.http import Http404
-from git import objects, GitCommandError
+from git import GitCommandError, objects
 from gitdb.exc import BadName, BadObject
 
 from zds.member.decorator import LoggedWithReadWriteHability
@@ -49,7 +49,6 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 
     model = PublishableContent
     template_name = "tutorialv2/view/diff.html"
-    only_draft_version = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

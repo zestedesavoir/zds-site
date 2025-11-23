@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<p>
+    {% trans "Catégorie" %}{{ categories|pluralize }} :
+
+    {# Warning: whitespace in the lines below is crucial for rendering, despite ruining legibility. Change with care. #}
+    {% for category in categories %}{% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+        {% if content.is_opinion %}
+            <a href="{% url 'opinion:list' %}?category={{ category.slug }}">{{ category.title }}</a>
+        {% else %}
+            <a href="{% url 'publication:list' %}?subcategory={{ category.slug }}">{{ category.title }}</a>{% endif %}{% endfor %}
+</p>

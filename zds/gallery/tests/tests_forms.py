@@ -1,10 +1,10 @@
-from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
-
-from zds.gallery.tests.factories import GalleryFactory
-from zds.gallery.forms import GalleryForm, UserGalleryForm, ImageForm, ImageAsAvatarForm, ArchiveImageForm
-from zds.member.tests.factories import ProfileFactory
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+
+from zds.gallery.forms import ArchiveImageForm, GalleryForm, ImageAsAvatarForm, ImageForm, UserGalleryForm
+from zds.gallery.tests.factories import GalleryFactory
+from zds.member.tests.factories import ProfileFactory
 
 
 class GalleryFormTest(TestCase):
@@ -99,7 +99,6 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_empty_pic_image_form(self):
-
         data = {
             "title": "Test Title",
             "legend": "Test Legend",

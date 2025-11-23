@@ -1,0 +1,90 @@
+{% load i18n %}
+{% load captureas %}
+{% load crispy_forms_tags %}
+{% load get_item %}
+
+{% if public_actions.show_block %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Version publique">
+        <h3>{% trans "Version publique" %}</h3>
+        <ul>
+            {% if public_actions.show_public_page_message %}
+                <li class="inactive">
+                    <span class="ico-after pin disabled">
+                        {% trans "Vous êtes sur la page publique." %}
+                    </span>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_identical_public_version_message %}
+                <li class="inactive">
+                    <span class="ico-after pin disabled">
+                        {{ public_actions.messages|get_item:"public_is_same" }}
+                    </span>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_identical_draft_version_message %}
+                <li class="inactive">
+                    <span class="ico-after pin disabled">
+                        {{ public_actions.messages|get_item:"draft_is_same" }}
+                    </span>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_more_recent_draft_version_link %}
+                <li>
+                    <a href="{{ object.get_absolute_url }}" class="ico-after online blue">
+                        {{ public_actions.messages|get_item:"draft_is_more_recent" }}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_page_link %}
+                <li>
+                    <a href="{{ public_content_object.get_absolute_url_online }}" class="ico-after online blue">
+                        {% trans "Voir la page publique" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_comparison_link %}
+                <li>
+                    {% captureas to_sha %}{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}{% endcaptureas %}
+                    {% captureas diff_public_url %}{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_public }}&amp;to={{ to_sha }}{% endcaptureas %}
+                    <a href="{{ diff_public_url }}" class="ico-after history blue">
+                        {% trans "Comparer avec la version en ligne" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_stats_link %}
+                <li>
+                    {% url "content:stats-content" content.pk content.slug as stats_url %}
+                    <a href="{{ stats_url }}" class="ico-after stats blue">{% trans "Voir les statistiques" %}</a>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_exports_request %}
+                <li>
+                    {% include "tutorialv2/includes/sidebar/exports.part.html" %}
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_content_revoke %}
+                <li>
+                    <a href="#unpublish" class="ico-after open-modal cross blue">
+                        {% trans "Dévalider et dépublier" %}
+                    </a>
+                    {% crispy form_revoke %}
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_opinion_unpublish %}
+                <li>
+                    <a href="#unpublish" class="ico-after open-modal cross blue">{% trans "Dépublier" %}</a>
+                    {% crispy form_unpublication %}
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

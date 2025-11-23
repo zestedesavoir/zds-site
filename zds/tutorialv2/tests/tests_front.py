@@ -1,8 +1,8 @@
 from copy import deepcopy
+
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import override_settings
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Firefox
@@ -13,31 +13,28 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-)
-from zds.tutorialv2.models.database import PublishedContent, PublishableContent
-from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
-from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.tests import TutorialFrontMixin, TutorialTestMixin
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
+from zds.utils.tests.factories import CategoryFactory, LicenceFactory, SubCategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
 overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
+overridden_zds_app["content"]["extra_content_generation_policy"] = "NOTHING"
 
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_settings(SEARCH_ENABLED=False)
 @tag("front")
 class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, TutorialFrontMixin):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         options = Options()
-        options.headless = True
+        options.add_argument("--headless")
         cls.selenium = Firefox(options=options)
         cls.selenium.implicitly_wait(10)
 
@@ -52,8 +49,6 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
-        # don't build PDF to speed up the tests
-        overridden_zds_app["content"]["build_pdf_when_published"] = False
 
         self.staff = StaffProfileFactory().user
 
@@ -121,7 +116,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         article.sha_draft = versioned_article.repo_update("article", "", "", update_slug=False)
         article.save()
 
-        article_edit_url = reverse("content:edit", args=[article.pk, article.slug])
+        article_edit_url = reverse("content:edit-introduction", args=[article.pk])
 
         self.login(author)
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
@@ -130,7 +125,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         intro = self.find_element("div#div_id_introduction div.CodeMirror")
         # ActionChains: Support for CodeMirror https://stackoverflow.com/a/48969245/2226755
         action_chains = ActionChains(selenium)
-        scrollDriverTo(selenium, 0, 312)
+        scroll_driver_to(selenium, 0, 312)
         action_chains.click(intro).perform()
         action_chains.send_keys("intro").perform()
 
@@ -144,38 +139,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         self.assertEqual("new intro", self.find_element(".md-editor#id_introduction").get_attribute("value"))
 
-    def test_the_editor_forgets_its_content_on_form_submission(self):
-        selenium = self.selenium
 
-        author = ProfileFactory()
-
-        self.login(author)
-        selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
-        new_article_url = self.live_server_url + reverse(
-            "content:create-content", kwargs={"created_content_type": "ARTICLE"}
-        )
-        selenium.get(new_article_url)
-        WebDriverWait(self.selenium, 10).until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, "input[type=checkbox][name=subcategory]"))
-        ).click()
-
-        self.find_element("#id_title").send_keys("Oulipo")
-
-        intro = self.find_element("div#div_id_introduction div.CodeMirror")
-        action_chains = ActionChains(selenium)
-        scrollDriverTo(selenium, 0, 312)
-        action_chains.click(intro).perform()
-        action_chains.send_keys("Le cadavre exquis boira le vin nouveau.").perform()
-
-        self.find_element(".content-container button[type=submit]").click()
-
-        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains("Oulipo")))
-
-        selenium.get(new_article_url)
-
-        self.assertEqual("", self.find_element(".md-editor#id_introduction").get_attribute("value"))
-
-
-def scrollDriverTo(driver, x, y):
-    scriptScrollTo = f"window.scrollTo({x}, {y});"
-    driver.execute_script(scriptScrollTo)
+def scroll_driver_to(driver, x, y):
+    script_scroll_to = f"window.scrollTo({x}, {y});"
+    driver.execute_script(script_scroll_to)

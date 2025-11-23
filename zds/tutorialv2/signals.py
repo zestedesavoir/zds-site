@@ -1,11 +1,14 @@
 from django.dispatch.dispatcher import Signal
 
 # Display management
-content_read = Signal(providing_args=["instance", "user", "target"])
+# arguments: instance, user, target
+content_read = Signal()
 
 # Publication events
-content_published = Signal(providing_args=["instance", "user", "by_email"])
-content_unpublished = Signal(providing_args=["instance", "target", "moderator"])
+# arguments: instance, user, by_email
+content_published = Signal()
+# arguments: instance, target, moderator
+content_unpublished = Signal()
 
 # Authors management
 # For the signal below, the arguments "performer", "content", "author" and "action" shall be provided.
@@ -27,9 +30,17 @@ beta_management = Signal()
 # Action is either "request", "cancel", "accept", "reject", "revoke", "reserve" or "unreserve".
 validation_management = Signal()
 
+# Thumbnail management
+# For the signal below, the arguments "performer" and "content" shall be provided.
+thumbnail_management = Signal()
+
 # Tags management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
 tags_management = Signal()
+
+# Canonical link management
+# For the signal below, the arguments "performer" and "content"  shall be provided.
+canonical_link_management = Signal()
 
 # Suggestions management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
@@ -39,6 +50,10 @@ suggestions_management = Signal()
 # Goals management
 # For the signal below, the arguments "performer" and "content" shall be provided.
 goals_management = Signal()
+
+# Labels management
+# For the signal below, the arguments "performer" and "content" shall be provided.
+labels_management = Signal()
 
 # Help management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
@@ -53,3 +68,7 @@ jsfiddle_management = Signal()
 # For the signal below, the arguments "performer", "content" and "action" shall be provided.
 # Action is either "publish" or "unpublish".
 opinions_management = Signal()
+
+# Categories management
+# For the signal below, the arguments "performer", "content" and "action" shall be provided.
+categories_management = Signal()

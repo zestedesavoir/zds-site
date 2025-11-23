@@ -4,7 +4,7 @@ Ce besoin vous permet de comprendre qu'il y a des structures de données qui son
 
 Nous avons décidé que nous allions créer un *blog*. De manière basique, un blog se représente ainsi :
 
-le contenu principal est appelé **article**. 
+le contenu principal est appelé **article**.
 
 Un article est composé de plusieurs choses :
 
@@ -22,7 +22,7 @@ Un commentaire est composé de plusieurs choses :
 
 Et ainsi de suite.
 
-Comme vous pouvez le constater, ces description amènent à une conclusion simple : les "entités" peuvent être représentées par de simples classes telles qu'on a l'habitude de manipuler. 
+Comme vous pouvez le constater, ces description amènent à une conclusion simple : les "entités" peuvent être représentées par de simples classes telles qu'on a l'habitude de manipuler.
 
 Il y a cependant une nécessité qui est **imposée** par le fait qu'on va *persister* les objets : il faut qu'ils soient identifiables.
 

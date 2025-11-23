@@ -1,0 +1,45 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load captureas %}
+
+
+<div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+    <h3>{% trans "Suppression" %}</h3>
+    <ul>
+        {% if not content.in_public %}
+            <li>
+                <a href="#delete-content" class="open-modal ico-after cross red">
+                    {% trans "Supprimer le contenu" %}
+                </a>
+                {% captureas need_reason %}{%  if validation and validation.status == 'PENDING_V' %}True{% endif %}{% endcaptureas %}
+                <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-flex">
+                    {% csrf_token %}
+                    <p>
+                        {% blocktrans with content_title=content.title %}
+                            Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ». Cela aura pour effet de supprimer également la galerie associée.
+                        {% endblocktrans %}
+                        {%  if need_reason %}
+                            {% blocktrans with username=validation.validator.username %}
+                                Il est en cours de validation par <strong>{{ username }}</strong>, qui appréciera de savoir pourquoi vous souhaitez le supprimer :
+                            {% endblocktrans %}
+                        {% endif %}
+                    </p>
+
+                    {% if need_reason %}
+                        <p><textarea name="text" class="textarea" placeholder="Raison de la suppression" cols="40"></textarea></p>
+                    {%  endif %}
+
+                    <button type="submit" class="btn btn-submit">
+                        {% trans "Confirmer" %}
+                    </button>
+                </form>
+            </li>
+        {% else %}
+            <li class="inactive">
+                <span class="ico-after cross disabled">
+                    {% trans "Impossible, car publié" %}
+                </span>
+            </li>
+        {% endif %}
+    </ul>
+</div>

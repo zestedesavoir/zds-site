@@ -2,7 +2,7 @@ ASP.NET est une technologie qui en regroupe plusieurs. Il y a plusieurs façons 
 
 ![les différentes couches du framework ASP.NET](/media/galleries/304/39f6e799-3d5e-4908-b93f-98576f5791d7.png.960x960_q85.jpg)
 
-Plusieurs choix s'offrent à nous, chacun proposant des approches différentes pour réaliser une application : 
+Plusieurs choix s'offrent à nous, chacun proposant des approches différentes pour réaliser une application :
 
 - l'approche MVC
 - l'utilisation des Web Forms

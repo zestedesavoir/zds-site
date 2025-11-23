@@ -1,16 +1,16 @@
 from django.urls import path
 
 from zds.gallery.views import (
+    DeleteGalleries,
+    DeleteImages,
+    EditGallery,
+    EditGalleryMembers,
+    EditImage,
+    GalleryDetails,
+    ImportImages,
+    ListGallery,
     NewGallery,
     NewImage,
-    DeleteImages,
-    EditImage,
-    ImportImages,
-    GalleryDetails,
-    EditGallery,
-    ListGallery,
-    DeleteGalleries,
-    EditGalleryMembers,
 )
 
 app_name = "gallery"

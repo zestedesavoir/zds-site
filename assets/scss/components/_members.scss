@@ -1,3 +1,50 @@
+.deletable {
+  display: flex;
+  align-items: center;
+  border: $length-1 solid $grey-100;
+  margin-bottom: $length-4;
+}
+
+.delete-button {
+  display: block;
+  position: relative;
+
+  margin: 0;
+
+  width: $length-24;
+  height: $length-32  + $length-4;
+
+  transition: background-color .1s ease-in-out;
+
+  &:hover {
+    background-color: $grey-100;
+
+    &:after {
+      @include sprite-position($cross);
+    }
+  }
+
+  &::after {
+    content: " ";
+    display: block;
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    margin-top: calc(-1 * $length-16 / 2);
+    margin-left: calc(-1 * $length-16 / 2);
+
+    width: $length-16;
+    height: $length-16;
+
+    background-repeat: no-repeat;
+
+    @include sprite;
+    @include sprite-position($cross-blue);
+  }
+}
+
 .member-item {
     display: inline-flex;
     align-items: center;
@@ -23,10 +70,10 @@
     }
 
     span {
-        padding: 0 $length-8;
+        padding: 0 $length-4;
 
         &:only-child {
-            padding: 0;
+            padding-left: 0;
         }
     }
 
@@ -67,11 +114,11 @@
 
 .members {
     display: flex;
-    align-items: center;
 
     .authors-label {
         display: inline-block;
-        margin-right: $length-4;
+        margin: $length-8 $length-8 0 0;
+        flex-shrink: 0;
     }
 
     ul {
@@ -84,11 +131,9 @@
         padding: 0;
 
         li {
-            margin: 0;
+            margin: 0 $length-10 $length-4 0;
 
             .member-item {
-                margin: 0 $length-8 0 0;
-                padding: $length-1;
                 padding-left: $length-4;
             }
         }

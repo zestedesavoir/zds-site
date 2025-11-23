@@ -77,7 +77,7 @@ Installation complète
 L'installation de base suffit grandement pour lancer le site web et découvrir le projet, mais elle est incomplète. Deux outils manquent à l'appel :
 
 - LaTeX, nécessaire pour la génération des PDFs des contenus ;
-- ElasticSearch, nécessaire pour la page de recherche.
+- Typesense, nécessaire pour la page de recherche.
 
 Là encore, une seule commande suffit :
 

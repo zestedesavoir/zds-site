@@ -1,9 +1,6 @@
-from django.conf import settings
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import F, Q
 from model_utils.managers import InheritanceManager
-
-from zds.utils import get_current_user
 
 
 class ForumManager(models.Manager):
@@ -42,6 +39,22 @@ class ForumManager(models.Manager):
             .all()
         )
 
+    def get_authorized_forums_pk(self, user):
+        """
+        Find forums the user is allowed to visit.
+
+        :param user: concerned user.
+        :return: pk of authorized forums
+        """
+        forums_pub = self.filter(groups__isnull=True).all()
+        if user and user.is_authenticated:
+            forums_private = self.filter(groups__isnull=False, groups__in=user.groups.all()).all()
+            list_forums = list(forums_pub | forums_private)
+        else:
+            list_forums = list(forums_pub)
+
+        return [f.pk for f in list_forums]
+
 
 class TopicManager(models.Manager):
     """
@@ -49,17 +62,13 @@ class TopicManager(models.Manager):
     """
 
     def visibility_check_query(self, current_user):
-        """
-        Build a subquery that checks if a topic is readable by current user
-        :param current_user:
-        :return:
-        """
+        """Build a subquery that checks if a topic is readable by current user"""
         if current_user.is_authenticated:
             return Q(forum__groups__isnull=True) | Q(forum__groups__pk__in=current_user.profile.group_pks)
         else:
             return Q(forum__groups__isnull=True)
 
-    def last_topics_of_a_member(self, author, user):
+    def last_topics_of_a_member(self, author, user, count):
         """
         Gets last topics of a member but exclude all topics not accessible
         for the request user.
@@ -70,31 +79,26 @@ class TopicManager(models.Manager):
         queryset = self.filter(author=author).prefetch_related("author")
         queryset = queryset.filter(self.visibility_check_query(user)).distinct()
 
-        return queryset.order_by("-pubdate").all()[: settings.ZDS_APP["forum"]["home_number"]]
+        return queryset.order_by("-pubdate").all()[:count]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
 
-    def get_last_topics(self):
-        """
-        Get last posted topics and prefetch some related properties.
-        Depends on settings.ZDS_APP['topic']['home_number']
-        :return:
-        :rtype: django.models.Queryset
-        """
+    def get_last_topics(self, count) -> models.QuerySet:
+        """Get last topics and prefetch some related properties."""
         return (
             self.filter(is_locked=False, forum__groups__isnull=True)
             .select_related("forum", "author", "author__profile", "last_message")
             .prefetch_related("tags")
             .order_by("-pubdate")
-            .all()[: settings.ZDS_APP["topic"]["home_number"]]
+            .all()[:count]
         )
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return (
             self.filter(forum__pk=forum_pk, is_sticky=is_sticky)
             .order_by("-last_message__pubdate")
-            .select_related("author__profile")
+            .select_related("author__profile", "solved_by")
             .prefetch_related("last_message", "tags")
             .all()
         )
@@ -105,7 +109,9 @@ class TopicManager(models.Manager):
         return queryset.order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
-        queryset = self.filter(tags__in=[tag]).prefetch_related("author", "last_message", "tags")
+        queryset = (
+            self.filter(tags__in=[tag]).select_related("solved_by").prefetch_related("author", "last_message", "tags")
+        )
         queryset = queryset.filter(self.visibility_check_query(user)).distinct()
         return queryset.order_by("-last_message__pubdate")
 
@@ -144,7 +150,11 @@ class PostManager(InheritanceManager):
         if not current.has_perm("forum.change_post"):
             queryset = queryset.filter(is_visible=True)
 
-        queryset = queryset.filter(self.visibility_check_query(current)).prefetch_related("author").order_by("-pubdate")
+        queryset = (
+            queryset.filter(self.visibility_check_query(current))
+            .prefetch_related("author", "topic")
+            .order_by("-pubdate")
+        )
 
         return queryset
 
@@ -161,11 +171,11 @@ class TopicReadManager(models.Manager):
         :param check_auth: if True will shortcut to ``False`` if user is not authenticated
         :return: ``True`` if topic has been read by user
         """
-        if not hasattr(topic, "_is_read"):
-            setattr(topic, "_is_read", {})
+        if not hasattr(topic, "_user_has_read"):
+            setattr(topic, "_user_has_read", {})
         if user is None or (check_auth and not user.is_authenticated):
             return False
-        cache_is_read = getattr(topic, "_is_read")
+        cache_is_read = getattr(topic, "_user_has_read")
         if user.username not in cache_is_read:
             cache_is_read[user.username] = self.filter(post=topic.last_message, topic=topic, user=user).exists()
         return cache_is_read[user.username]

@@ -1,0 +1,39 @@
+{% load i18n %}
+{% load pluralize_fr %}
+{% load displayable_authors %}
+{% load captureas %}
+
+{% with authors=db_content|displayable_authors:online_mode %}
+    <div class="members">
+        <span class="authors-label">
+            {% trans "Par" %}
+        </span>
+        <ul>
+            {% if authors.count == 1 %}
+                <li>
+                    {% include "misc/member_item.part.html" with member=authors.first author=True avatar=True deletable=False %}
+                </li>
+            {% else %}
+                {% for author in authors %}
+                    <li>
+                        {% include "misc/member_item.part.html" with member=author author=True avatar=True deletable=edit_authors %}
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            {% if edit_authors %}
+                <li>
+                    <a href="#add-author" class="btn btn-add open-modal ico-after more blue">
+                        {% trans "Ajouter" %}
+                    </a>
+                    {% url "content:add-author" content.pk as add_author_url %}
+                    <form action="{{ add_author_url }}" method="post" class="modal modal-flex" id="add-author">
+                        {% csrf_token %}
+                        <input type="text" name="username" placeholder="Pseudo du membre à ajouter" data-autocomplete="{ 'type': 'single' }">
+                        <button type="submit" name="add_author" class="btn btn-submit">{% trans "Confirmer" %}</button>
+                    </form>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endwith %}

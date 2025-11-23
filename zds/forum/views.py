@@ -6,35 +6,35 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST, require_GET
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.decorators.http import require_GET, require_POST
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 
-from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
-from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import ForumCategory, Forum, Topic, Post, mark_read, TopicRead
+from zds.featured.mixins import FeatureableMixin
+from zds.forum import signals
+from zds.forum.commons import ForumEditMixin, PostEditMixin, SinglePostObjectMixin, TopicEditMixin
+from zds.forum.forms import MoveTopicForm, PostForm, TopicForm
+from zds.forum.models import Forum, ForumCategory, Post, Topic, TopicRead, mark_read
+from zds.forum.utils import CreatePostView, create_topic, send_post
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
-from zds.forum import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
-from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
 from zds.utils.context_processor import get_repository_url
-from zds.forum.utils import create_topic, send_post, CreatePostView
+from zds.utils.misc import is_ajax
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag, CommentVote
+from zds.utils.models import Alert, CommentVote, Tag
 from zds.utils.paginator import ZdSPagingListView
 
 
 class CategoriesForumsListView(ListView):
-
     context_object_name = "categories"
     template_name = "forum/index.html"
     queryset = ForumCategory.objects.all()
@@ -47,7 +47,6 @@ class CategoriesForumsListView(ListView):
 
 
 class ForumCategoryForumsDetailView(DetailView):
-
     context_object_name = "category"
     template_name = "forum/category/index.html"
     queryset = ForumCategory.objects.all()
@@ -59,7 +58,6 @@ class ForumCategoryForumsDetailView(DetailView):
 
 
 class LastTopicsListView(ListView):
-
     context_object_name = "topics"
     template_name = "forum/last_topics.html"
 
@@ -84,7 +82,6 @@ class LastTopicsListView(ListView):
 
 
 class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):
-
     context_object_name = "topics"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
     template_name = "forum/category/forum.html"
@@ -112,7 +109,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
             response["email"] = self.perform_follow_by_email(self.object, request.user)
 
         self.object.save()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
@@ -169,7 +166,6 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
 
 class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin):
-
     context_object_name = "posts"
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]
     template_name = "forum/topic/index.html"
@@ -229,7 +225,10 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         if queryset is None:
             queryset = Topic.objects
         result = (
-            queryset.filter(pk=self.kwargs.get("topic_pk")).select_related("solved_by").select_related("author").first()
+            queryset.filter(pk=self.kwargs.get("topic_pk"))
+            .select_related("solved_by", "author")
+            .prefetch_related("tags")
+            .first()
         )
         if result is None:
             raise Http404(f"Pas de forum avec l'identifiant {self.kwargs.get('topic_pk')}")
@@ -240,7 +239,6 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
 
 
 class TopicNew(CreateView, SingleObjectMixin):
-
     template_name = "forum/topic/new.html"
     form_class = TopicForm
     object = None
@@ -268,7 +266,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                 return StreamingHttpResponse(content)
             else:
@@ -299,7 +297,6 @@ class TopicNew(CreateView, SingleObjectMixin):
 
 
 class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin):
-
     template_name = "forum/topic/edit.html"
     form_class = TopicForm
     object = None
@@ -360,7 +357,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
             form = self.get_form(self.form_class)
 
             if "preview" in request.POST:
-                if request.is_ajax():
+                if is_ajax(request):
                     content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                     return StreamingHttpResponse(content)
                 else:
@@ -395,7 +392,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
             response["requesting"], response["newCount"] = self.toogle_featured_request(request.user)
 
         self.object.save()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
@@ -427,7 +424,6 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
 
 
 class FindTopic(ZdSPagingListView, SingleObjectMixin):
-
     context_object_name = "topics"
     template_name = "forum/find/topic.html"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
@@ -490,7 +486,6 @@ class FindFollowedTopic(ZdSPagingListView, SingleObjectMixin):
 
 
 class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjectMixin):
-
     context_object_name = "topics"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
     template_name = "forum/find/topic_by_tag.html"
@@ -517,7 +512,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
             response["email"] = self.perform_follow_by_email(self.object, request.user)
 
         self.object.save()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
@@ -553,7 +548,6 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
 
 class PostNew(CreatePostView):
-
     model_quote = Post
     template_name = "forum/post/new.html"
     form_class = PostForm
@@ -600,7 +594,6 @@ class PostNew(CreatePostView):
 
 
 class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
     template_name = "forum/post/edit.html"
     form_class = PostForm
 
@@ -643,7 +636,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
             form = self.get_form(self.form_class)
 
             if "preview" in request.POST:
-                if request.is_ajax():
+                if is_ajax(request):
                     content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
                     return StreamingHttpResponse(content)
                 else:
@@ -687,7 +680,6 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
 
 class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
     http_method_names = ["post"]
 
     @method_decorator(login_required)
@@ -726,7 +718,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def post(self, request, *args, **kwargs):
         self.perform_useful(self.object)
 
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(self.object.is_useful), content_type="application/json")
 
         return redirect(self.object.get_absolute_url())
@@ -751,7 +743,6 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
 
 class FindPost(ZdSPagingListView, SingleObjectMixin):
-
     context_object_name = "posts"
     template_name = "forum/find/post.html"
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]

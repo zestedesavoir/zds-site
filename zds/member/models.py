@@ -1,25 +1,21 @@
 from datetime import datetime
-from geoip2.errors import AddressNotFoundError
-from hashlib import md5
 
+import homoglyphs as hg
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.gis.geoip2 import GeoIP2
-from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.models import Post, Topic
-from zds.notification.models import TopicAnswerSubscription
+from zds.forum.models import Forum, Post, Topic
 from zds.member import NEW_PROVIDER_USES
-from zds.member.managers import ProfileManager
+from zds.member.managers import BlockedIPManager, ProfileManager
+from zds.member.utils import get_geo_location_from_ip, get_network_ip
+from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils import old_slugify
-from zds.utils.models import Alert, Licence, Hat
-
-from zds.forum.models import Forum
-import homoglyphs as hg
+from zds.utils.models import Alert, Hat, Licence
 
 
 class Profile(models.Model):
@@ -70,6 +66,7 @@ class Profile(models.Model):
     last_visit = models.DateTimeField("Date de dernière visite", null=True, blank=True)
     _permissions = {}
     _groups = None
+    _hats = None
     _cached_city = None
 
     objects = ProfileManager()
@@ -89,44 +86,30 @@ class Profile(models.Model):
 
     def get_city(self):
         """
-        Uses geo-localization to get physical localization of a profile through its last IP address.
-        This works relatively well with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
-        providers.
-        The result is cached on an instance level because this method is called a lot in the profile.
+        Uses geo-localization to get physical localization of a profile through
+        its last IP address. This works relatively well with IPv4 addresses (~city level),
+        but is very imprecise with IPv6 or exotic internet providers.
+        The result is cached on an instance level because this method is called
+        a lot in the profile.
         :return: The city and the country name of this profile.
         """
         if self._cached_city is not None and self._cached_city[0] == self.last_ip_address:
             return self._cached_city[1]
 
-        try:
-            geo = GeoIP2().city(self.last_ip_address)
-        except AddressNotFoundError:
-            self._cached_city = (self.last_ip_address, "")
-            return ""
-
-        city = geo["city"]
-        country = geo["country_name"]
-        geo_location = ", ".join(i for i in [city, country] if i)
+        geo_location = get_geo_location_from_ip(self.last_ip_address)
 
         self._cached_city = (self.last_ip_address, geo_location)
+
         return geo_location
 
-    def get_avatar_url(self, size=80):
-        """Get the avatar URL for this profile.
-        If the user has defined a custom URL, use it.
-        If not, use Gravatar.
-        :return: The avatar URL for this profile
-        :rtype: str
+    def get_absolute_avatar_url(self):
+        """Gets the avatar URL of this profile.
+        :return: The absolute URL of this profile's avatar
+        :rtype: str or None
         """
-        if self.avatar_url:
-            if self.avatar_url.startswith(settings.MEDIA_URL):
-                return "{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
-            else:
-                return self.avatar_url
-        else:
-            return "https://secure.gravatar.com/avatar/{}?d=identicon&s={}".format(
-                md5(self.user.email.lower().encode("utf-8")).hexdigest(), size
-            )
+        if self.avatar_url and self.avatar_url.startswith(settings.MEDIA_URL):
+            return settings.ZDS_APP["site"]["url"] + self.avatar_url
+        return self.avatar_url
 
     def get_post_count(self):
         """
@@ -192,15 +175,6 @@ class Profile(models.Model):
         """
         return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
 
-    def get_content_count(self, _type=None):
-        """
-        :param _type: if provided, request a specific type of content
-        :return: the count of contents with this user as author. Count all contents no only published one.
-        """
-        if self.is_private():
-            return 0
-        return self.get_user_contents_queryset(_type).count()
-
     def get_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
@@ -238,12 +212,6 @@ class Profile(models.Model):
         """
         return self.get_user_beta_contents_queryset(_type).all()
 
-    def get_tuto_count(self):
-        """
-        :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
-        """
-        return self.get_content_count(_type="TUTORIAL")
-
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
@@ -276,12 +244,6 @@ class Profile(models.Model):
         """
         return self.get_beta_contents(_type="TUTORIAL")
 
-    def get_article_count(self):
-        """
-        :return: the count of articles with this user as author. Count all articles, no only published one.
-        """
-        return self.get_content_count(_type="ARTICLE")
-
     def get_articles(self):
         """
         :return: All articles with this user as author.
@@ -313,12 +275,6 @@ class Profile(models.Model):
         :return: All articles in beta with this user as author.
         """
         return self.get_beta_contents(_type="ARTICLE")
-
-    def get_opinion_count(self):
-        """
-        :return: the count of opinions with this user as author. Count all opinions, no only published one.
-        """
-        return self.get_content_count(_type="OPINION")
 
     def get_opinions(self):
         """
@@ -363,8 +319,8 @@ class Profile(models.Model):
     def is_banned(self):
         """Return True if the user is permanently or temporarily banned."""
         if self.end_ban_read:
-            return self.can_read or (self.end_ban_read < datetime.now())
-        return self.can_read
+            return not self.can_read and (self.end_ban_read >= datetime.now())
+        return not self.can_read
 
     def can_write_now(self):
         if self.user.is_active:
@@ -401,15 +357,16 @@ class Profile(models.Model):
         """
         Return all hats the user is allowed to use.
         """
-        profile_hats = list(self.hats.all())
-        groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
-        hats = profile_hats + groups_hats
+        if self._hats is None:
+            profile_hats = list(self.hats.all())
+            groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
+            self._hats = profile_hats + groups_hats
 
-        # We sort internal hats before the others, and we slugify for sorting to sort correctly
-        # with diatrics.
-        hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{old_slugify(hat.name)}')
+            # We sort internal hats before the others, and we slugify for sorting to sort correctly
+            # with diatrics.
+            self._hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{old_slugify(hat.name)}')
 
-        return hats
+        return self._hats
 
     def get_requested_hats(self):
         """
@@ -458,9 +415,8 @@ class Profile(models.Model):
         skeleton = ""
         for ch in username:
             homoglyph = hg.Homoglyphs(languages={"fr"}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
-            if len(homoglyph) > 0:
-                if homoglyph[0].strip() != "":
-                    skeleton += homoglyph[0]
+            if len(homoglyph) > 0 and homoglyph[0].strip() != "":
+                skeleton += homoglyph[0]
         return skeleton.lower()
 
 
@@ -648,3 +604,33 @@ class KarmaNote(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - note : {self.note} ({self.pubdate}) "
+
+
+class BlockedIP(models.Model):
+    """
+    IP addresses blocked from signing up or logging in.
+    """
+
+    class Meta:
+        verbose_name = "Adresse IP bloquée"
+        verbose_name_plural = "Adresses IP bloquées"
+
+    ip_address = models.GenericIPAddressField("Adresse IP", unique=True, db_index=True)
+    is_network_address = models.BooleanField("Bloquer le bloc /64 de cette adresse IP ?", db_index=True)
+    moderator = models.ForeignKey(
+        User, verbose_name="Modérateur", related_name="blocked_ips", on_delete=models.SET_NULL, null=True
+    )
+    blocked_date = models.DateTimeField("Date du blocage", auto_now_add=True)
+    reason = models.CharField("Raison du blocage", max_length=250)
+
+    objects = BlockedIPManager()
+
+    def __str__(self):
+        if self.is_network_address:
+            return f"Blocked network IP {self.network_address}"
+        else:
+            return f"Blocked IP {self.ip_address}"
+
+    @property
+    def network_address(self):
+        return get_network_ip(self.ip_address)

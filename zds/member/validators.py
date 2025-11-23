@@ -1,11 +1,11 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator
+from django.core.validators import EmailValidator, ProhibitNullCharactersValidator
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
-from zds.utils.misc import contains_utf8mb4
 from zds.member.models import BannedEmailProvider, Profile
+from zds.utils.misc import contains_utf8mb4, remove_utf8mb4
 
 
 def validate_not_empty(value):
@@ -70,6 +70,15 @@ class ZdSEmailValidator(EmailValidator):
 validate_zds_email = ZdSEmailValidator()
 
 
+def clean_username_social_auth(username):
+    """
+    Clean username of accounts created using social auth.
+    """
+    # These three conditions are the same as the first three in the "validate_zds_username" function below.
+    # If you modify one of them here, make sure you do the same there!
+    return remove_utf8mb4(username).replace(",", "").replace("/", "")
+
+
 def validate_zds_username(value, check_username_available=True):
     """
     Check if username is used by another user
@@ -77,15 +86,31 @@ def validate_zds_username(value, check_username_available=True):
     :param value: value to validate (str or None)
     :return:
     """
+
+    # If the character \x00 is in the username, the homoglyphs library called
+    # in Profile.find_username_skeleton() will raise a ValueError (the bug has
+    # been reported: https://github.com/yamatt/homoglyphs/issues/6). To prevent
+    # this, we call this validator which will raise a ValidationError if \x00 is
+    # in the username.
+    ProhibitNullCharactersValidator()(value)
+
     msg = None
     user_count = User.objects.filter(username=value).count()
     skeleton_user_count = Profile.objects.filter(username_skeleton=Profile.find_username_skeleton(value)).count()
+
+    # These first three conditions are the same as those in the "clean_username_social_auth" function above.
+    # If you modify one of them here, make sure you do the same there!
     if "," in value:
         msg = _("Le nom d'utilisateur ne peut contenir de virgules")
-    if "/" in value:
+    elif "/" in value:
         msg = _("Le nom d'utilisateur ne peut contenir de barres obliques")
     elif contains_utf8mb4(value):
         msg = _("Le nom d'utilisateur ne peut pas contenir des caractères utf8mb4")
+    elif not value.isprintable():
+        # https://docs.python.org/fr/3.11/library/stdtypes.html#str.isprintable
+        msg = _(
+            "Le nom d'utilisateur ne peut contenir des caractères non affichables (caractères Unicode des catégories Z ou C)"
+        )
     elif check_username_available and user_count > 0:
         msg = _("Ce nom d'utilisateur est déjà utilisé")
     elif check_username_available and skeleton_user_count > 0:

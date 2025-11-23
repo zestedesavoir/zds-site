@@ -4,32 +4,27 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.db import transaction
 from django.http import StreamingHttpResponse
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 
+from zds.forum.utils import CreatePostView
 from zds.mp import signals
 from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.mp.decorator import is_participant
+from zds.mp.utils import send_message_mp, send_mp
+from zds.utils.misc import is_ajax
 from zds.utils.models import get_hat_from_request
-from zds.forum.utils import CreatePostView
-from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
-from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import (
-    PrivateTopic,
-    PrivateTopicRead,
-    PrivatePost,
-    mark_read,
-    PrivatePostVote,
-    is_reachable,
-)
+
+from .forms import PrivatePostForm, PrivateTopicEditForm, PrivateTopicForm
+from .models import PrivatePost, PrivatePostVote, PrivateTopic, PrivateTopicRead, is_reachable, mark_read
 
 
 class PrivateTopicList(LoginRequiredMixin, ZdSPagingListView):
@@ -64,7 +59,7 @@ class PrivateTopicNew(LoginRequiredMixin, CreateView):
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                 return StreamingHttpResponse(content)
             else:
@@ -307,7 +302,7 @@ class PrivatePostEdit(LoginRequiredMixin, UpdateView, UpdatePrivatePost):
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                 return StreamingHttpResponse(content)
         elif form.is_valid():

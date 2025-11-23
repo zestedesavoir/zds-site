@@ -1,21 +1,20 @@
-from rest_framework import filters, exceptions
+from django.utils.translation import gettext_lazy as _
+from dry_rest_permissions.generics import DRYPermissions
+from rest_framework import exceptions, filters
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
-from dry_rest_permissions.generics import DRYPermissions
-
-from django.utils.translation import gettext_lazy as _
 
 from zds.api.bits import UpdatedAtKeyBit
-from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
+from zds.api.key_constructor import DetailKeyConstructor, PagingListKeyConstructor
 from zds.api.views import NoPatchView
-from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import GalleryUpdateOrDeleteMixin, ImageUpdateOrDeleteMixin, NoMoreUserWithWriteIfLeave
+from zds.gallery.models import Gallery, Image, UserGallery
 
+from .permissions import AccessToGallery, NotLinkedToContent, WriteAccessToGallery
 from .serializers import GallerySerializer, ImageSerializer, ParticipantSerializer
-from .permissions import AccessToGallery, WriteAccessToGallery, NotLinkedToContent
 
 
 class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
@@ -25,7 +24,6 @@ class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
 
 
 class GalleryListView(ListCreateAPIView):
-
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("title",)
     ordering_fields = ("title", "update", "pubdate")
@@ -105,7 +103,6 @@ class GalleryDetailKeyConstructor(DetailKeyConstructor):
 
 
 class GalleryDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
-
     queryset = Gallery.objects.annotated_gallery()
     list_key_func = GalleryDetailKeyConstructor()
 
@@ -208,7 +205,6 @@ class PagingImageListKeyConstructor(PagingListKeyConstructor):
 
 
 class ImageListView(ListCreateAPIView):
-
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("title",)
     ordering_fields = ("title", "update", "pubdate")
@@ -307,7 +303,6 @@ class ImageDetailKeyConstructor(DetailKeyConstructor):
 
 
 class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin):
-
     queryset = Image.objects
     list_key_func = ImageDetailKeyConstructor()
 
@@ -413,7 +408,6 @@ class PagingParticipantListKeyConstructor(PagingListKeyConstructor):
 
 
 class ParticipantListView(ListCreateAPIView):
-
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ("id",)
     list_key_func = PagingParticipantListKeyConstructor()
@@ -496,7 +490,6 @@ class ParticipantDetailKeyConstructor(DetailKeyConstructor):
 
 
 class ParticipantDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
-
     list_key_func = ParticipantDetailKeyConstructor()
     lookup_field = "user__pk"
 

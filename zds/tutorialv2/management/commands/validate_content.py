@@ -5,9 +5,9 @@ from django.utils.translation import gettext as _
 
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.publication_utils import (
-    publish_content,
     FailureDuringPublication,
     notify_update,
+    publish_content,
     save_validation_state,
 )
 

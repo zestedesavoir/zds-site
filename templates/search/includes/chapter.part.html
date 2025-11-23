@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load date %}
+
+<a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu tutorial-illu">
+    {% if search_result.thumbnail %}
+        <img src="{{ search_result.thumbnail }}" alt="{{ search_result.title }}">
+    {% endif %}
+</a>
+
+<div class="content-info">
+    <header>
+        <h3 class="content-title" itemprop="itemListElement">
+            <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+                {{ search_result.title }}
+            </a>
+        </h3>
+
+        <p class="content-description is-long" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
+            <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+                {% if search_result.highlights.snippet %}
+                    {{ search_result.highlights.snippet|safe }}
+                {% else %}
+                    {{ search_result.description }}
+                {% endif %}
+            </a>
+        </p>
+    </header>
+
+    <footer>
+        <div class="content-meta inline" title="Chapitre">
+            <p>
+                {% trans "Chapitre du tutoriel" %}
+                <a href="{{ search_result.parent_get_absolute_url_online }}">{{ search_result.parent_title }}</a> &bullet;
+
+                <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|date_from_timestamp }}">
+                    <span class="long">{{ search_result.parent_publication_date|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.parent_publication_date|date_from_timestamp|format_date:True|capfirst }}</span>
+                </time>
+            </p>
+        </div>
+    </footer>
+</div>

@@ -5,11 +5,11 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.gallery.models import UserGallery, GALLERY_WRITE
+from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 
 
@@ -34,7 +34,6 @@ class AddAuthorTest(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.authors_management")
     def test_nominal(self, authors_management):
-
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.user_guest.username}, follow=False
         )
@@ -49,7 +48,6 @@ class AddAuthorTest(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.authors_management")
     def test_not_existing_user(self, authors_management):
-
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": "unknown"}, follow=False
         )
@@ -60,7 +58,6 @@ class AddAuthorTest(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.authors_management")
     def test_bot(self, authors_management):
-
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.external.username}, follow=False
         )

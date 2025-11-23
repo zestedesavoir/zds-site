@@ -1,0 +1,180 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load captureas %}
+{% load get_item %}
+
+
+{% if display_config.validation_actions.show_validation_actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+        <h3>{% if content.requires_validation %}{% trans "Validation"%}{%else %}{%trans "Modération" %}{% endif %}</h3>
+        <ul>
+            {% if display_config.validation_actions.show_validation_link %}
+                <li>
+                    {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
+                    <a href="{{ url_validation }}" class="ico-after online blue">
+                        {% trans "Voir la page de validation" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_identical_message %}
+                <li class="inactive">
+                    <span class="ico-after pin disabled">
+                        {{ display_config.validation_actions.messages|get_item:"validation_is_same" }}
+                    </span>
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_ask_validation %}
+                <li>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">{% trans "Demander la validation" %}</a>
+                    {% crispy form_ask_validation %}
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_cancel_validation %}
+                <li>
+                    <a href="#cancel-validation" class="open-modal ico-after cross blue">{% trans "Annuler la demande de validation" %}</a>
+                    {% crispy form_cancel_validation %}
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_update_validation %}
+                <li>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">{% trans "Mettre à jour la version en validation" %}</a>
+                    {% crispy form_ask_validation %}
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_validation_admin %}
+                <li>
+                    <a  href="{% url "mp:create" %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
+                        class="ico-after cite blue"
+                    >
+                        {% trans "Envoyer un MP" %}
+                        {% if content.authors.all|length > 1 %}
+                            {% trans "aux auteurs" %}
+                        {% else %}
+                            à {% trans "l’auteur" %}
+                        {% endif %}
+                    </a>
+                </li>
+
+                {% if content.in_validation %}
+                    {% if validation.is_pending %}
+                        <li>
+                            <form action="{% url "validation:reserve" validation.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="ico-after lock blue">
+                                    {% trans "Réserver" %}
+                                </button>
+                            </form>
+                        </li>
+                    {% elif validation.is_pending_valid %}
+                        {% if validation.validator == user %}
+                            <li>
+                                <form action="{% url "validation:reserve" validation.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="ico-after lock blue">
+                                        {% trans "Annuler la réservation" %}
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <a href="#valid-publish" class="open-modal ico-after tick green">{% trans "Valider et publier" %}</a>
+                                {% crispy form_valid %}
+                            </li>
+                            <li>
+                                <a href="#reject" class="open-modal ico-after cross red">{% trans "Rejeter" %}</a>
+                                {% crispy form_reject %}
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="#unreservation" class="open-modal ico-after lock blue">
+                                    {% blocktrans with validator_name=validation.validator.username %}
+                                        Réservé par <strong>{{ validator_name }}</strong>, le retirer
+                                    {% endblocktrans %}
+                                </a>
+                                <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-flex" id="unreservation">
+                                    {% csrf_token %}
+                                    <p>
+                                        {% trans "La validation de ce contenu est actuellement réservée par" %}
+                                        {% include "misc/member_item.part.html" with member=validation.validator %}.
+                                        {% trans "Êtes-vous certain de vouloir le retirer" %} ?
+                                    </p>
+                                    <button type="submit" class="btn btn-submit">
+                                        {% trans "Confirmer" %}
+                                    </button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+
+            {% if display_config.validation_actions.show_comparison_with_validation %}
+                <li>
+                    {% captureas to_sha %}{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}{% endcaptureas %}
+                    {% captureas diff_valid_url %}{% url "content:diff" content.pk content.slug_repository %}?from={{ validation.version }}&amp;to={{ to_sha }}{% endcaptureas %}
+                    <a href="{{ diff_valid_url }}" class="ico-after history blue">
+                        {% trans "Comparer avec la version en validation" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_validation_history %}
+                <li>
+                    {% url "validation:history" content.pk content.slug as history_url %}
+                    <a href="{{ history_url }}" class="ico-after history blue">{% trans "Historique de validation" %}</a>
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_moderation_history %}
+                <li>
+                    {% url "validation:ignore-opinion" content.pk content.slug as history_url %}
+                    <a href="{{ history_url }}" class="ico-after history blue">{% trans "Historique de modération" %}</a>
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_opinion_pick %}
+                <li>
+                    <a href="#pick-opinion" class="ico-after open-modal tick green">{% trans "Choisir le billet" %}</a>
+                    {% crispy form_pick %}
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_opinion_convert %}
+                <li>
+                    <a href="#convert-opinion" class="ico-after open-modal tick green">{% trans "Proposer comme article" %}</a>
+                    {% crispy form_convert %}
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_opinion_unpick %}
+                <li>
+                    <a href="#unpick-opinion" class="ico-after open-modal cross blue">{% trans "Retirer des billets choisis" %}</a>
+                    {% crispy form_unpick %}
+                </li>
+            {% endif %}
+
+            {% if display_config.validation_actions.show_opinion_moderate %}
+                <li>
+                    <a href="#unpublish-opinion" class="open-modal ico-after cross red">{% trans "Modérer" %}</a>
+                    {% url "validation:ignore-opinion" content.pk content.slug as moderate_url %}
+                    <form action="{{ moderate_url }}" method="post" class="modal modal-flex" id="unpublish-opinion">
+                        {% csrf_token %}
+                        <input type="hidden" name="operation" value="REMOVE_PUB">
+                        <input type="hidden" name="redirect" value="true">
+                        <p>
+                            {% blocktrans with content_title=content.title %}
+                                Voulez-vous vraiment modérer le billet <em>{{ content_title }}</em>&nbsp;?
+                                Il sera dépublié et ne pourra pas être republié.
+                            {% endblocktrans %}
+                        </p>
+                        <button type="submit" class="btn btn-submit">{% trans "Confirmer" %}</button>
+                    </form>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

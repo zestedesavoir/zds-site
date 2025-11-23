@@ -54,6 +54,9 @@ test-back-selenium: ## Run backend Selenium tests
 clean-back: ## Remove Python bytecode files (*.pyc)
 	find . -name '*.pyc' -exec rm {} \;
 
+list-outdated-back: ## List outdated Python packages
+	python scripts/check_requirements_versions.py requirements*.txt
+
 ##
 ## ~ Frontend
 
@@ -75,6 +78,9 @@ lint-front: ## Lint the Javascript code
 clean-front: ## Clean the frontend builds
 	yarn run clean
 
+list-outdated-front: ## List outdated Node.js packages
+	@npx david || true
+
 ##
 ## ~ zmarkdown
 
@@ -93,16 +99,16 @@ zmd-stop: ## Stop the zmarkdown server
 	node ./zmd/node_modules/pm2/bin/pm2 kill
 
 ##
-## ~ Elastic Search
+## ~ Search Engine
 
-run-elasticsearch: ## Run the Elastic Search server
-	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elastic-local`)'
+run-search-engine: ## Run the search server
+	@./.local/typesense/typesense-server --data-dir=.local/typesense/typesense-data --api-key=xyz || echo 'No Typesense installed (you can add it locally with `./scripts/install_zds.sh +typesense-local`)'
 
-index-all: ## Index the database in a new Elastic Search index
-	python manage.py es_manager index_all
+index-all: ## Index the whole database in the search engine
+	python manage.py search_engine_manager index_all
 
-index-flagged: ## Index the database in the current Elastic Search index
-	python manage.py es_manager index_flagged
+index-flagged: ## Index new content in the search engine
+	python manage.py search_engine_manager index_flagged
 
 ##
 ## ~ PDF
@@ -138,9 +144,6 @@ generate-doc: ## Generate the project's documentation
 	@echo ""
 	@echo "Open 'doc/build/html/index.html' to read the documentation'"
 
-generate-release-summary: ## Generate a release summary from Github's issues and PRs
-	@python scripts/generate_release_summary.py
-
 start-publication-watchdog: ## Start the publication watchdog
 	@if curl -s $(ZMD_URL) > /dev/null; then \
 		python manage.py publication_watchdog; \
@@ -154,6 +157,10 @@ start-publication-watchdog: ## Start the publication watchdog
 help: ## Show this help
 	@echo "Use 'make [command]' to run one of these commands:"
 	@echo ""
-	@fgrep --no-filename "##" ${MAKEFILE_LIST} | head -n '-1' | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2
+ifeq ($(shell uname), Darwin)
+	@fgrep --no-filename "##" ${MAKEFILE_LIST} | tail -r | tail -n +3 | tail -r | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2 | sed 's/(null)//g'
+else
+	@fgrep --no-filename "##" ${MAKEFILE_LIST} | head -n '-2' | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2  # assume GNU tools
+endif
 	@echo ""
 	@echo "Open this Makefile to see what each command does."

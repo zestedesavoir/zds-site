@@ -1,0 +1,39 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<li>
+    <a href="#add-contributor" class="open-modal ico-after more blue">{% trans "Ajouter un contributeur" %}</a>
+    {% crispy form_add_contributor %}
+</li>
+
+<li>
+    <a href="#manage-contributions" class="open-modal ico-after gear blue">{% trans "Gérer les contributeurs" %}</a>
+    {% url "content:remove-contributor" content.pk as delete_contributor_url %}
+    <form action="{{ delete_contributor_url }}" method="post" class="modal modal-large" id="manage-contributions" data-modal-close="Fermer">
+        {% csrf_token %}
+        <table class="fullwidth">
+            <thead>
+                <th width="15%">{% trans "Membre" %}</th>
+                <th width="15%">{% trans "Rôle" %}</th>
+                <th>{% trans "Commentaire" %}</th>
+                <th width="15%">{% trans "Actions" %}</th>
+            </thead>
+            <tbody>
+                {% for contribution in contributions %}
+                    <tr>
+                        <td>{% include "misc/member_item.part.html" with member=contribution.user %}</td>
+                        <td>{{contribution.contribution_role.title}}</td>
+                        <td>{{contribution.comment|default:""}}</td>
+                        <td>
+                            <button type="submit" data-value="{{ contribution.pk }}" name="pk_contribution" value="{{ contribution.pk }}" class="modal-inner">
+                                {% trans "Supprimer" %}
+                            </button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">Aucun contributeur</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</li>

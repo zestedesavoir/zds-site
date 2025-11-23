@@ -1,6 +1,7 @@
 from django.http.request import HttpRequest
 from django.utils.translation import gettext as _
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE
+
+from zds.gallery.models import GALLERY_WRITE, Gallery, UserGallery
 from zds.tutorialv2.models.database import PublishableContent
 
 

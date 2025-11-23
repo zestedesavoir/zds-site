@@ -1,10 +1,9 @@
-from django.db import models, migrations
 import django.db.models.deletion
 from django.conf import settings
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("forum", "0002_auto_20150410_1505"),
         ("gallery", "0001_initial"),

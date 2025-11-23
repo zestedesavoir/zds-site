@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta
 
-from django.test import TestCase
 from django.template import Context, Template
+from django.test import TestCase
 
 
 class DateFormatterTest(TestCase):
     # todo: Add test with localization parameters
 
     def setUp(self):
-
         now = datetime.now()
         date_previous_in_day = now - timedelta(hours=1)
         date_previous_abs = datetime(2013, 9, 12, hour=11, minute=10, second=42, microsecond=10)
@@ -77,9 +76,8 @@ class DateFormatterTest(TestCase):
         tr = Template("{% load date %}" "{{ NoneVal | tooltip_date }}").render(self.context)
         self.assertEqual("None", tr)
 
-    def test_humane_time(self):
-
+    def test_date_from_timestamp(self):
         # Default behaviour
-        tr = Template("{% load date %}" "{{ date_epoch | humane_time }}").render(self.context)
+        tr = Template("{% load date %}" "{{ date_epoch | date_from_timestamp | format_date }}").render(self.context)
 
         self.assertEqual(tr, "jeudi 01 janvier 1970 à 01h00")

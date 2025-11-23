@@ -1,11 +1,11 @@
-from django.test import TestCase
-from django.db import IntegrityError, transaction
 from django.contrib.auth.models import Group
+from django.db import IntegrityError, transaction
+from django.test import TestCase
 
 from zds.member.models import Profile
 from zds.member.tests.factories import ProfileFactory
 from zds.utils.forms import TagValidator
-from zds.utils.models import Tag, Hat
+from zds.utils.models import Hat, Tag
 
 
 class TagsTests(TestCase):
@@ -50,7 +50,7 @@ class TagsTests(TestCase):
         )
 
         # test tags title stripping
-        tags = ["foo bar", "  azerty", "\u00A0qwerty ", " another tag "]
+        tags = ["foo bar", "  azerty", "\u00a0qwerty ", " another tag "]
         insert_valid_tags(tags)
 
         all_titles = Tag.objects.values_list("title", flat=True)
@@ -74,13 +74,11 @@ class TagsTests(TestCase):
         self.assertEqual(validator.errors, [])
 
     def test_validator_with_special_char_only(self):
-
         validator = TagValidator()
         self.assertFalse(validator.validate_raw_string("^"))
         self.assertEqual(len(validator.errors), 1)
 
     def test_validator_with_utf8mb4(self):
-
         raw_string = "🐙☢,bla"
         validator = TagValidator()
         self.assertFalse(validator.validate_raw_string(raw_string))

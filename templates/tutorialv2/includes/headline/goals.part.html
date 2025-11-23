@@ -1,0 +1,12 @@
+{% load i18n %}
+
+{% if goals %}
+    <p>
+        {% trans "Objectif" %}{{ goals|pluralize }}{%trans " :" %}
+        {% comment %}
+            Warning: whitespace in the loop below is crucial to ensure correct rendering.
+            That's why it is written as a one-liner. Take care when modifying it.
+        {% endcomment %}
+        {% for goal in goals %}{% if not forloop.first %}, {% endif %}<a href="{% url "content:view-goals" %}?{{ goal.slug }}">{{ goal }}</a>{% endfor %}
+    </p>
+{% endif %}

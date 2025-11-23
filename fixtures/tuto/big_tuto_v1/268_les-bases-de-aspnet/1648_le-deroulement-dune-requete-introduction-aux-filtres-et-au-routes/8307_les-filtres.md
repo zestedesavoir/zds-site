@@ -12,7 +12,7 @@ Lorsque vous spécifiez un filtre sur la classe, il s'appliquera à toutes les m
 
 La plupart du temps, vous utiliserez les filtres [RequireRole], [Authorize], [AllowAnonymous].
 
-Ces filtres ont la particularité de gérer les cas d'autorisation. Si Authorize ou RequireRole échouent, ils vous envoient une page avec pour erreur "403: not authorized". 
+Ces filtres ont la particularité de gérer les cas d'autorisation. Si Authorize ou RequireRole échouent, ils vous envoient une page avec pour erreur "403: not authorized".
 
 Il est **fortement conseillé** de mettre `[Authorize]` sur **toutes les classes** de contrôleur puis de spécifier les méthodes qui sont accessibles publiquement à l'aide de `[AllowAnonymous]`.
 

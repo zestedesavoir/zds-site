@@ -1,7 +1,8 @@
 import datetime
+
 from django.core.cache import cache
 from django.utils.encoding import force_str
-from rest_framework_extensions.key_constructor.bits import QueryParamsKeyBit, KeyBitBase
+from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
 
 
 class DJRF3xPaginationKeyBit(QueryParamsKeyBit):

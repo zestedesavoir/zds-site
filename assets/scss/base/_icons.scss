@@ -377,15 +377,15 @@
         }
     }
 
-    &.twitter {
+    &.X {
         &:after {
-            @include sprite-position($twitter);
+            @include sprite-position($X);
         }
         &.blue:after {
-            @include sprite-position($twitter-blue);
+            @include sprite-position($X-blue);
         }
         &.light:after {
-            @include sprite-position($twitter-light);
+            @include sprite-position($X-light);
         }
     }
 

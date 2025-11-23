@@ -3,22 +3,21 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from zds.forum.commons import PostEditMixin
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
-from zds.forum.models import Forum, TopicRead, Post, Topic
+from zds.forum.models import Forum, Post, Topic, TopicRead
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TagFactory, TopicFactory
+from zds.forum.utils import get_tag_by_title
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import old_slugify
-from zds.forum.utils import get_tag_by_title
 from zds.utils.models import Alert, Tag
 
 
 class ForumMemberTests(TestCase):
     def setUp(self):
-
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
         self.category1 = ForumCategoryFactory(position=1)
@@ -383,7 +382,6 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_edit_post_with_blank(self):
-
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=self.user, position=2)
@@ -661,7 +659,6 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.filter(topic=topic1.pk).count(), 1)
 
     def test_add_tag(self):
-
         tag_c_sharp = TagFactory(title="C#")
 
         tag_c = TagFactory(title="C")
@@ -824,7 +821,6 @@ class ForumMemberTests(TestCase):
 
 class ForumGuestTests(TestCase):
     def setUp(self):
-
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
         self.category1 = ForumCategoryFactory(position=1)
@@ -1163,7 +1159,6 @@ def get_topics(forum_pk, is_sticky, filter=None):
 
 class ManagerTests(TestCase):
     def setUp(self):
-
         self.cat1 = ForumCategoryFactory()
         self.forum1 = ForumFactory(category=self.cat1)
         self.forum2 = ForumFactory(category=self.cat1)
@@ -1180,8 +1175,7 @@ class ManagerTests(TestCase):
         TopicFactory(forum=self.forum3, author=self.staff.user)
 
     def test_get_last_topics(self):
-
-        topics = Topic.objects.get_last_topics()
+        topics = Topic.objects.get_last_topics(5)
         self.assertEqual(2, len(topics))
 
     def test_get_unread_post(self):
@@ -1209,6 +1203,22 @@ class ManagerTests(TestCase):
         self.assertFalse(topic.is_read_by_user(author.user, check_auth=False))
         self.assertTrue(topic.is_read_by_user(self.staff.user, check_auth=False))
         self.assertFalse(topic.is_read_by_user(reader.user, check_auth=False))
+
+    def test_get_authorized_forums_pk(self):
+        user = ProfileFactory().user
+        hidden_forum = self.forum3
+
+        # Regular user can access only the public forum:
+        self.assertEqual(sorted(Forum.objects.get_authorized_forums_pk(user)), sorted([self.forum1.pk, self.forum2.pk]))
+
+        # Staff user can access all forums:
+        self.assertEqual(
+            sorted(Forum.objects.get_authorized_forums_pk(self.staff.user)),
+            sorted([self.forum1.pk, self.forum2.pk, hidden_forum.pk]),
+        )
+
+        # By default, only public forums are available:
+        self.assertEqual(sorted(Forum.objects.get_authorized_forums_pk(None)), sorted([self.forum1.pk, self.forum2.pk]))
 
 
 class TopicReadAndUnreadTests(TestCase):

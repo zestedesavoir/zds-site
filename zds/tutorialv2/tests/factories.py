@@ -1,5 +1,5 @@
 from datetime import datetime
-from os.path import join, basename
+from os.path import basename, join
 from shutil import copyfile
 
 import factory
@@ -7,16 +7,17 @@ from django.conf import settings
 
 from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
+from zds.tutorialv2.models.database import ContentContributionRole, ContentReaction, PublishableContent, Validation
 from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.quizz import QuizzQuestion, QuizzAvailableAnswer, QuizzUserAnswer
 from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.utils import old_slugify
-from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
-from zds.utils.models import Licence
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, ContentContributionRole
+from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo
+from zds.utils import old_slugify
+from zds.utils.models import Licence
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 text_content = "Ceci est un texte bidon, **avec markown**"
 
@@ -85,7 +86,7 @@ class PublishableContentFactory(factory.django.DjangoModelFactory):
         conclusion_content = attrs.pop("conclusion", text)
 
         publishable_content = super()._generate(create, attrs)
-        publishable_content.gallery = GalleryFactory()
+        publishable_content.gallery = GalleryFactory(title=publishable_content.title)
         publishable_content.licence = licence
         for auth in auths:
             publishable_content.authors.add(auth)
@@ -195,6 +196,7 @@ class ContentReactionFactory(factory.django.DjangoModelFactory):
 
     ip_address = "192.168.3.1"
     text = "Bonjour, je me présente, je m'appelle l'homme au texte bidonné"
+    position = 1
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -234,7 +236,10 @@ class BetaContentFactory(PublishableContentFactory):
 
 class PublishedContentFactory(PublishableContentFactory):
     """
-    Factory that creates a PublishableContent and the publish it.
+    Factory that creates a PublishableContent and then publishes it.
+
+    NOTE: This factory returns the PublishableContent object, not the
+    PublishedContent object (accessible through content.public_version).
     """
 
     @classmethod
@@ -262,6 +267,16 @@ class ValidationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Validation
+
+    @classmethod
+    def _generate(cls, create, attrs):
+
+        content = attrs.get("content")
+
+        validation = super()._generate(create, attrs)
+        validation.version = content.sha_draft
+
+        return validation
 
 
 class HelpWritingFactory(factory.django.DjangoModelFactory):
@@ -350,3 +365,12 @@ class ContentContributionRoleFactory(factory.django.DjangoModelFactory):
         model = ContentContributionRole
 
     title = factory.Sequence("Rôle {}".format)
+
+
+class LabelFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Label
+
+    name = factory.Sequence("Mon label n°{}".format)
+    description = factory.Sequence("Très belle description n°{}".format)
+    slug = factory.Sequence("mon-label-{}".format)

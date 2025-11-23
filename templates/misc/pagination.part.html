@@ -1,5 +1,4 @@
 {% load captureas %}
-{% load append_query_params %}
 {% load i18n %}
 
 
@@ -11,28 +10,28 @@
     {% endcaptureas %}
 
     <ul class="pagination pagination-{{ position }}">
-        {% ifnotequal nb 1 %}
+        {% if nb != 1 %}
             <li class="prev">
                 {% with prev=nb|add:-1 %}
-                    <a href="{% append_query_params page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue" rel="prev">
+                    <a href="{{ request.path }}{% querystring page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue" rel="prev">
                         <span>
                             {% trans "Précédente" %}
                         </span>
                     </a>
                 {% endwith %}
             </li>
-        {% endifnotequal %}
+        {% endif %}
 
 
         {% for page in pages %}
             {% if page %}
                 <li>
                     <a
-                        {% ifnotequal page nb %}
-                            href="{% append_query_params page=page %}{{ full_anchor }}"
+                        {% if page != nb %}
+                            href="{{ request.path }}{% querystring page=page %}{{ full_anchor }}"
                         {% else %}
                             class="current"
-                        {% endifnotequal %}
+                        {% endif %}
                         {% if page|add:-1 == nb %}
                             rel="next"
                         {% elif page|add:1 == nb %}
@@ -72,7 +71,7 @@
         {% if pages|last > 0 and pages|last != nb %}
             <li class="next">
                 {% with next=nb|add:1 %}
-                    <a href="{% append_query_params page=next %}{{ full_anchor }}" class="ico-after arrow-right blue" rel="next">
+                    <a href="{{ request.path }}{% querystring page=next %}{{ full_anchor }}" class="ico-after arrow-right blue" rel="next">
                         <span>
                             {% trans "Suivante" %}
                         </span>

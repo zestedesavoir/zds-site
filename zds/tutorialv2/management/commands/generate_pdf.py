@@ -2,9 +2,10 @@ import contextlib
 import os
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
+
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.publication_utils import PublicatorRegistry
@@ -46,8 +47,7 @@ class Command(BaseCommand):
                 building_extra_content_path = Path(
                     str(Path(extra_content_dir).parent) + "__building", "extra_contents", content.content_public_slug
                 )
-                if not building_extra_content_path.exists():
-                    building_extra_content_path.mkdir(parents=True)
+                building_extra_content_path.mkdir(parents=True, exist_ok=True)
                 base_name = os.path.join(extra_content_dir, content.content_public_slug)
 
                 # delete previous one

@@ -1,0 +1,8 @@
+{% load i18n %}
+{% load humanize_duration %}
+
+{% if reading_time and not is_part_or_chapter %}
+    <p>{% trans "Temps de lecture estimé : " %}{{ reading_time|humanize_duration }}</p>
+{% elif not is_part_or_chapter %}
+    <p>{% trans "Temps de lecture estimé à moins d’une minute." %}</p>
+{% endif %}

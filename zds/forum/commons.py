@@ -2,17 +2,17 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django.views.generic.detail import SingleObjectMixin
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.models import User
 
-from zds.forum.models import Forum, Post, TopicRead
 from zds.forum import signals
-from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
+from zds.forum.models import Forum, Post, TopicRead
+from zds.notification.models import NewTopicSubscription, Notification, TopicAnswerSubscription
 from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 
@@ -71,8 +71,6 @@ class TopicEditMixin:
                 raise Http404("Forum not found", e)
             forum = get_object_or_404(Forum, pk=forum_pk)
             self.object.forum = forum
-
-            # Save topic to update update_index_date
             self.object.save()
 
             signals.topic_moved.send(sender=self.object.__class__, topic=self.object)
@@ -177,10 +175,6 @@ class PostEditMixin:
         post.update = datetime.now()
         post.editor = user
         post.save()
-
-        # Save topic to update update_index_date
-        if post.position == 1:
-            post.topic.save()
 
         return post
 

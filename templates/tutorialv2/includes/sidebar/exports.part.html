@@ -1,0 +1,55 @@
+{% load get_item %}
+{% load i18n %}
+
+<a href="#exports-modal" class="open-modal ico-after gear blue"
+   data-exports-id="{{ content.pk }}"
+   data-exports-api="{% url "api:content:list_exports" content.pk %}"
+   data-request-export-api="{% url "api:content:generate_export" content.pk %}">
+    {{ public_actions.messages|get_item:"export_content" }}
+</a>
+
+<div class="modal modal-flex" id="exports-modal" data-modal-close="Fermer">
+    {% blocktrans %}
+        <p>
+            En plus de leur version web, <strong>vos contenus sont exportés
+            automatiquement en différents formats</strong> par Zeste de
+            Savoir, ce qui permet notamment de les diffuser plus facilement
+            hors-ligne.
+        </p>
+    {% endblocktrans %}
+
+    <section class="exports is-empty"
+             data-tr-no-exports="{% trans "<strong>Ce contenu n'a jamais été exporté.</strong><br />Cliquez sur le bouton vert ci-dessous pour demander les exports !" %}"
+             data-tr-error-loading="{% trans "Impossible de charger la liste des exports." %}"
+             data-tr-formatpdf="{% trans "PDF" %}"
+             data-tr-formatepub="{% trans "ePub" %}"
+             data-tr-formathtml="{% trans "HTML" %}"
+             data-tr-formatzip="{% trans "ZIP" %}"
+             data-tr-formatmd="{% trans "Markdown" %}"
+             data-tr-download="{% trans "Télécharger" %}"
+             data-tr-download-title="{% trans "Télécharger cet export" %}"
+             data-tr-statesuccess="{% trans "Terminé" %}"
+             data-tr-staterunning="{% trans "En cours de traitement" %}"
+             data-tr-statefailure="{% trans "Échoué" %}"
+             data-tr-staterequested="{% trans "En attente" %}"
+             data-tr-generation-waiting="{% trans "Envoi de la demande…" %}"
+             data-tr-generation-requested="{% trans "La génération a été demandée." %}"
+             data-tr-generation-errored="{% trans "Impossible de demander la génération… Réessayez ?" %}"
+    >
+        <p>
+            {% trans "Chargement en cours…" %}
+        </p>
+    </section>
+
+    <footer>
+        <h3>{% trans "Regénérer les exports de votre contenu" %}</h3>
+        {% blocktrans %}
+            <p>
+                Si pour quelque raison, tous les exports ne sont pas disponibles,
+                ou si vous voulez les actualiser, cliquez sur le bouton ci-dessous
+                pour re-lancer leur génération.
+            </p>
+        {% endblocktrans %}
+        <button class="btn btn-submit btn-holder modal-inner" data-csrf="{{ csrf_token }}">Demander la génération de tous les exports</button>
+    </footer>
+</div>

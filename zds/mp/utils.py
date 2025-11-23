@@ -1,13 +1,13 @@
+import logging
 from contextlib import suppress
 from datetime import datetime
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-import logging
 
-from zds.mp.models import PrivateTopic, PrivatePost, mark_read, NotReachableError
 from zds.mp import signals
+from zds.mp.models import NotReachableError, PrivatePost, PrivateTopic, mark_read
 from zds.utils.templatetags.emarkdown import emarkdown
 
 logger = logging.getLogger(__name__)

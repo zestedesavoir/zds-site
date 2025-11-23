@@ -1,0 +1,23 @@
+{% include "tutorialv2/includes/headline/title.part.html" with content=content title=title show_thumbnail=show_thumbnail show_form=display_config.draft_actions.show_title_edit form_title=form_edit_title form_subtitle=form_edit_subtitle %}
+
+<aside class="meta">
+    <div class="meta-column">
+        {% include "tutorialv2/includes/headline/authors.part.html" with db_content=db_content edit_authors=display_config.draft_actions.show_authors_management online_mode=display_config.online_config.enable_authors_online_mode %}
+        {% include "tutorialv2/includes/headline/licence.part.html" with licence=content.licence show_form=display_config.draft_actions.show_license_edit form=form_edit_license %}
+        {% include "tutorialv2/includes/headline/contributions.part.html" %}
+        {% include "tutorialv2/includes/headline/categories.part.html" with content=content show_form=display_config.draft_actions.show_categories_management %}
+        {% include "tutorialv2/includes/headline/goals.part.html" with goals=publishablecontent.goals.all %}
+        {% include "tutorialv2/includes/headline/labels.part.html" with labels=publishablecontent.labels.all %}
+
+        {% if display_config.online_config.show_reading_time %}
+            {% include "tutorialv2/includes/headline/reading_time.part.html" %}
+        {% endif %}
+
+        {% include "tutorialv2/includes/headline/update_date.part.html" with online_mode=display_config.online_config.enable_update_date_online_mode %}
+    </div>
+
+    <div class="meta-column">
+        {% include "tutorialv2/includes/headline/tags.part.html" with content=content db_content=db_content %}
+        {% include "misc/zen_button.part.html" %}
+    </div>
+</aside>

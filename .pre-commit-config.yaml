@@ -1,11 +1,25 @@
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.3
+    rev: v3.21.1
     hooks:
     -   id: pyupgrade
-        args: [--py37-plus]
-  - repo: https://github.com/psf/black
-    rev: 22.8.0 # needs to be also updated in requirements-dev.txt and .github/workflows/ci.yml
+        args: [--py311-plus]
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 25.11.0 # needs to be also updated in requirements-dev.txt
     hooks:
       - id: black
         language_version: python3
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+     - id: trailing-whitespace
+       exclude_types: ["svg"]
+     - id: end-of-file-fixer
+       exclude_types: ["svg"]
+     - id: mixed-line-ending
+       exclude_types: ["svg"]
+       args: ["--fix=lf"]
+  - repo: https://github.com/pycqa/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort

@@ -1,8 +1,8 @@
 import collections
 import contextlib
-from os import path, makedirs
-from pathlib import Path
 import copy
+from os import makedirs, path
+from pathlib import Path
 
 import requests
 from django.template.loader import render_to_string
@@ -18,7 +18,7 @@ def publish_use_manifest(db_object, base_dir, versionable_content: VersionedCont
     base_content = export_content(versionable_content, with_text=True)
 
     md, metadata, __ = render_markdown(
-        base_content, disable_jsfiddle=not db_object.js_support, full_json=True, stats=True
+        base_content, disable_jsfiddle=not db_object.js_support, use_manifest=True, stats=True
     )
     publish_container_new(db_object, base_dir, versionable_content, md, content=db_object)
     return metadata.get("stats", {}).get("signs", 0)
@@ -206,7 +206,6 @@ def publish_container(
         container.children = []
         container.children_dict = {}
         for child in filter(lambda c: c.ready_to_publish, children):
-
             altered_version = copy.copy(child)
             container.children.append(altered_version)
             container.children_dict[altered_version.slug] = altered_version

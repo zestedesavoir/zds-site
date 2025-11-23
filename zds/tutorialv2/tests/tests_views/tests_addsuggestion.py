@@ -2,13 +2,13 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory
 from zds.tutorialv2.models.database import ContentSuggestion
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory
 
 
 @override_for_contents()
@@ -71,7 +71,7 @@ class AddSuggestionPermissionTests(TutorialTestMixin, TestCase):
         self.content.type = "OPINION"
         self.content.save()
         response = self.client.post(self.form_url, self.form_data)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.content_url)
 
 
 class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
@@ -94,10 +94,10 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
 
         # Get information to be reused in tests
         self.form_url = reverse("content:add-suggestion", kwargs={"pk": self.content.pk})
-        self.success_message_fragment = _("a été ajouté dans les suggestions")
-        self.error_message_fragment_unpublished = _("un contenu qui n'a pas été publié")
-        self.error_message_fragment_already_suggested = _("fait déjà partie des suggestions de")
-        self.error_message_fragment_self = _("en tant que suggestion pour lui-même")
+        self.success_message_fragment = _("a été ajouté aux suggestions")
+        self.error_message_fragment_unpublished = _("pas suggérer une publication non publique")
+        self.error_message_fragment_already_suggested = _("déjà suggéré pour cette publication")
+        self.error_message_fragment_self = _("la publication pour elle-même")
         self.error_messge_fragment_not_picked = _("un billet qui n'a pas été mis en avant")
 
         # Log in with an authorized user to perform the tests
@@ -143,21 +143,21 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
     def test_self(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.content.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_self))
-        self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.assertQuerySetEqual(ContentSuggestion.objects.all(), [])
         self.check_signal(suggestions_management, emitted=False)
 
     @patch("zds.tutorialv2.signals.suggestions_management")
     def test_not_picked_opinion(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.not_picked_opinion.pk}, follow=True)
         self.assertContains(response, escape(self.error_messge_fragment_not_picked))
-        self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.assertQuerySetEqual(ContentSuggestion.objects.all(), [])
         self.check_signal(suggestions_management, emitted=False)
 
     @patch("zds.tutorialv2.signals.suggestions_management")
     def test_unpublished(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.unpublished_content.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_unpublished))
-        self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.assertQuerySetEqual(ContentSuggestion.objects.all(), [])
         self.check_signal(suggestions_management, emitted=False)
 
     @patch("zds.tutorialv2.signals.suggestions_management")

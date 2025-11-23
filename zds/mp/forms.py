@@ -1,13 +1,12 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder, HTML
 from crispy_forms.bootstrap import StrictButton
-
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, ButtonHolder, Field, Hidden, Layout
 from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.mp.models import PrivateTopic
-from zds.mp.validators import ParticipantsStringValidator, TitleValidator, TextValidator
+from zds.mp.validators import ParticipantsStringValidator, TextValidator, TitleValidator
 from zds.utils.forms import CommonLayoutEditor
 
 
@@ -16,9 +15,8 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
         label=_("Participants"),
         widget=forms.TextInput(
             attrs={
-                "placeholder": _("Les participants doivent " "être séparés par une virgule."),
+                "placeholder": _("Les participants doivent être séparés par une virgule."),
                 "required": "required",
-                "data-autocomplete": '{ "type": "multiple", "url": "/api/membres/?search=%s" }',
             }
         ),
     )
@@ -40,6 +38,12 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
 
     def __init__(self, username, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["participants"].widget.attrs.update(
+            {
+                "data-autocomplete": '{ "type": "multiple", "url": "' + reverse("api:member:list") + '?search=%s" }',
+            }
+        )
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"

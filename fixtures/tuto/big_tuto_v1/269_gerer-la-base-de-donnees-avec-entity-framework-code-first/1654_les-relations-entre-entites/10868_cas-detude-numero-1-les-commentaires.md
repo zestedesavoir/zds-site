@@ -23,13 +23,13 @@ Code: Un commentaire basique
 
 Le seul problème de cette représentation c'est qu'elle ne prend pas en compte le fait que le commentaire se réfère à un article. Je dirais même plus, le commentaire se réfère à un et un seul article.
 
-Pour schématiser cela, on pourrait écrire : 
+Pour schématiser cela, on pourrait écrire :
 
 ![Relation 1-n non inversée](/media/galleries/304/36a78c61-5aba-47b0-9fa2-610ab519b80b.png.960x960_q85.jpg)
 
 Ce schéma, signifie qu'il y a un lien entre le commentaire et l'article et donc qu'à partir d'un commentaire on peut retrouver l'article auquel il est lié.
 
-Sous forme de code, cela s'écrit : 
+Sous forme de code, cela s'écrit :
 
 ```csharp
 public class Commentaire{
@@ -98,7 +98,7 @@ Sachez qu'on peut s'en contenter, néanmoins, cela peut poser quelques difficult
 
 Souvenons-nous que nous utilisons un ORM : Entity Framework.
 
-Ce qui est bien avec les ORM, c'est qu'ils créent leurs requêtes tous seuls. 
+Ce qui est bien avec les ORM, c'est qu'ils créent leurs requêtes tous seuls.
 
 A priori, néanmoins, il ne va pas charger tout seul les entités liées. Il vous faudra -comme lorsqu'on n'avait pas encore inversé la relation-, utiliser `Include` pour aller chercher la liste des commentaires.
 
@@ -158,9 +158,9 @@ Code: La classe Article complète
 
 Maintenant que vous avez mis à jour votre modèle, mis à jour votre contrôleur d'article, il faut qu'on affiche les commentaires.
 
-Habituellement, les commentaires sont affichés dans la page `Details` de l'article. 
+Habituellement, les commentaires sont affichés dans la page `Details` de l'article.
 
-Par contre, nous pouvons imaginer qu'ils seront affichés autre part : modération des commentaires, commentaire le plus récent en page d'accueil... 
+Par contre, nous pouvons imaginer qu'ils seront affichés autre part : modération des commentaires, commentaire le plus récent en page d'accueil...
 
 Mettre en dur l'affichage des commentaires dans la page d'article, ça peut être assez contre productif.
 

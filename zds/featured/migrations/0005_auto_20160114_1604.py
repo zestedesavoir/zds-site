@@ -1,8 +1,7 @@
-from django.db import models, migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("featured", "0004_auto_20150622_0957"),
     ]

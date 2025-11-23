@@ -21,12 +21,6 @@
 
 
 {% block headline %}
-    {% if content.licence %}
-        <p class="license">
-            {{ content.licence }}
-        </p>
-    {% endif %}
-
     <h1 {% if content.image %}class="illu"{% endif %}>
         {% if content.image %}
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
@@ -41,8 +35,6 @@
             {{ content.description }}
         </h2>
     {% endif %}
-
-    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
 {% endblock %}
 
 

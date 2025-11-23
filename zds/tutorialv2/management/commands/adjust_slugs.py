@@ -13,7 +13,6 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-
         for c in PublishableContent.objects.all():
             if "'" in c.title:
                 good_slug = slugify(c.title)

@@ -1,11 +1,10 @@
-from django.db import models, migrations
-import oauth2_provider.validators
 import oauth2_provider.generators
+import oauth2_provider.validators
 from django.conf import settings
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

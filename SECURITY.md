@@ -1,6 +1,6 @@
 # Security Policy
 
-If you discover a vulnerability in our code or at https://zestedesavoir.com, please do *not* open an issue but send an email to **technique@zestedesavoir.com**! 
+If you discover a vulnerability in our code or at https://zestedesavoir.com, please do *not* open an issue but send an email to **technique@zestedesavoir.com**!
 
 Thank you <3
 

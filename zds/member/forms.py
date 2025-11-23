@@ -1,32 +1,30 @@
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, ButtonHolder, Div, Field, Hidden, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django_recaptcha.fields import ReCaptchaField
 
-from captcha.fields import ReCaptchaField
-from crispy_forms.bootstrap import StrictButton
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden, Div
-
-from zds.member.models import Profile, KarmaNote, BannedEmailProvider
+from zds.member.models import Ban, BannedEmailProvider, BlockedIP, KarmaNote, Profile
 from zds.member.validators import (
     validate_not_empty,
-    validate_zds_email,
-    validate_zds_username,
     validate_passwords,
-    validate_zds_password,
     validate_raw_zds_username,
+    validate_zds_email,
+    validate_zds_password,
+    validate_zds_username,
 )
+from zds.utils import get_current_user
 from zds.utils.forms import IncludeEasyMDE, PasswordRequiredForm
 from zds.utils.misc import contains_utf8mb4
-from zds.utils.models import Licence, HatRequest, Hat
-from zds.utils import get_current_user
-
+from zds.utils.models import Hat, HatRequest, Licence
 
 # Min password length for the user.
 MIN_PASSWORD_LENGTH = 6
@@ -48,7 +46,9 @@ class LoginForm(AuthenticationForm):
             "Vous n’avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site."
             " <a href={}>Vous n’avez pas reçu le courriel d'activation ?</a>"
         ),
-        "banned": _("Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur."),
+        "banned": _(
+            "Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur pour la raison suivante : « {} »."
+        ),
     }
 
     def __init__(self, request=None, next="", *args, **kwargs):
@@ -81,9 +81,10 @@ class LoginForm(AuthenticationForm):
                 error_text,
                 code="inactive",
             )
-        elif not user.profile.is_banned():
+        elif user.profile.is_banned():
+            ban_rationale = Ban.objects.filter(user=user).order_by("-pubdate").first().note
             raise ValidationError(
-                self.error_messages["banned"],
+                self.error_messages["banned"].format(ban_rationale),
                 code="banned",
             )
 
@@ -191,9 +192,7 @@ class MiniProfileForm(forms.Form):
         label="Avatar",
         required=False,
         max_length=Profile._meta.get_field("avatar_url").max_length,
-        widget=forms.TextInput(
-            attrs={"placeholder": _("Lien vers un avatar externe (laissez vide pour utiliser Gravatar).")}
-        ),
+        widget=forms.TextInput(attrs={"placeholder": _("Lien vers un avatar externe.")}),
     )
 
     sign = forms.CharField(
@@ -467,7 +466,6 @@ class UnregisterForm(PasswordRequiredForm):
 
 # TODO: Updates the password --> requires a better name
 class ChangePasswordForm(PasswordRequiredForm):
-
     password_new = forms.CharField(
         label=_("Nouveau mot de passe"),
         min_length=MIN_PASSWORD_LENGTH,
@@ -760,3 +758,37 @@ class HatRequestForm(forms.ModelForm):
         except Hat.DoesNotExist:
             pass
         return data
+
+
+class BlockedIPForm(forms.ModelForm):
+    class Meta:
+        model = BlockedIP
+        fields = ("is_network_address", "reason")
+        widgets = {
+            "reason": forms.TextInput(
+                attrs={
+                    "autofocus": "on",
+                    "placeholder": "Raison du blocage",
+                }
+            ),
+        }
+
+    def __init__(self, is_ipv6, *args, **kwargs):
+        if is_ipv6:
+            is_network_address = Field("is_network_address")
+        else:
+            is_network_address = Hidden("is_network_address", False)
+
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "blocked-ip-modal"
+        self.helper.form_method = "post"
+
+        self.helper.layout = Layout(
+            is_network_address,
+            Field("reason"),
+            ButtonHolder(
+                StrictButton("Bloquer cette adresse IP", type="submit"),
+            ),
+        )

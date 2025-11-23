@@ -14,11 +14,11 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.database import PublishedContent, Validation
 from zds.tutorialv2.models.quizz import QuizzQuestion, QuizzUserAnswer
-from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
-from zds.tutorialv2.models.database import Validation, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
 from zds.tutorialv2.views.statistics import DeleteQuizz
 from zds.utils.tests.factories import LicenceFactory
 
@@ -35,7 +35,7 @@ def daterange(start_date, end_date):
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_settings(SEARCH_ENABLED=False)
 class StatTests(TestCase, TutorialTestMixin):
     def setUp(self):
         self.nb_part = 1
@@ -293,7 +293,6 @@ class StatTests(TestCase, TutorialTestMixin):
 
     @mock.patch("requests.post")
     def test_query_string_parameter_duration(self, mock_post):
-
         # By default we only have the last 7 days
         default_duration = 7
         self.client.force_login(self.user_author)

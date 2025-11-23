@@ -22,12 +22,6 @@
 
 
 {% block headline %}
-    {% if content.licence %}
-        <p class="license">
-            {{ content.licence }}
-        </p>
-    {% endif %}
-
     <h1 {% if content.image %}class="illu"{% endif %}>
         {% if content.image %}
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
@@ -43,7 +37,6 @@
         </h2>
     {% endif %}
 
-    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
 {% endblock %}
 
 
@@ -78,16 +71,18 @@
                         {% if content.sha_public == commit.hexsha or content.sha_validation == commit.hexsha or content.sha_beta == commit.hexsha or content.sha_draft == commit.hexsha %}
                             <ul class="unstyled-list">
                                 {% if content.sha_validation == commit.hexsha %}
-                                    <li>{% trans "Validation" %}</li>
+                                    {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
+                                    <li><a href="{{ url_validation }}">{% trans "Validation" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_beta == commit.hexsha %}
-                                    <li>{% trans "Bêta" %}</li>
+                                    {% url "content:beta-view" pk=content.pk slug=content.slug as url_beta %}
+                                    <li><a href="{{ url_beta }}">{% trans "Bêta" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_draft == commit.hexsha %}
-                                    <li>{% trans "Brouillon" %}</li>
+                                    <li><a href="{{ content.get_absolute_url }}">{% trans "Brouillon" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_public == commit.hexsha %}
-                                    <li>{% trans "Publiée" %}</li>
+                                    <li><a href="{{ content.get_absolute_url_online }}">{% trans "Publiée" %}</a></li>
                                 {% endif %}
                             </ul>
                         {% endif %}
@@ -111,10 +106,10 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ commit.authored_date|humane_time }}
+                        {{ commit.authored_date|date_from_timestamp|format_date }}
                     </td>
                     <td>
-                        <a href="{% url "content:view" content.pk content.slug %}?version={{ commit.hexsha }}" >
+                            <a href="{% url "content:view-version" pk=content.pk slug=content.slug version=commit.hexsha %}">
                             {{ commit.message }}
                         </a>
                     </td>
@@ -161,7 +156,7 @@
                                                 {% trans "mettre à jour" %}
                                             {% endif %}
                                         {% endcaptureas %}
-                                        {% blocktrans with action=action date_version=commit.authored_date|humane_time content_title=content.title %}
+                                        {% blocktrans with action=action date_version=commit.authored_date|date_from_timestamp|format_date content_title=content.title %}
                                             Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta pour le contenu
                                             "<em>{{ content_title }}</em>" dans sa version de {{ date_version }} ?
                                         {% endblocktrans %}

@@ -4,33 +4,24 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.management import call_command
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-)
-from zds.tutorialv2.models.database import (
-    PublishableContent,
-    PublishedContent,
-    PickListOperation,
-    PublicationEvent,
-)
+from zds.notification.models import Notification
+from zds.tutorialv2.models.database import PickListOperation, PublicationEvent, PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
+from zds.tutorialv2.tests.factories import ExtractFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils.models import Alert
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()
 class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
         self.bot_group = Group()
         self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
@@ -81,6 +72,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
+        # By visiting the published content, the author marks the publication notification as read:
+        self.assertEqual(Notification.objects.get_unread_notifications_of(self.user_author).count(), 1)
+        self.client.get(result.url)
+        self.assertEqual(Notification.objects.get_unread_notifications_of(self.user_author).count(), 0)
+
     @patch("zds.tutorialv2.signals.opinions_management")
     def test_publish_content_change_title_before_watchdog(self, opinions_management):
         """
@@ -118,20 +114,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # Change the title:
-        random = "Whatever, we don't care about the details"
         result = self.client.post(
-            reverse("content:edit", args=[opinion.pk, opinion.slug]),
-            {
-                "title": "{} ({})".format(opinion.title, "modified"),
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "OPINION",
-                "licence": opinion.licence.pk,
-                "subcategory": opinion.subcategory.first().pk,
-                "last_hash": opinion.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[opinion.pk]),
+            {"title": f"{opinion.title} (modified)"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -146,7 +131,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # and publish it a second time now it has a new title:
         result = self.client.post(
             reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
-            {"text": "Blabla", "source": "", "version": opinion_draft.current_version},
+            {"text": "Blabla", "source": "", "version": opinion.sha_draft},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -163,7 +148,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
         self.assertEqual(requested_events.count(), 4)
 
-        # Now, call the watchdog:
+        # TODO (Arnaud-D): This must be fixed as it creates coupling between tests.
+        #  Other tests check the presence of exports and fail if this one is not executed successfully before.
         call_command("publication_watchdog", "--once")
 
         requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
@@ -178,17 +164,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         opinion.save()
         self.client.force_login(self.user_author)
         resp = self.client.get(reverse("opinion:view", kwargs={"pk": opinion.pk, "slug": opinion.slug}))
-        self.assertContains(resp, "Version brouillon", msg_prefix="Author must access their draft directly")
+        self.assertContains(resp, "Voir la page brouillon", msg_prefix="Author must access their draft directly")
         self.assertNotContains(resp, "{}?subcategory=".format(reverse("publication:list")))
         self.assertContains(resp, "{}?category=".format(reverse("opinion:list")))
-
-    def test_no_help_for_tribune(self):
-        self.client.force_login(self.user_author)
-
-    def test_help_for_article(self):
-        self.client.force_login(self.user_author)
-        resp = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "ARTICLE"}))
-        self.assertEqual(200, resp.status_code)
 
     def test_opinion_publication_staff(self):
         """

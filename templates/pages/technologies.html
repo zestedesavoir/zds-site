@@ -1,0 +1,130 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load set %}
+
+
+
+{% block title %}
+    {% trans "Crédits techniques" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Crédits techniques" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>{% trans "Crédits techniques" %}</h1>
+{% endblock %}
+
+
+
+{% block content %}
+    {% set app.site.literal_name as site_name %}
+    <p>
+        {% blocktrans %}
+            Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ default_repository_url }}">contribuer au développement du site</a> !
+        {% endblocktrans %}
+    </p>
+
+    <div>
+        {% if app.site.licenses %}
+            <div class="content-col-3">
+                <h3>{% trans "Droits" %}</h3>
+                {% if app.site.licenses.source %}
+                    <p>
+                        {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
+                            {{ site_name }} est un site dont le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+                {% if app.site.licenses.logo %}
+                    <p>
+                        {% blocktrans with author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
+                            Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
+                            <a rel="license" href="{{ url_license }}">
+                            <img alt="{{ logo_title }}" src="{{ url_image }}">
+                            {{ logo_desc }}
+                            </a>
+                        {% endblocktrans %}
+                        <img alt="{% blocktrans %}Logo de {{ site_name }}{% endblocktrans %}" src="{% static 'images/logo-background.png' %}">
+                    </p>
+                {% endif %}
+
+                <p>
+                    {% blocktrans %}
+                        L'icône plume a été dessinée par <a href="https://fontawesome.com">FontAwesome</a>,
+                        <a href="https://fontawesome.com/license/free">sous licence CC BY</a>.
+                    {% endblocktrans %}
+                </p>
+
+                <h3>{% trans "Hébergement" %}</h3>
+
+                <p>
+                    <img src="{% static "images/brands/gandi.svg" %}" alt="Gandi.net" width="80%"/><br>
+                    {% blocktrans %}
+                        <a href="https://news.gandi.net/fr/2021/02/gandi-soutient-zeste-de-savoir/">
+                            Gandi soutient {{ site_name }}
+                        </a>
+                        dans ses projets et ambitions en fournissant ses solutions d'hébergement généreusement et en
+                        relayant certaines de nos actualités. Merci&nbsp;!
+                    {% endblocktrans %}
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="content-col-3">
+            <h3>{% trans "Système / Back-end" %}</h3>
+            <p>
+                {% trans "Le back-end est propulsé par les outils suivants." %}
+            </p>
+
+            <h4>{% trans "Site" %}</h4>
+            <ul>
+                <li><a href="https://www.python.org/">Python {{ python_major_version }}</a></li>
+                <li><a href="https://www.djangoproject.com/">Django {{ django_major_version }}</a></li>
+            </ul>
+
+            <h4>HTTP(S) + WSGI</h4>
+            <ul>
+                <li><a href="https://nginx.org/en/">NGinx</a></li>
+                <li><a href="https://gunicorn.org/">Gunicorn</a></li>
+            </ul>
+
+            <h4>{% trans "Base de données" %}</h4>
+            <ul>
+                <li><a href="https://mariadb.org/">MariaDB</a></li>
+            </ul>
+
+            <h4>{% trans "Géolocalisation des adresses IP" %}</h4>
+            <p>
+                {% trans "Données GeoLite2 créées par MaxMind, disponibles sous licence CC-BY-SA 4.0." %}
+            </p>
+            <ul>
+                <li><a href="https://www.maxmind.com/">https://www.maxmind.com</a></li>
+            </ul>
+        </div>
+
+        <div class="content-col-3">
+            <h3>{% trans "Front-end" %}</h3>
+            <p>
+                {% trans "Le front-end utilise les outils suivants." %}
+            </p>
+
+            <h4>{% trans "Feuilles de style" %}</h4>
+            <ul>
+                <li><a href="https://necolas.github.io/normalize.css/">Normalize.css</a></li>
+                <li><a href="https://sass-lang.com/">SCSS</a></li>
+            </ul>
+
+            <h4>Javascript</h4>
+            <ul>
+                <li><a href="https://jquery.com/">jQuery</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

@@ -103,16 +103,16 @@ Une modale s'ouvre ensuite, demandant de confirmer le choix :
 Une fois cliqué sur "Confirmer", la galerie et les images qu'elle contient sont supprimées.
 
 .. attention::
-   Si une galerie est liée à un tutoriel existant, elle ne peut pas être supprimée.
+   Si une galerie est liée à un contenu existant, elle ne peut pas être supprimée.
 
-Lien galerie <-> Tutoriel
-=========================
+Lien galerie <-> Contenu
+========================
 
-Chaque tutoriel possède une galerie en propre. Par défaut cette galerie possède le même nom qui a été donné au tutoriel lors de sa création.
+Chaque contenu (tutoriel, article ou billet) possède une galerie en propre. Par défaut cette galerie possède le même nom qui a été donné au contenu lors de sa création.
 
-Chaque auteur possède un droit d'accès en écriture (``GALLERY_WRITE``) sur la galerie liée au tutoriel.
+Chaque auteur possède un droit d'accès en écriture (``GALLERY_WRITE``) sur la galerie liée au contenu.
 
-Si un membre possède un droit de lecture seule (``GALLERY_READ``) sur la galerie d'un tutoriel, aucun droit n'est accordé à ce membre quant au tutoriel.
+Si un membre possède un droit de lecture seule (``GALLERY_READ``) sur la galerie d'un contenu, aucun droit n'est accordé à ce membre quant au contenu.
 
 Aspects techniques
 ==================
@@ -121,7 +121,9 @@ Chaque galerie (classe ``Gallery``) est stockée en base de données avec son ti
 
 Une image (classe ``Image``) est renseignée en base de données avec son titre, sa légende, un lien vers la galerie qui la contient, son *slug* et un lien *physique* vers le fichier image (ainsi que la date de création et de dernière modification).
 
-Les images sont stockées dans le dossier renseigné par la variable ``MEDIA_URL`` (dans le fichier ``settings.py``), dans un sous-dossier dont le nom correspond au ``pk`` de la galerie. C'est la librairie `easy_thumbnails <https://github.com/SmileyChris/easy-thumbnails>`_ qui gère la génération des miniatures correspondantes aux images uploadées, à la demande du *back*.
+Les images sont stockées dans le dossier renseigné par la variable ``MEDIA_URL`` (dans le fichier ``zds/settings/abstract_base/django.py``), dans un sous-dossier dont le nom correspond au ``pk`` de la galerie. Le sous-dossier spécifique à chaque galerie n'est pas créé lors de la création de la galerie, mais lors de l'import de la première image.
+
+C'est la bibliothèque `easy_thumbnails <https://github.com/SmileyChris/easy-thumbnails>`_ qui gère la génération des miniatures correspondantes aux images uploadées, à la demande du *back-end*.
 
 Outils logiciels utilisés
 =========================

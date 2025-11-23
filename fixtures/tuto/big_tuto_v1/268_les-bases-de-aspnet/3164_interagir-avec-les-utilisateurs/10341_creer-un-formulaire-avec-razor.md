@@ -24,7 +24,7 @@ l'attribut method="get", permet de dire qu'on va "lister" des choses
 
 </form>
 ```
-Code: un formulaire de recherche sur ZDS[^liste_type_input] 
+Code: un formulaire de recherche sur ZDS[^liste_type_input]
 
 # Particularités d'un formulaire GET
 
@@ -33,7 +33,7 @@ Comme vous devez lister le contenu, le formulaire GET possède quelques proprié
 - Toutes les valeurs se retrouvent placées à la fin de l'URL sous la forme :
 `url_de_base/?nom_champ_1=valeur1&nom_champ2=valeur2`;
 - L'url complète (url de base + les valeurs) ne doit pas contenir plus de 255 caractères;
-- Si vous copiez/collez l'url complète dans un autre onglet ou un autre navigateur : vous aurez accès au **même résultat** (sauf si la page demande à ce que vous soyez enregistré!)[^indempotence]. 
+- Si vous copiez/collez l'url complète dans un autre onglet ou un autre navigateur : vous aurez accès au **même résultat** (sauf si la page demande à ce que vous soyez enregistré!)[^indempotence].
 
 # Particularités d'un formulaire POST
 
@@ -50,7 +50,7 @@ Autre propriété intéressante : si vous utilisez HTTPS, les données envoyées
 
 ## Un formulaire automatisé
 
-Comme nous l'avons déjà vu, nous pouvons entrer simplement le formulaire sous forme de code HTML dans une vue Razor.  
+Comme nous l'avons déjà vu, nous pouvons entrer simplement le formulaire sous forme de code HTML dans une vue Razor.
 Néanmoins, Razor vous permet de créer des formulaires complets, avec gestion des erreurs en local et côté serveur (notamment car il inclus javascript), mise en place des label et utilisation des styles css.
 
 Pour cela, il vous faudra utiliser le *helper* `HTML.BeginForm`.
@@ -85,12 +85,12 @@ Code: un formulaire GET avec pour classe CSS pagination_form et modal
 
 Pour ce qui est des champs, vous pourrez alors utiliser les helpers du style `@Html.TextBox` (pour les champs input), `@Html.DropDownList` (pour les champs select), `@Html.TextArea`, `@Html.RadioButton`...
 
-Ces champs vous seront utiles le plus souvent pour les formulaires de type GET qui seront simples et ne seront pas liés à une classe de **modèle**, comme lorsqu'on affichait des listes d'articles par exemple.  
+Ces champs vous seront utiles le plus souvent pour les formulaires de type GET qui seront simples et ne seront pas liés à une classe de **modèle**, comme lorsqu'on affichait des listes d'articles par exemple.
 
 
 ## Les formulaires basés sur un modèle de données
 
-Parce que nous allons manipuler des données le plus souvent complexes, 
+Parce que nous allons manipuler des données le plus souvent complexes,
 nous allons -le plus souvent pour les formulaires POST, puisque ce sont ceux-là qui manipulent les données complexes- nous servir de nos classes de modèle pour construire nos formulaires.
 
 Les formulaires razor sont très intelligents et vous permettent d'afficher rapidement :
@@ -113,14 +113,14 @@ Nous allons donc créer une classe `VisitorToContact` dans les modèles.
 |         public string Prenom { get; set; }
 |         public DateTime Naissance { get; set; }
 |         public string Email { get; set; }
-| 
+|
 |         public string Telephone { get; set; }
-|         
+|
 |         public string Message { get; set; }
 |     }
 | ```
 
-Maintenant, nous allons décrire un à un les champs grâce à l'attribut `[DataType(DataType.TypeDeDonnee)]`.  
+Maintenant, nous allons décrire un à un les champs grâce à l'attribut `[DataType(DataType.TypeDeDonnee)]`.
 Par exemple, le numéro de téléphone sera un `[DataType(DataType.PhoneNumber)]`.
 
 [[i]]
@@ -163,42 +163,42 @@ public ActionResult Contact(VisitorToContact visitor)
 
 Maintenant, nous allons modifier la vue `Home\Contact.cshtml`.
 
-La première action à faire sera d'indiquer à la vue que si modèle il y a, ce sera un modèle de type `VisitorContact`.  
+La première action à faire sera d'indiquer à la vue que si modèle il y a, ce sera un modèle de type `VisitorContact`.
 Pour cela, faites en sorte que `@model TutoBlog.Models.VisitorToContact` soit placé en première ligne.
 
 Et maintenant, créons notre formulaire !
 
 Comme nous avons un modèle, nous pouvons laisser Razor générer tout seul les champs à utiliser ainsi que les label et les messages d'erreur quand il y en a.
 
-Pour cela, trois *helpers* à retenir (et uniquement trois !!) : 
+Pour cela, trois *helpers* à retenir (et uniquement trois !!) :
 
 - `Html.LabelFor(model=>model.champ)` pour le label (exemple `Html.LabelFor(model => model.Email)`)
 - `Html.EditorFor(model=>model.champ)` pour le champ (exemple `Html.EditorFor(model => model.Email)`)
 - `Html.ValidationMessageFor(model=>model.champ)` pour le message d'erreur(exemple `Html.ValidationMessageFor(model => model.Email)`)
 
 [[i]]
-| A noter, vous pourrez aussi trouver, au début du formulaire `Html.ValidationSummary(true)` 
+| A noter, vous pourrez aussi trouver, au début du formulaire `Html.ValidationSummary(true)`
 
 Comme pour le formulaire, vous pouvez *customiser* chacun des trois helper en utilisant une surcharge qui a un argument appelé **htmlattributes**.
 
 Je vous laisse essayer de faire ce formulaire vous même.
-Il est absolument nécessaire que vous ne **copiez pas** la correction avant d'avoir compris. 
+Il est absolument nécessaire que vous ne **copiez pas** la correction avant d'avoir compris.
 
-A noter que Visual studio sait que faire un formulaire, c'est répétitif alors il possède un tas de moyens d'automatiser leur génération. 
+A noter que Visual studio sait que faire un formulaire, c'est répétitif alors il possède un tas de moyens d'automatiser leur génération.
 C'est cette fonctionnalité que nous utiliserons par la suite, mais gardez à l'esprit que vous **devez** savoir faire seul un formulaire pour réussir à vous en sortir !
 
 ## Correction
 
 [[secret]]
-| 
+|
 | ```razor
 | @model TutoBlog.Models.VisitorToContact
-| 
+|
 | @{
 |     ViewBag.Title = "Contact";
 | }
 | <h2>@ViewBag.Title.</h2>
-| 
+|
 | @using (Html.BeginForm())
 | {
 |     <div class="form-horizontal">

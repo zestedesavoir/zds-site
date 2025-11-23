@@ -1,0 +1,18 @@
+{% load displayable_authors %}
+{% load joinby %}
+
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+<meta name="DC.publisher" lang="fr" content="{{ app.site.literal_name }}" />
+{% for author in db_content|displayable_authors:is_online %}
+<meta name="DC.creator" content="{{ author.username }}" />
+{% endfor %}
+<meta name="DC.type" content="text" />
+<meta name="DC.title" content="{{ content.title }}" />
+<meta name="DC.abstract" content="{{ content.title }}{% if content.meta_description %} – {{ content.meta_description }}{% endif %}" />
+<meta name="DC.subject" lang="fr" content="{% joinby content.subcategory.all %}{% if content.tags.all %} – {% joinby content.tags.all separator=' ; ' final_separator=' ; ' %}{% endif %}" />
+{% if content.meta_description %}<meta name="DC.description" lang="fr" content="{{ content.meta_description }}" />{% endif %}
+<meta name="DC.date" content="{% if content.pubdate %}{{ content.pubdate|date:'Y/m/d' }}{% else %}{{ content.update_date|date:'Y/m/d' }}{% endif %}" />
+<meta name="DC.format" content="text/html" />
+{% if content.source %}<meta name="DC.source" content="{{ content.source }}" />{% endif %}
+<meta name="DC.language" content="fr" />
+<meta name="DC.rights" content="{{ content.licence }}" />

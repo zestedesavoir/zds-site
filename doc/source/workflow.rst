@@ -153,7 +153,7 @@ Le Release Manager (RM)
     - **Confidentialité** vis-a-vis des données privées présente sur les serveurs (email, contenu de MP…)
     - Si possible, toujours tester en preprod' avant de reproduire en prod'
     - **Professionnalisme**, "si on sait pas on fait pas" pour ne pas mettre la production en péril (sauf en preprod entre les releases)
-  
+
 
 Chacun de ces postes est occupé par une personne différente (idéalement) qui aura été choisi parmi les développeurs et pour qui l'association Zeste de Savoir a donné son approbation (en raison du caractère confidentiel de certaines données).
 

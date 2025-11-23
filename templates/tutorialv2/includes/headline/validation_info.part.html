@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load emarkdown %}
+{% load captureas %}
+
+{% captureas validation_comment_from_authors %}
+    {% if validation.comment_authors %}
+        <div class="content-wrapper comment-author">
+            <p>{% trans "Le message suivant a été laissé à destination des validateurs" %} :</p>
+            <blockquote>{{ validation.comment_authors|emarkdown }}</blockquote>
+        </div>
+    {% endif %}
+{% endcaptureas %}
+
+{% if state.current_version_and_reserved %}
+    <p class="content-wrapper alert-box info">
+        {% trans "Cette version est en cours de validation par" %}
+        {% include "misc/member_item.part.html" with member=validation.validator %}.
+    </p>
+    {{ validation_comment_from_authors }}
+{% endif %}
+
+{% if state.current_version_and_waiting_validator %}
+    <p class="content-wrapper alert-box alert">{% trans "Cette version est en attente d’un validateur." %}</p>
+    {{ validation_comment_from_authors }}
+{% endif %}
+
+{% url "content:validation-view" pk=content.pk slug=content.slug as validation_version_url %}
+
+{% if state.other_version_and_reserved %}
+    <p class="content-wrapper alert-box info">
+        <a href="{{ validation_version_url }}">
+            {% trans "Une autre version de cette publication" %}
+        </a>
+        {% trans "est en cours de validation par" %}
+        {% include "misc/member_item.part.html" with member=validation.validator %}.
+    </p>
+{% endif %}
+
+{% if state.other_version_and_waiting_validator %}
+    <p class="content-wrapper alert-box alert">
+        <a href="{{ validation_version_url }}">
+            {% trans "Une autre version de cette publication" %}
+        </a>
+        {% trans "est en attente d’un validateur." %}
+    </p>
+{% endif %}

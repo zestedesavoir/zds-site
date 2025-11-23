@@ -1,0 +1,25 @@
+{% load set %}
+{% load i18n %}
+{% load date %}
+
+{% if online_mode %}
+    {% set public_object.last_publication_date as update_date %}
+{% else %}
+    {% set  content.update_date as update_date %}
+{% endif %}
+
+{% if update_date %}
+    <p class="pubdate">
+    {% if online_mode and update_date == public_object.publication_date %}
+        {% trans "Publié" %}
+        <time datetime="{{ update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ update_date|format_date }}
+        </time>
+    {% else %}
+        {% trans "Dernière mise à jour" %}
+        <time datetime="{{ update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ update_date|format_date }}
+        </time>
+    {% endif %}
+    </p>
+{% endif %}

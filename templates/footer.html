@@ -31,11 +31,11 @@
                 </li>
             {% endif %}
 
-            {% if app.site.social.twitter %}
+            {% if app.site.social.X %}
                 <li>
-                    <a href="{{app.site.social.twitter}}"
-                       title="Suivez-nous sur Twitter"
-                       class="btn ico-after twitter light btn-twitter btn-holder"></a>
+                    <a href="{{app.site.social.X}}"
+                       title="Suivez-nous sur X"
+                       class="btn ico-after X light btn-X btn-holder"></a>
                 </li>
             {% endif %}
 
@@ -59,7 +59,7 @@
         <ul class="links">
             <li><a href="{% url "api:docs" %}">{% trans "API" %}</a></li>
             <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
-            <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
+            <li><a href="{% url "pages-technologies" %}">{% trans "Crédits techniques" %}</a></li>
             {% if app.site.association %}
                 <li><a href="{% url "pages-association" %}">{% trans "L’association" %}</a></li>
                 <li>
@@ -71,6 +71,7 @@
             {% endif %}
             <li><a href="{% url "pages-contact" %}">{% trans "Contact" %}</a></li>
             <li><a href="{% url "pages-cookies" %}">{% trans "Les cookies" %}</a></li>
+            <li><a href="{% url "pages-accessibility" %}">{% trans "Accessibilité" %}</a></li>
         </ul>
     </div>
 </footer>

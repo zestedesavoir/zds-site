@@ -1,9 +1,9 @@
-from django.db import models, migrations
+from django.db import migrations, models
+
 import zds.notification.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notification", "0003_auto_20160103_0001"),
     ]

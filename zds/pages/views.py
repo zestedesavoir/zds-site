@@ -1,27 +1,26 @@
 import random
-from datetime import datetime
 import sys
+from datetime import datetime
 
 import django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView
-from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
+from django.views.generic import DetailView, ListView
 
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedMessage, FeaturedResource
 from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.models import GroupContact
-from zds.searchv2.forms import SearchForm
+from zds.search.forms import SearchForm
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.context_processor import get_repository_url
-from zds.utils.models import Alert, CommentEdit, Comment
-
+from zds.utils.models import Alert, Comment, CommentEdit
 
 try:
     with (settings.BASE_DIR / "quotes.txt").open("r", encoding="utf-8") as quotes_file:
@@ -31,28 +30,29 @@ except OSError:
 
 
 def home(request):
-    """Display the home page with last topics added."""
+    """Display the home page."""
 
-    tutos = PublishableContent.objects.get_last_tutorials()
-    articles = PublishableContent.objects.get_last_articles()
-    opinions = PublishableContent.objects.get_last_opinions()
-    quote = random.choice(QUOTES)
+    context = {
+        "featured_message": FeaturedMessage.objects.get_last_message(),
+        "contents_count": PublishedContent.objects.count_contents(),
+        "search_form": SearchForm(initial={}),
+        "validated_contents_count": PublishedContent.objects.count_validated_contents(),
+        "quote": random.choice(QUOTES).replace("\n", ""),
+    }
 
-    return render(
-        request,
-        "home.html",
-        {
-            "featured_message": FeaturedMessage.objects.get_last_message(),
-            "last_tutorials": tutos,
-            "last_articles": articles,
-            "last_opinions": opinions,
-            "last_featured_resources": FeaturedResource.objects.get_last_featured(),
-            "last_topics": Topic.objects.get_last_topics(),
-            "contents_count": PublishedContent.objects.get_contents_count(),
-            "quote": quote.replace("\n", ""),
-            "search_form": SearchForm(initial={}),
-        },
-    )
+    contents_count = settings.ZDS_APP["homepage"]["contents_count"]
+    context["last_contents"] = PublishableContent.objects.get_last_contents(contents_count)
+
+    opinions_count = settings.ZDS_APP["homepage"]["opinions_count"]
+    context["last_opinions"] = PublishableContent.objects.get_last_opinions(opinions_count)
+
+    features_count = settings.ZDS_APP["homepage"]["features_count"]
+    context["last_featured_resources"] = FeaturedResource.objects.get_last_featured(features_count)
+
+    topics_count = settings.ZDS_APP["homepage"]["topics_count"]
+    context["last_topics"] = Topic.objects.get_last_topics(topics_count)
+
+    return render(request, "home.html", context)
 
 
 def index(request):
@@ -60,10 +60,10 @@ def index(request):
 
 
 def about(request):
-    """Display many informations about the website."""
+    """Display many information about the website."""
     return render(
         request,
-        "pages/about.html",
+        "pages/technologies.html",
         {
             "default_repository_url": get_repository_url(
                 settings.ZDS_APP["github_projects"]["default_repository"], "base_url"
@@ -79,13 +79,20 @@ def association(request):
     return render(request, "pages/association.html")
 
 
+def accessibility(request):
+    """Display accessibility page"""
+    return render(request, "pages/accessibility.html")
+
+
 class ContactView(ListView):
     """
     Display contact page.
     """
 
     model = GroupContact
-    queryset = GroupContact.objects.order_by("position").prefetch_related("group")
+    queryset = GroupContact.objects.prefetch_related("persons_in_charge__profile", "group__user_set__profile").order_by(
+        "position"
+    )
     template_name = "pages/contact.html"
     context_object_name = "groups"
 

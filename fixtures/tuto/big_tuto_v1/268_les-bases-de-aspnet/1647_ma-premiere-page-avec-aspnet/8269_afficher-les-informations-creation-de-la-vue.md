@@ -25,7 +25,7 @@ Cliquons sur ||Ajouter||. Visual Studio Express pour le Web génère le code sui
     <title>Index</title>
 </head>
 <body>
-    <div> 
+    <div>
     </div>
 </body>
 </html>
@@ -62,7 +62,7 @@ Voici ce que notre page **.cshtml** donne :
     <title>Index</title>
 </head>
 <body>
-    <div> 
+    <div>
         @using (Html.BeginForm())
         {
             <h1>BonjourMVC</h1>

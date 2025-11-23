@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from zds.member.commons import ProfileCreate
 from zds.member.models import Profile
-from zds.member.validators import validate_not_empty, validate_zds_username, validate_zds_email
+from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class UserListSerializer(serializers.ModelSerializer):
     serializers.
     """
 
-    avatar_url = serializers.CharField(source="profile.get_avatar_url")
+    avatar_url = serializers.CharField(source="profile.get_absolute_avatar_url")
     html_url = serializers.CharField(source="get_absolute_url")
 
     class Meta:
@@ -34,7 +34,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
     html_url = serializers.CharField(source="user.get_absolute_url")
     is_active = serializers.BooleanField(source="user.is_active")
     date_joined = serializers.DateTimeField(source="user.date_joined")
-    avatar_url = serializers.CharField(source="get_avatar_url")
+    avatar_url = serializers.CharField(source="get_absolute_avatar_url")
     permissions = DRYPermissionsField(additional_actions=["ban"])
 
     class Meta:
@@ -78,7 +78,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="user.email")
     is_active = serializers.BooleanField(source="user.is_active")
     date_joined = serializers.DateTimeField(source="user.date_joined")
-    avatar_url = serializers.CharField(source="get_avatar_url")
+    avatar_url = serializers.CharField(source="get_absolute_avatar_url")
     permissions = DRYPermissionsField(additional_actions=["ban"])
 
     class Meta:
@@ -133,10 +133,10 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(source="user.is_active", required=False)
     date_joined = serializers.DateTimeField(source="user.date_joined", required=False)
     permissions = DRYPermissionsField(additional_actions=["ban"])
-    show_sign = serializers.NullBooleanField(required=False)
-    hide_forum_activity = serializers.NullBooleanField(required=False)
-    is_hover_enabled = serializers.NullBooleanField(required=False)
-    email_for_answer = serializers.NullBooleanField(required=False)
+    show_sign = serializers.BooleanField(allow_null=True, required=False)
+    hide_forum_activity = serializers.BooleanField(allow_null=True, required=False)
+    is_hover_enabled = serializers.BooleanField(allow_null=True, required=False)
+    email_for_answer = serializers.BooleanField(allow_null=True, required=False)
 
     class Meta:
         model = Profile

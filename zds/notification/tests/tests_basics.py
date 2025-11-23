@@ -1,44 +1,42 @@
 import copy
 from datetime import datetime, timedelta
+
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
-from django.urls import reverse
-from django.test import TestCase
 from django.db import IntegrityError
+from django.test import TestCase
+from django.urls import reverse
 
-from django.conf import settings
+from zds.forum.models import Topic
 from zds.forum.tests.factories import (
     ForumCategoryFactory,
     ForumFactory,
-    TopicFactory,
     PostFactory,
     TagFactory,
+    TopicFactory,
     create_category_and_forum,
 )
-from zds.forum.models import Topic
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
-from zds.tutorialv2 import signals
+from zds.mp.utils import send_message_mp, send_mp
 from zds.notification.models import (
-    Notification,
-    TopicAnswerSubscription,
     ContentReactionAnswerSubscription,
-    PrivateTopicAnswerSubscription,
-    NewTopicSubscription,
     NewPublicationSubscription,
+    NewTopicSubscription,
+    Notification,
+    PrivateTopicAnswerSubscription,
+    TopicAnswerSubscription,
 )
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContentReactionFactory,
-    PublishedContentFactory,
-)
+from zds.tutorialv2 import signals
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
-from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.publication_utils import notify_update, publish_content
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import ContentReactionFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils import old_slugify
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds.mp.utils import send_mp, send_message_mp
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 class NotificationForumTest(TestCase):
@@ -535,8 +533,11 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
 
 
-class NotificationPublishableContentTest(TestCase):
+@override_for_contents()
+class NotificationPublishableContentTest(TutorialTestMixin, TestCase):
     def setUp(self):
+        self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
+
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 
@@ -684,6 +685,155 @@ class NotificationPublishableContentTest(TestCase):
 
         notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
         self.assertEqual(0, len(notifications))
+
+    def test_no_persistant_notif_when_follow_and_quit_authorship(self):
+        """
+        Related to #5544. The following scenario is tested:
+        1. user1 follows user2
+        2. user2 publishes a content written with user3
+        3. user1 gets a notification, but don't click on it
+        4. user2 quits authorship of the content (but is still an author of the published version)
+        5. user1 clicks on the notification, the notification should disappear
+        """
+
+        user1 = ProfileFactory().user
+        user2 = ProfileFactory().user
+        user3 = ProfileFactory().user
+
+        # user1 follows user2
+        self.client.logout()
+        self.client.force_login(user1)
+        result = self.client.post(
+            reverse("content:follow", args=[user2.pk]),
+            {"follow": 1},
+            follow=False,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # user2 publishes a content written with user3
+        tuto = PublishableContentFactory(type="TUTORIAL")
+        tuto.authors.add(user2)
+        tuto.authors.add(user3)
+        UserGalleryFactory(gallery=tuto.gallery, user=user2, mode="W")
+        tuto.licence = LicenceFactory()
+        tuto.subcategory.add(SubCategoryFactory())
+        tuto.save()
+        tuto_draft = tuto.load_version()
+        version = tuto_draft.current_version
+        published = publish_content(tuto, tuto_draft, is_major_update=True)
+        tuto.sha_public = version
+        tuto.sha_draft = version
+        tuto.public_version = published
+        tuto.save()
+        notify_update(tuto, is_update=False, is_major=True)
+
+        # all users get a notification:
+        self.assertEqual(1, Notification.objects.get_unread_notifications_of(user1).count())
+        self.assertEqual(1, Notification.objects.get_unread_notifications_of(user2).count())
+        self.assertEqual(1, Notification.objects.get_unread_notifications_of(user3).count())
+
+        # user2 quits authorship of the content
+        self.client.logout()
+        self.client.force_login(user2)
+        result = self.client.post(
+            reverse("content:remove-author", args=[tuto.pk]), {"username": user2.username}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        # user1 still has the notification
+        notifications = Notification.objects.get_unread_notifications_of(user1)
+        self.assertEqual(1, notifications.count())
+
+        # user1 marks the notification as read by visiting the content
+        self.client.logout()
+        self.client.force_login(user1)
+        result = self.client.get(notifications[0].url)
+        self.assertEqual(result.status_code, 200)
+
+        # the notification is read now
+        self.assertEqual(0, Notification.objects.get_unread_notifications_of(user1).count())
+
+    def test_no_persistant_notif_when_follow_and_quit_authorship_and_publish(self):
+        """
+        Related to #5544. Similar to
+        test_no_persistant_notif_when_follow_and_quit_authorship, but this time
+        the content is published. The following scenario is tested:
+        1. user1 follows user2
+        2. user2 publishes a content written with user3
+        3. user1 gets a notification, but don't click on it
+        4. user2 quits authorship of the content
+        5. user3 publishes the content
+        6. user1 clicks on the notification, the notification should disappear
+        """
+
+        user1 = ProfileFactory().user
+        user2 = ProfileFactory().user
+        user3 = ProfileFactory().user
+
+        # user1 follows user2
+        self.client.logout()
+        self.client.force_login(user1)
+        result = self.client.post(
+            reverse("content:follow", args=[user2.pk]),
+            {"follow": 1},
+            follow=False,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # user2 publishes a content written with user3
+        tuto = PublishableContentFactory(type="TUTORIAL")
+        tuto.authors.add(user2)
+        tuto.authors.add(user3)
+        UserGalleryFactory(gallery=tuto.gallery, user=user2, mode="W")
+        tuto.licence = LicenceFactory()
+        tuto.subcategory.add(SubCategoryFactory())
+        tuto.save()
+        tuto_draft = tuto.load_version()
+        version = tuto_draft.current_version
+        published = publish_content(tuto, tuto_draft, is_major_update=True)
+        tuto.sha_public = version
+        tuto.sha_draft = version
+        tuto.public_version = published
+        tuto.save()
+        notify_update(tuto, is_update=False, is_major=True)
+
+        # all users get a notification:
+        self.assertEqual(1, Notification.objects.get_unread_notifications_of(user1).count())
+        self.assertEqual(1, Notification.objects.get_unread_notifications_of(user2).count())
+        self.assertEqual(1, Notification.objects.get_unread_notifications_of(user3).count())
+
+        # user2 quits authorship of the content
+        self.client.logout()
+        self.client.force_login(user2)
+        result = self.client.post(
+            reverse("content:remove-author", args=[tuto.pk]), {"username": user2.username}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        # user3 publishes the content
+        tuto_draft = tuto.load_version()
+        version = tuto_draft.current_version
+        published = publish_content(tuto, tuto_draft, is_major_update=True)
+        tuto.sha_public = version
+        tuto.sha_draft = version
+        tuto.public_version = published
+        tuto.save()
+        notify_update(tuto, is_update=False, is_major=True)
+
+        # user1 still has the notification
+        notifications = Notification.objects.get_unread_notifications_of(user1)
+        self.assertEqual(1, notifications.count())
+
+        # user1 marks the notification as read by visiting the content
+        self.client.logout()
+        self.client.force_login(user1)
+        result = self.client.get(notifications[0].url)
+        self.assertEqual(result.status_code, 200)
+
+        # the notification is read now
+        self.assertEqual(0, Notification.objects.get_unread_notifications_of(user1).count())
 
     def test_no_error_on_multiple_subscription(self):
         subscription = NewPublicationSubscription.objects.toggle_follow(self.user1, self.user2)

@@ -26,7 +26,7 @@
 
 
 {% elif event.type == "beta_management" %}
-    {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
+    {% url "content:view-version" pk=event.content.pk slug=event.content.slug version=event.version as version_href %}
     {% if event.action == "activate" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a mis une <a href="{{ version_href }}">version du contenu</a> en bêta.
     {% elif event.action == "deactivate" %}
@@ -37,7 +37,7 @@
 
 
 {% elif event.type == "validation_management" %}
-    {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
+    {% url "content:view-version" pk=event.content.pk slug=event.content.slug version=event.version as version_href %}
     {% if event.action == "request" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a demandé la validation d'une <a href="{{ version_href }}">version du contenu</a>.
     {% elif event.action == "cancel" %}
@@ -57,13 +57,23 @@
     {% endif %}
 
 
+{% elif event.type == "thumbnail_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié la miniature du contenu.
+
 {% elif event.type == "tags_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les tags du contenu.
 
+{% elif event.type == "canonical_link_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié le lien canonique du contenu.
 
 {% elif event.type == "goals_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les objectifs du contenu.
 
+{% elif event.type == "labels_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les labels du contenu.
+
+{% elif event.type == "categories_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les catégories du contenu.
 
 {% elif event.type == "suggestions_management" %}
     {% if event.action == "add" %}

@@ -3,15 +3,15 @@ from unittest.mock import patch
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
-
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
-from zds.tutorialv2.forms import ContributionForm
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.tutorialv2.models.database import ContentContribution
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
+from zds.tutorialv2.views.contributors import ContributionForm
 
 
 def create_contribution(role, contributor, content):
@@ -61,26 +61,14 @@ class AddContributorPermissionTests(TutorialTestMixin, TestCase):
         response = self.client.post(self.form_url, self.form_data)
         self.assertRedirects(response, self.content_url)
 
-    def test_authenticated_staff_tutorial(self):
+    def test_authenticated_staff(self):
         self.client.force_login(self.staff)
-        self.content.type = "TUTORIAL"
-        self.content.save()
-        response = self.client.post(self.form_url, self.form_data)
-        self.assertRedirects(response, self.content_url)
-
-    def test_authenticated_staff_article(self):
-        self.client.force_login(self.staff)
-        self.content.type = "ARTICLE"
-        self.content.save()
-        response = self.client.post(self.form_url, self.form_data)
-        self.assertRedirects(response, self.content_url)
-
-    def test_authenticated_staff_opinion(self):
-        self.client.force_login(self.staff)
-        self.content.type = "OPINION"
-        self.content.save()
-        response = self.client.post(self.form_url, self.form_data)
-        self.assertEqual(response.status_code, 403)
+        for type in CONTENT_TYPE_LIST:
+            with self.subTest(type):
+                self.content.type = type
+                self.content.save()
+                response = self.client.post(self.form_url, self.form_data)
+                self.assertRedirects(response, self.content_url)
 
 
 class AddContributorWorkflowTests(TutorialTestMixin, TestCase):

@@ -37,7 +37,6 @@ def copy_potential_spam_to_forum_post(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0022_set_default_latest_by_for_alerts"),
         # We must first temporarily rename the old field to something else, because

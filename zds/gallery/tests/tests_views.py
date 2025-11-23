@@ -1,12 +1,15 @@
 import os
+import tempfile
+from zipfile import ZipFile
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from PIL import Image as ImagePIL
 
+from zds.gallery.models import Gallery, Image, UserGallery
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
-from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
-from zds.gallery.models import Gallery, UserGallery, Image
-from django.conf import settings
 
 
 class GalleryListViewTest(TestCase):
@@ -507,7 +510,6 @@ class EditImageViewTest(TestCase):
         self.client.force_login(self.profile3.user)
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
-
             self.client.post(
                 reverse("gallery:image-edit", args=[self.gallery.pk, self.image.pk]),
                 {"title": "modify with no perms", "legend": "test legend", "physical": fp},
@@ -728,6 +730,49 @@ class NewImageViewTest(TestCase):
             follow=True,
         )
         self.assertEqual(200, response.status_code)
+
+    def test_import_not_zip_archive(self):
+        self.client.force_login(self.profile1.user)
+
+        with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
+            response = self.client.post(
+                reverse("gallery:image-import", args=[self.gallery.pk]), {"file": fp}, follow=False
+            )
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(response.context["form"].errors)
+        self.assertEqual(0, len(self.gallery.get_images()))
+
+    def test_import_archive_with_wrong_files(self):
+        self.client.force_login(self.profile1.user)
+
+        # generate a too large image:
+        _, large_image_path = tempfile.mkstemp(suffix=".jpeg")
+        img = ImagePIL.new("RGB", (9000, 9000), color="red")
+        img.save(large_image_path, format="JPEG")
+        self.assertGreater(os.path.getsize(large_image_path), settings.ZDS_APP["gallery"]["image_max_size"])
+
+        # generate an archive with wrong files:
+        _, zip_file_path = tempfile.mkstemp(suffix=".zip")
+        z = ZipFile(zip_file_path, "w")
+        z.write(__file__, "text.png")  # text file instead of a valid image
+        z.write(large_image_path, "large.jpeg")  # too large image
+        z.write(settings.BASE_DIR / "fixtures" / "logo.png")  # valid image
+        z.close()
+
+        with open(zip_file_path, "rb") as fp:
+            response = self.client.post(
+                reverse("gallery:image-import", args=[self.gallery.pk]), {"file": fp}, follow=True
+            )
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, "Le fichier text.png n&#x27;a pas été importé : ce n&#x27;est pas une image.")
+        self.assertContains(
+            response,
+            "Le fichier large.jpeg n&#x27;a pas été importé : l&#x27;image dépasse la taille maximale autorisée",
+        )
+        self.assertEqual(1, len(self.gallery.get_images()))  # only the valid image is imported
+
+        os.remove(zip_file_path)
+        os.remove(large_image_path)
 
     def test_import_images_in_gallery_no_archive(self):
         self.client.force_login(self.profile1.user)

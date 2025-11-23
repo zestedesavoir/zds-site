@@ -3,13 +3,13 @@ from django.urls import path
 from zds.featured.views import (
     FeaturedMessageCreateUpdate,
     FeaturedMessageDelete,
-    FeaturedResourceList,
-    FeaturedResourceCreate,
-    FeaturedResourceUpdate,
-    FeaturedResourceDeleteDetail,
-    FeaturedResourceDeleteList,
     FeaturedRequestedList,
     FeaturedRequestedUpdate,
+    FeaturedResourceCreate,
+    FeaturedResourceDeleteDetail,
+    FeaturedResourceDeleteList,
+    FeaturedResourceList,
+    FeaturedResourceUpdate,
 )
 
 app_name = "featured"

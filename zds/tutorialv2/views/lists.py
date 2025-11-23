@@ -1,22 +1,21 @@
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, F, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, TemplateView
-from django.db.models import F, Q
 
 from zds.forum.models import Forum
 from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2.mixins import ContentTypeMixin
-from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
-from zds.tutorialv2.models.database import PublishedContent, PublishableContent, ContentReaction
-from zds.utils.models import Tag, Category, SubCategory, CategorySubCategory
-from zds.utils.paginator import make_pagination, ZdSPagingListView
+from zds.tutorialv2.models import CONTENT_TYPE_LIST, TYPE_CHOICES_DICT
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublishedContent
+from zds.utils.models import Category, CategorySubCategory, SubCategory, Tag
+from zds.utils.paginator import ZdSPagingListView, make_pagination
 from zds.utils.templatetags.topbar import topbar_publication_categories
 from zds.utils.uuslug_wrapper import slugify
 
@@ -61,6 +60,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             queryset.prefetch_related("content")
             .prefetch_related("content__subcategory")
             .prefetch_related("content__authors")
+            .prefetch_related("content__tags")
             .select_related("content__licence")
             .select_related("content__image")
             .select_related("content__last_note")
@@ -299,7 +299,6 @@ class ViewPublications(TemplateView):
 
 
 class TagsListView(ListView):
-
     model = Tag
     template_name = "tutorialv2/view/tags.html"
     context_object_name = "tags"
@@ -395,7 +394,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
             self.sort = self.request.GET["sort"]
         elif not self.sort:
-            self.sort = "abc"
+            self.sort = "modification"
         queryset = self.sorts[self.sort.lower()][0](queryset)
 
         return queryset
@@ -427,7 +426,6 @@ class ContentOfAuthor(ZdSPagingListView):
 
 
 class ListContentReactions(ZdSPagingListView):
-
     context_object_name = "content_reactions"
     template_name = "tutorialv2/comment/list.html"
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]

@@ -1,9 +1,9 @@
 import datetime
 
+from django.conf import settings
 from django.contrib.auth import logout
 
-from django.conf import settings
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
 class SetLastVisitMiddleware:
@@ -34,6 +34,6 @@ class SetLastVisitMiddleware:
                     profile.last_visit = datetime.datetime.now()
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
-            if not profile.can_read:
+            if profile.is_banned():
                 logout(request)
         return response

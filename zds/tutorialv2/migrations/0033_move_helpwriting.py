@@ -1,12 +1,10 @@
-from django.db import migrations, models
-
 import easy_thumbnails.fields
+from django.db import migrations, models
 
 import zds
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tutorialv2", "0032_event"),
         ("utils", "0025_move_helpwriting"),

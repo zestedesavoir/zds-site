@@ -2,13 +2,13 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
 from zds.tutorialv2.models.database import ContentContribution
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
 
 
 def create_contribution(role, contributor, content):
@@ -79,7 +79,7 @@ class RemoveContributorPermissionTests(TutorialTestMixin, TestCase):
         self.content.type = "OPINION"
         self.content.save()
         response = self.client.post(self.form_url, self.form_data)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.content_url)
 
 
 class RemoveContributorWorkflowTests(TutorialTestMixin, TestCase):

@@ -1,32 +1,28 @@
-from datetime import datetime
+import logging
 import os
 import string
 import uuid
-import logging
+from datetime import datetime
 
 from django.conf import settings
-
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
+from django.db import models
+from django.dispatch import receiver
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.db import models
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.dispatch import receiver
-from django.template.loader import render_to_string
+from model_utils.managers import InheritanceManager
 
 from zds.member.utils import get_bot_account
-from zds.utils import signals
 from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.mp.utils import send_mp
-from zds.utils import old_slugify
+from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
+from zds.utils import old_slugify, signals
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.templatetags.emarkdown import render_markdown
 from zds.utils.uuslug_wrapper import uuslug
-
-from model_utils.managers import InheritanceManager
-
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +108,6 @@ class SubCategory(models.Model):
 
 
 class CategorySubCategory(models.Model):
-
     """ManyToMany between Category and SubCategory but save a boolean to know
     if category is his main category."""
 
@@ -133,7 +128,6 @@ class CategorySubCategory(models.Model):
 
 
 class Licence(models.Model):
-
     """Publication licence."""
 
     class Meta:
@@ -368,7 +362,6 @@ def get_hat_to_add(hat_name, user):
 
 
 class Comment(models.Model):
-
     """Comment in forum, articles, tutorial, chapter, etc."""
 
     class Meta:
@@ -402,9 +395,6 @@ class Comment(models.Model):
 
     pubdate = models.DateTimeField("Date de publication", auto_now_add=True, db_index=True)
     update = models.DateTimeField("Date d'édition", null=True, blank=True)
-    update_index_date = models.DateTimeField(
-        "Date de dernière modification pour la réindexation partielle", auto_now=True, db_index=True
-    )
 
     is_visible = models.BooleanField("Est visible", default=True)
     text_hidden = models.CharField("Texte de masquage ", max_length=80, default="")
@@ -623,7 +613,14 @@ class CommentEdit(models.Model):
 
 
 class Alert(models.Model):
-    """Alerts on all kinds of Comments and PublishedContents."""
+    """Alerts on Profiles, PublishedContents and all kinds of Comments.
+
+    The scope field indicates on which type of element the alert is made:
+    - PROFILE: the profile of a member
+    - FORUM: a post on a topic in a forum
+    - CONTENT: the content (article, opinion or tutorial) itself
+    - elements of TYPE_CHOICES (ARTICLE, OPINION, TUTORIAL): a comment on a content of this type
+    """
 
     SCOPE_CHOICES = [
         ("PROFILE", _("Profil")),
@@ -643,7 +640,7 @@ class Alert(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     # use of string definition of pk to avoid circular import.
     profile = models.ForeignKey(
@@ -662,7 +659,7 @@ class Alert(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField("Texte d'alerte")
@@ -687,9 +684,23 @@ class Alert(models.Model):
 
     def get_type(self):
         if self.scope in TYPE_CHOICES_DICT:
-            return _("Commentaire")
+            assert self.comment is not None
+            if self.is_on_comment_on_unpublished_content():
+                return _(f"Commentaire sur un {self.SCOPE_CHOICES_DICT[self.scope].lower()} dépublié")
+            else:
+                return _(f"Commentaire sur un {self.SCOPE_CHOICES_DICT[self.scope].lower()}")
+        elif self.scope == "FORUM":
+            assert self.comment is not None
+            return _("Message de forum")
+        elif self.scope == "PROFILE":
+            assert self.profile is not None
+            return _("Profil")
         else:
-            return self.get_scope_display()
+            assert self.content is not None
+            return self.SCOPE_CHOICES_DICT[self.content.type]
+
+    def is_on_comment_on_unpublished_content(self):
+        return self.scope in TYPE_CHOICES_DICT and not self.get_comment_subclass().related_content.in_public()
 
     def is_automated(self):
         """Returns true if this alert was opened automatically."""
@@ -741,7 +752,6 @@ class Alert(models.Model):
 
 
 class CommentVote(models.Model):
-
     """Set of comment votes."""
 
     class Meta:
@@ -758,7 +768,6 @@ class CommentVote(models.Model):
 
 
 class Tag(models.Model):
-
     """Set of tags."""
 
     class Meta:

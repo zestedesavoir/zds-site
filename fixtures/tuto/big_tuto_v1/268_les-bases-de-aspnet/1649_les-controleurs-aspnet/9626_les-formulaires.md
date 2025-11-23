@@ -2,7 +2,7 @@
 
 Lorsque vous désirez demander à un utilisateur d'entrer des données (par exemple le titre et le contenu de l'article), vous devez utiliser un **formulaire**.
 
-Du point de vue HTML, un formulaire est représenté par la balise `<form>`.  
+Du point de vue HTML, un formulaire est représenté par la balise `<form>`.
 
 Un formulaire peut envoyer les données de deux manières différentes, en utilisant deux verbes HTTP différents : GET et POST.
 
@@ -10,9 +10,9 @@ Souvent on utilise les formulaire GET quand on veut filtrer une liste alors qu'o
 
 ## Les formulaires GET
 
-Les formulaires de type GET redirigent vers une url du type `/controller/action/?parametre1=valeur1&parametre2=valeur2`. 
+Les formulaires de type GET redirigent vers une url du type `/controller/action/?parametre1=valeur1&parametre2=valeur2`.
 
-Pour y répondre vous n'avez qu'à créer une action qui prenne les paramètres en tant qu'argument : 
+Pour y répondre vous n'avez qu'à créer une action qui prenne les paramètres en tant qu'argument :
 ```csharp
         [HttpGet]
         public ActionResult List(string order, DateTime limitDate)
@@ -25,9 +25,9 @@ Code: Une action qui répond à un GET
 Le formulaire qui permet d'entrer ces données sera :
 
 ```csharp
-    @using (Html.BeginForm("List", "Forum", FormMethod.Get)) { 
+    @using (Html.BeginForm("List", "Forum", FormMethod.Get)) {
         @Html.TextBox("limitDate", DateTime.Now.ToString())
-        @Html.DropDownList("order", new SelectListItem[]{ 
+        @Html.DropDownList("order", new SelectListItem[]{
                 new SelectListItem{Value = "Asc", Text ="Ordre croissant"},
                 new SelectListItem{Value = "Desc", Text ="Ordre décroissant"}
         })
@@ -36,13 +36,13 @@ Le formulaire qui permet d'entrer ces données sera :
 
 ## Les formulaires POST
 
-Pour créer des données, nous allons utiliser des formulaires POST.  
+Pour créer des données, nous allons utiliser des formulaires POST.
 Afin de faciliter le travail de vérification et de routage, nous allons devoir créer une classe de "modèle".
 
-Dans le dossier "Model", si vous n'avez pas de classe Article, créez la.  
-Pour faire simple, nous allons demander deux choses à la classe article : un titre et un corps.  
+Dans le dossier "Model", si vous n'avez pas de classe Article, créez la.
+Pour faire simple, nous allons demander deux choses à la classe article : un titre et un corps.
 
-Créons un contrôleur avec action en lecture et écriture pour cette  classe. Jetons un coup d'oeil à la méthode Create : 
+Créons un contrôleur avec action en lecture et écriture pour cette  classe. Jetons un coup d'oeil à la méthode Create :
 
 ```csharp
         [HttpPost]
@@ -51,7 +51,7 @@ Créons un contrôleur avec action en lecture et écriture pour cette  classe. J
             try
             {
                 // TODO: Add insert logic here
-                
+
                 return RedirectToAction("Index");
             }
             catch
@@ -60,7 +60,7 @@ Créons un contrôleur avec action en lecture et écriture pour cette  classe. J
             }
         }
 ```
-Par défaut, VisualStudio vous propose de gérer un FormCollection.  
+Par défaut, VisualStudio vous propose de gérer un FormCollection.
 Cela vous permet de gérer un formulaire totalement personnalisé. Nous l'utiliserons plus tard, quand nous irons plus loin. Pour l'instant, nous allons faire les choses simplement. Et comme nous savons que notre formulaire doit nous envoyer un article, nous allons faire fi de la FormCollection pour utiliser un Article :
 
 ```csharp
@@ -70,7 +70,7 @@ Cela vous permet de gérer un formulaire totalement personnalisé. Nous l'utilis
 Maintenant, allons nous créer une vue. Dans le dossier `View\Nom de votre contrôleur`, cliquez droit, ajouter, Vue.
 
 ->![Ajouter vue](/media/galleries/304/fc5a1a01-34ca-45b3-b090-6ff938d725e0.png.960x960_q85.jpg)<-
-  
+
 Appelez-la `Create`. Dans Modèle sélectionnez `Create`, dans classe de modèle sélectionnez `Article` puis validez.
 
 ->![configurer vue](/media/galleries/304/fb387003-5d68-4b2a-8ceb-ea2512134e57.png.960x960_q85.png)<-
@@ -78,10 +78,10 @@ Appelez-la `Create`. Dans Modèle sélectionnez `Create`, dans classe de modèle
 Visual studio aura créé pour vous le formulaire :
 
 ```csharp
-@using (Html.BeginForm()) 
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Article</h4>
         <hr />
@@ -111,7 +111,7 @@ Visual studio aura créé pour vous le formulaire :
 }
 ```
 
-Ce formulaire sait absolument tout faire ! 
+Ce formulaire sait absolument tout faire !
 
 Il vous affiche les bons label, les bons champs... Et en plus il vous protège d'une faille : la faille appelée *CSRF*.
 

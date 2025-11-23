@@ -1,7 +1,7 @@
 from django.db import migrations
 
+from zds.forum.models import Forum, Topic
 from zds.notification.models import NewTopicSubscription
-from zds.forum.models import Topic, Forum
 
 
 def cleanup(apps, *_):
@@ -16,7 +16,6 @@ def cleanup(apps, *_):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notification", "0016_auto_20190114_1301"),
     ]

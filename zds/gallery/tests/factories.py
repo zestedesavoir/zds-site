@@ -1,7 +1,8 @@
 import contextlib
+
 import factory
 
-from zds.gallery.models import Image, Gallery, UserGallery
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.utils import old_slugify
 
 
@@ -32,13 +33,6 @@ class GalleryFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence("titre de la gallerie {}".format)
     subtitle = factory.Sequence("Sous-titre de la gallerie {}".format)
     slug = factory.LazyAttribute(lambda o: f"{old_slugify(o.title)}")
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        gallery = super()._generate(create, attrs)
-        with contextlib.suppress(OSError):
-            gallery.get_gallery_path().mkdir(parents=True)
-        return gallery
 
 
 class UserGalleryFactory(factory.django.DjangoModelFactory):

@@ -1,4 +1,4 @@
-/* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */ // eslint-disable-line camelcase
+/* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */
 (function($) {
   'use strict'
   const $saveButton = $('.inline-save-button')
@@ -327,10 +327,20 @@
   const uploadImage = function(file, onSuccess, onError) {
     const galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
 
+    if (file.type.indexOf('image') !== 0) {
+      onError(`L'image "${file.name}" a un format invalide !`)
+      return
+    }
+
+    const filesize = Math.round(file.size / 1024) // KB
+    if (filesize > 1024) {
+      onError(`L'image "${file.name}" est trop lourde (${filesize} Kio). La taille maximale est de 1024 Kio !`)
+      return
+    }
+
     const formData = new FormData()
     formData.append('physical', file)
     formData.append('title', file.name)
-    // WARN: if you test zds with sqlite, you can't upload multiple files at a time
     $.ajax({
       url: galleryUrl,
       data: formData,
@@ -980,7 +990,7 @@
       toolbar: Toolbar
     })
 
-    if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.value) {
+    if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.defaultValue) {
       const $alertbox = $('<div class="alert-box info"></div>')
 
       const $hide = $("<a>Masquer l'alerte</a>")
@@ -992,7 +1002,7 @@
       })
 
       const $undo = $('<a href="javascript:void(0)">cliquant ici</a>.').click(function() {
-        window.editors[textarea.id].value(textarea.value)
+        window.editors[textarea.id].value(textarea.defaultValue)
         easyMDE.codemirror.off('keyHandled', onKeyHandled)
         localStorage.removeItem('smde_' + mdeUniqueKey)
         $alertbox.hide(() => $(this).remove())
@@ -1015,7 +1025,7 @@
 
       const spanContent = [
         'La version actuelle du contenu provient d\'une sauvegarde de votre navigateur. ',
-        'Vous pouvez revenir à la version originale (du serveur) avec CTRL+Z ou en ',
+        'Vous pouvez revenir à la version originale (du serveur) en ',
         $undo,
         '.'
       ]
@@ -1025,7 +1035,7 @@
         .appendTo($alertbox)
         .after($hide)
 
-      $(easyMDE.element.parentElement).children('.editor-toolbar').before($alertbox)
+      formEditor.find('.editor-toolbar').before($alertbox)
     }
 
     window.editors[this.id] = easyMDE
@@ -1164,7 +1174,7 @@ function spellcheckerEasyMDE(easyMDE) {
     })
   }
 
-  if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) { // eslint-disable-line camelcase
+  if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) {
     activeAntidoteAPI_JSConnect()
   } else {
     $(easyMDE.toolbarElements['abc-spellchecker']).hide()

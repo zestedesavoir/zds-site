@@ -1,4 +1,4 @@
-Vous avez décidé de vous lancer dans le développement Web avec ASP.NET ? Félicitations, c'est un très bon choix ! Pourquoi ? Vous aurez l'occasion de le découvrir au travers ce tutoriel et notamment dans ce premier chapitre. 
+Vous avez décidé de vous lancer dans le développement Web avec ASP.NET ? Félicitations, c'est un très bon choix ! Pourquoi ? Vous aurez l'occasion de le découvrir au travers ce tutoriel et notamment dans ce premier chapitre.
 
 **ASP.NET** est un ensemble d'outils à disposition du développeur (vous). Voyez cela comme une grosse boîte contenant divers outils prêts à utilisation pour permettre de développer simplement et sans réinventer la roue une application Web.
 

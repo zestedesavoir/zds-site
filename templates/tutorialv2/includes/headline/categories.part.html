@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load captureas %}
+
+{% captureas categories_list %}
+<p>
+    {% trans "Dans" %}
+    {% for category in content.subcategory.all %}
+        {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+        {% if content.is_opinion %}
+            <a href="{% url 'opinion:list' %}?category={{ category.slug }}">{{ category.title }}</a>
+        {% else %}
+            <a href="{% url 'publication:list' %}?subcategory={{ category.slug }}">{{ category.title }}</a>
+        {% endif %}
+    {% endfor %}
+</p>
+{% endcaptureas %}
+
+{% url "content:edit-categories" content.pk as edit_url %}
+
+{% if show_form %}
+    {% if content.subcategory.all %}
+        <div class="editable-element">
+            {{ categories_list }}
+
+            {% if show_form  %}
+                <a href="{{ edit_url }}" class="edit-button"><span class="visuallyhidden">{% trans "Modifier" %}</span></a>
+            {% endif %}
+        </div>
+    {% else %}
+        <a href="{{ edit_url }}">{% trans "Choisissez les catégories !" %}</span></a>
+    {% endif %}
+{% elif content.subcategory.all %}
+    {{ categories_list }}
+{% endif %}

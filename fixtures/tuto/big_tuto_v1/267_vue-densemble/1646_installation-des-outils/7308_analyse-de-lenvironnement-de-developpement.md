@@ -29,7 +29,7 @@ Lorsque vous voulez corriger un bug, le plus souvent vous aller utiliser le déb
 
 Néanmoins il peut y avoir des cas - rares, mais existants- où le débuggeur ne suffira pas et où vous aurez besoin de plus d'informations.
 
-Pour cela, il faut aller regarder le *journal* du serveur. Ce dernier se trouve dans le dossier `Mes Documents\IISExpress\TraceLogFiles` et `Mes Documents\IISExpress\logs`.  
+Pour cela, il faut aller regarder le *journal* du serveur. Ce dernier se trouve dans le dossier `Mes Documents\IISExpress\TraceLogFiles` et `Mes Documents\IISExpress\logs`.
 Leur allure vous rebutera peut être, mais ils vous permettront de voir, tel que le serveur le voit, comment votre site s'est exécuté.
 
 Si vous avez un jour un problème et que sur le forum quelqu'un vous demande les logs, c'est là qu'il faut aller les chercher.

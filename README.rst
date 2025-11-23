@@ -1,6 +1,6 @@
-|Build Status| |Coverage Status| |Requirements Status| |Dependency Status| |Licence GPL|
+|Build Status| |Coverage Status| |Licence GPL|
 
-.. image:: https://github.com/zestedesavoir/zds-site/blob/36c6bbc50fdecd936768ef5a566d98f5d757fcbf/assets/images/logo-background.png
+.. image:: https://raw.githubusercontent.com/zestedesavoir/zds-site/36c6bbc50fdecd936768ef5a566d98f5d757fcbf/assets/images/logo-background.png
 
 Qu'est-ce que Zeste de Savoir ?
 ===============================
@@ -23,7 +23,7 @@ Notre projet technique est constitué de plusieurs éléments :
 Contribuer à Zeste de Savoir
 ============================
 
-`Notre documentation technique <https://docs.zestedesavoir.com>`__ devrait vous être utile pour bien appréhender notre projet. 
+`Notre documentation technique <https://docs.zestedesavoir.com>`__ devrait vous être utile pour bien appréhender notre projet.
 
 Merci de prendre connaissance du `Code de Conduite de Contributeurs <https://github.com/zestedesavoir/zds-site/blob/dev/CODE_OF_CONDUCT.md>`__ et de le respecter pour garder ce projet ouvert et accueillant !
 
@@ -48,9 +48,5 @@ Conseils pour débuter
    :target: https://github.com/zestedesavoir/zds-site/actions
 .. |Coverage Status| image:: https://coveralls.io/repos/github/zestedesavoir/zds-site/badge.svg?branch=dev
    :target: https://coveralls.io/github/zestedesavoir/zds-site?branch=dev
-.. |Requirements Status| image:: https://requires.io/github/zestedesavoir/zds-site/requirements.svg?branch=dev
-   :target: https://requires.io/github/zestedesavoir/zds-site/requirements/?branch=dev
-.. |Dependency Status| image:: https://david-dm.org/zestedesavoir/zds-site.svg
-   :target: https://david-dm.org/zestedesavoir/zds-site
 .. |Licence GPL| image:: https://img.shields.io/badge/license-GPL-blue.svg
    :target: https://www.gnu.org/licenses/quick-guide-gplv3.fr.html

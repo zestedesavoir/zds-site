@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Recherche" %}
+{% endblock %}
+
+
+
+{% block body_class %}flexpage searchpage{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="flexpage-header">
+        <div class="flexpage-wrapper">
+            <section class="search-box">
+                {% crispy form %}
+            </section>
+            <ul class="search-filters">
+                {% for radio in form.models %}
+                    <li>
+                        {{ radio.tag }}
+                        <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    <div class="flexpage-wrapper">
+        {% if has_query %}
+            {% include "misc/paginator.html" with position="top" %}
+
+            {% if object_list %}
+                <div class="topic-list navigable-list search-results">
+                    {% for result in object_list %}
+                    <article class="content-item topic-item" data-search-engine-score="{{ result.text_match }}" data-search-boost="{{ result.document.weight }}" data-search-final-score="{{ result.document.final_score }}">
+                        {%  if result.collection  == 'chapter' %}
+                            {% include "search/includes/chapter.part.html" with search_result=result.document %}
+                        {% elif result.collection == 'publishedcontent' %}
+                            {% include "search/includes/publishedcontent.part.html" with search_result=result.document %}
+                        {% elif result.collection == 'topic' %}
+                            {% include "search/includes/topic.part.html" with search_result=result.document %}
+                        {% elif result.collection == 'post' %}
+                            {% include "search/includes/post.part.html" with search_result=result.document %}
+                        {% endif %}
+                    </article>
+                    {% endfor %}
+                </div>
+
+                {% if paginator.num_pages > 1 and not page_obj.has_next and has_more_results %}
+                    <div class="align-center">
+                        {% trans "Vous êtes sur la dernière page des résultats. Il y a plus de résultats, mais nous vous conseillons plutôt d'affiner les termes de votre recherche." %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <p>
+                    {% trans "Aucun résultat trouvé." %}
+                </p>
+            {% endif %}
+
+
+            {% include "misc/paginator.html" with position="bottom" %}
+        {% endif %}
+    </div>
+{% endblock %}

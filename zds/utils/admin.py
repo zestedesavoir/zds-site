@@ -2,14 +2,14 @@ from django.contrib import admin
 
 from zds.utils.models import (
     Alert,
-    Licence,
     Category,
-    SubCategory,
     CategorySubCategory,
-    Tag,
     CommentEdit,
     Hat,
     HatRequest,
+    Licence,
+    SubCategory,
+    Tag,
 )
 
 
@@ -25,9 +25,9 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 
 class AlertAdmin(admin.ModelAdmin):
-    list_display = ("author", "text", "solved")
+    list_display = ("author", "scope", "text", "pubdate", "solved", "solved_date")
     list_filter = ("scope", "solved")
-    raw_id_fields = ("author", "comment", "moderator", "privatetopic")
+    raw_id_fields = ("author", "comment", "moderator", "privatetopic", "profile", "content")
     ordering = ("-pubdate",)
     search_fields = ("author__username", "text")
 

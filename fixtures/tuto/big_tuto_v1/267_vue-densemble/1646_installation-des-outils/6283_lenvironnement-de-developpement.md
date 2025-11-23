@@ -4,10 +4,10 @@ Jusqu'à maintenant, vous avez utilisé un simple éditeur de texte pour réalis
 
 Il y a un certains nombres d'outils permettant de développer avec ASP.NET et C#. C'est pourquoi, lorsque l'on fait de la programmation, il faut toujours passer par l'étape "choix des outils", des **bons** outils.
 
-Lorsque vous faites ces choix, deux philosophies s'offrent à vous : 
+Lorsque vous faites ces choix, deux philosophies s'offrent à vous :
 
 - prendre tout un tas de petits logiciels qui font chacun leur travail de manière très optimisée;
-- prendre un gros logiciel qui *intègre* toutes les fonctionnalités de bases mais aussi avancées pour faire votre application. 
+- prendre un gros logiciel qui *intègre* toutes les fonctionnalités de bases mais aussi avancées pour faire votre application.
 
 Nous avons choisi la seconde méthode car elle est la plus simple pour un débutant. C'est pourquoi nous allons utiliser un Environnement Intégré de Développement qui s'abrège, en anglais IDE.
 

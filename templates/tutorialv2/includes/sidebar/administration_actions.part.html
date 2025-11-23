@@ -1,0 +1,65 @@
+{% load i18n %}
+{% load captureas %}
+{% load crispy_forms_tags %}
+
+{% if administration_actions.show_block %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+        <h3>{% trans "Administration" %}</h3>
+
+        <ul>
+            {% if administration_actions.show_versions_history_link %}
+                <li>
+                    <a href="{% url "content:history" content.pk content.slug_repository %}" class="ico-after history blue">
+                        {% trans "Historique des versions" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if administration_actions.show_events_history_link %}
+                <li>
+                    <a href="{% url "content:events" content.pk %}" class="ico-after history blue">
+                        {% trans "Journal des événements" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if administration_actions.show_opinion_publish %}
+                <li>
+                    <a href="#valid-publication" class="open-modal ico-after tick green">{% trans "Publier" %}</a>
+                    {% crispy form_publication %}
+                </li>
+            {% endif %}
+
+            {% if administration_actions.show_opinion_moderated %}
+                <li class="inactive">
+                    <span class="ico-after cross disabled">
+                        {% trans "Billet modéré" %}
+                    </span>
+                </li>
+            {% endif %}
+
+            {% if administration_actions.show_gallery_link %}
+                <li>
+                    <a href="{% url "gallery:details" gallery.pk gallery.slug %}" class="ico-after offline blue">
+                        {% trans "Aller à la galerie liée" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if administration_actions.show_jsfiddle %}
+                <li>
+                    {% if is_js %}
+                        <a href="#js-activation" class="open-modal ico-after cross red">
+                            {% trans "Désactiver JSFiddle" %}
+                        </a>
+                    {% else %}
+                        <a href="#js-activation" class="open-modal ico-after tick green">
+                            {% trans "Activer JSFiddle" %}
+                        </a>
+                    {% endif %}
+                </li>
+                {% crispy form_jsfiddle %}
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

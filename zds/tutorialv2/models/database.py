@@ -10,37 +10,38 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
-from django.db.models.signals import pre_delete, post_delete, pre_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from elasticsearch_dsl import Mapping, Q as ES_Q
-from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
-from git import Repo, BadObject
+from git import BadObject, Repo
 from gitdb.exc import BadName
 
 from zds import json_handler
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.gallery.models import GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
-from zds.searchv2.models import (
-    AbstractESDjangoIndexable,
-    AbstractESIndexable,
-    delete_document_in_elasticsearch,
-    ESIndexManager,
+from zds.search.models import AbstractSearchIndexable, AbstractSearchIndexableModel
+from zds.search.utils import SearchFilter, SearchIndexManager, clean_html, date_to_timestamp_int
+from zds.tutorialv2.managers import PublishableContentManager, PublishedContentManager, ReactionManager
+from zds.tutorialv2.models import (
+    CONTENT_TYPES_BETA,
+    CONTENT_TYPES_REQUIRING_VALIDATION,
+    PICK_OPERATIONS,
+    STATUS_CHOICES,
+    TYPE_CHOICES,
 )
-from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.models.goals import Goal
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds.tutorialv2.models.versioned import NotAPublicVersion
-from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
-from zds.utils import get_current_user
-from zds.utils.models import SubCategory, Licence, Comment, Tag
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.tutorialv2.models.labels import Label
+from zds.tutorialv2.models.mixins import OnlineLinkableContentMixin, TemplatableContentModelMixin
+from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.utils import BadManifestError, get_blob, get_content_from_json
+from zds.utils import get_current_user
+from zds.utils.models import Category, Comment, Licence, SubCategory, Tag
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.uuslug_wrapper import uuslug
 
@@ -76,6 +77,10 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     tags = models.ManyToManyField(Tag, verbose_name="Tags du contenu", blank=True, db_index=True)
     goals = models.ManyToManyField(
         Goal, verbose_name="Objectifs du contenu", blank=True, db_index=True, related_name="contents"
+    )
+
+    labels = models.ManyToManyField(
+        Label, verbose_name="Labels du contenu", blank=True, db_index=True, related_name="contents"
     )
 
     # store the thumbnail for tutorial or article
@@ -137,8 +142,6 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     is_locked = models.BooleanField("Est verrouillé", default=False)
     js_support = models.BooleanField("Support du Javascript", default=False)
 
-    must_reindex = models.BooleanField("Si le contenu doit-être ré-indexé", default=True)
-
     is_obsolete = models.BooleanField("Est obsolète", default=False)
 
     public_version = models.ForeignKey(
@@ -183,6 +186,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             self.slug = uuslug(self.title, instance=self, max_length=80)
         if update_date:
             self.update_date = datetime.now()
+        if self.public_version:
+            # This will probably triggers more reindexing than actually
+            # required (for instance, when updating an attribute that is not
+            # indexed), but it's definitely simpler than tracking which
+            # attributes are changed.
+            self.public_version.search_engine_requires_index = True
+            self.public_version.save()
         super().save(*args, **kwargs)
 
     def get_absolute_url_beta(self):
@@ -250,65 +260,72 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             user_gallery.user = author
             user_gallery.save()
 
-    def in_beta(self):
-        """A tutorial is not in beta if sha_beta is ``None`` or empty
+    def can_be_in_beta(self) -> bool:
+        return self.type in CONTENT_TYPES_BETA
 
-
-        :return: ``True`` if the tutorial is in beta, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_beta(self) -> bool:
+        """Return True if a beta version of the content exists, and False otherwise."""
         return (self.sha_beta is not None) and (self.sha_beta.strip() != "")
 
-    def in_validation(self):
-        """A tutorial is not in validation if sha_validation is ``None`` or empty
-
-        :return: ``True`` if the tutorial is in validation, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_validation(self) -> bool:
+        """Return True if a version of the content is in validation, and False otherwise."""
         return (self.sha_validation is not None) and (self.sha_validation.strip() != "")
 
-    def in_drafting(self):
-        """A tutorial is not in draft if sha_draft is ``None`` or empty
-
-        :return: ``True`` if the tutorial is in draft, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_drafting(self) -> bool:
+        """Return True if a draft version of the content exists, and False otherwise."""
         return (self.sha_draft is not None) and (self.sha_draft.strip() != "")
 
-    def in_public(self):
-        """A tutorial is not in on line if sha_public is ``None`` or empty
-
-        :return: ``True`` if the tutorial is on line, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_public(self) -> bool:
+        """Return True if a public version of the content exists, and False otherwise."""
         return (self.sha_public is not None) and (self.sha_public.strip() != "")
 
-    def is_beta(self, sha):
-        """Is this version of the content the beta version ?
-
-        :param sha: version
-        :return: ``True`` if the tutorial is in beta, ``False`` otherwise
-        :rtype: bool
-        """
+    def is_beta(self, sha: str) -> bool:
+        """Return True if the given sha corresponds to the beta version, and False otherwise."""
         return self.in_beta() and sha == self.sha_beta
 
-    def is_validation(self, sha):
-        """Is this version of the content the validation version ?
-
-        :param sha: version
-        :return: ``True`` if the tutorial is in validation, ``False`` otherwise
-        :rtype: bool
-        """
+    def is_validation(self, sha: str) -> bool:
+        """Return True if the given sha corresponds to the version in validation, and False otherwise."""
         return self.in_validation() and sha == self.sha_validation
 
-    def is_public(self, sha):
-        """Is this version of the content the published version ?
+    def get_validation(self):
+        # TODO: this function could be improved by declaring explicitly the model Validation
+        #  as the support of a ManyToMany relationship in PublishableContent.
+        validation = (
+            Validation.objects.select_related("validator").filter(content=self).order_by("-date_proposition").first()
+        )
+        if validation is not None:
+            validation.content = self
+        return validation
 
-        :param sha: version
-        :return: ``True`` if the tutorial is in public, ``False`` otherwise
-        :rtype: bool
-        """
+    def is_public(self, sha: str) -> bool:
+        """Return True if the given sha corresponds to the public version, and False otherwise."""
         return self.in_public() and sha == self.sha_public
+
+    def is_draft_more_recent_than_public(self) -> bool:
+        """Return True if there is a draft version more recent than the published version, and False otherwise."""
+        return self.in_public() and self.in_drafting() and self.sha_public != self.sha_draft
+
+    def is_picked(self):
+        return self.in_public() and self.sha_public == self.sha_picked
+
+    def is_author(self, user: User) -> bool:
+        # This is fast because there are few authors and the QuerySet is usually prefetched and cached.
+        return user in self.authors.all()
+
+    def remove_author(self, user: User) -> bool:
+        """
+        Remove a user from the authors and remove his access to the gallery.
+        If the user is not an author, do nothing.
+        If the user is the last author, do nothing. This method will not delete the content.
+        Return ``True`` if the user was effectively removed from the authors and ``False`` otherwise.
+        """
+        if self.is_author(user) and self.authors.count() > 1:
+            usergallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.gallery.pk).first()
+            if usergallery:
+                usergallery.delete()
+            self.authors.remove(user)
+            return True
+        return False
 
     def is_permanently_unpublished(self):
         """Is this content permanently unpublished by a moderator ?"""
@@ -324,7 +341,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :type public: PublishedContent
         :raise Http404: if sha is not None and related version could not be found
         :return: the versioned content
-        :rtype: zds.tutorialv2.models.versioned.ViersionedContent
+        :rtype: zds.tutorialv2.models.versioned.VersionedContent
         """
         try:
             return self.load_version(sha, public)
@@ -651,7 +668,30 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
+@receiver(post_save, sender=Tag)
+def content_tags_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        PublishedContent.objects.filter(content__tags=instance.pk).update(search_engine_requires_index=True)
+
+
+@receiver(post_save, sender=SubCategory)
+def content_subcategories_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        PublishedContent.objects.filter(content__subcategory=instance.pk).update(search_engine_requires_index=True)
+
+
+@receiver(post_save, sender=Category)
+def content_categories_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        PublishedContent.objects.filter(content__subcategory__categorysubcategory__category=instance.pk).update(
+            search_engine_requires_index=True
+        )
+
+
+class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -674,11 +714,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     publication_date = models.DateTimeField("Date de publication", db_index=True, blank=True, null=True)
     update_date = models.DateTimeField("Date de mise à jour", db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField("Sha1 de la version publiée", blank=True, null=True, max_length=80, db_index=True)
-    char_count = models.IntegerField(default=None, null=True, verbose_name=b"Nombre de lettres du contenu", blank=True)
+    char_count = models.IntegerField(default=None, null=True, verbose_name="Nombre de lettres du contenu", blank=True)
 
-    # NOTE: removing the spurious space in the field description requires a database migration !
     must_redirect = models.BooleanField(
-        "Redirection vers  une version plus récente", blank=True, db_index=True, default=False
+        "Redirection vers une version plus récente", blank=True, db_index=True, default=False
     )
 
     authors = models.ManyToManyField(User, verbose_name="Auteurs", db_index=True)
@@ -963,6 +1002,13 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         return self.get_absolute_url_to_extra_content("zip")
 
+    def get_absolute_url(self):
+        """For admin interface.
+        get_absolute_url_online() should probably be directly used in other cases.
+        """
+
+        return self.get_absolute_url_online()
+
     def get_char_count(self, md_file_path=None):
         """Compute the number of letters for a given content
 
@@ -988,34 +1034,32 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
-    def get_es_mapping(cls):
-        mapping = Mapping(cls.get_es_document_type())
+    def get_search_document_schema(cls):
+        search_engine_schema = super().get_search_document_schema()
 
-        mapping.field("content_pk", "integer")
-        mapping.field("publication_date", Date())
-        mapping.field("content_type", Keyword())
+        search_engine_schema["fields"] = [
+            {"name": "title", "type": "string", "facet": False},  # we search on it
+            {"name": "content_pk", "type": "int32", "facet": False},  # we filter on it
+            {"name": "content_type", "type": "string", "index": False},
+            {"name": "publication_date", "type": "int64", "index": False},
+            {"name": "tags", "type": "string[]", "facet": True, "optional": True},  # we search on it
+            {"name": "tag_slugs", "type": "string[]", "index": False, "optional": True},
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
+            {"name": "text", "type": "string", "facet": False, "optional": True},  # we search on it
+            {"name": "description", "type": "string", "facet": False, "optional": True},  # we search on it
+            {"name": "get_absolute_url_online", "type": "string", "index": False},
+            {"name": "thumbnail", "type": "string", "index": False, "optional": True},
+            {"name": "weight", "type": "float"},  # we sort on it
+        ]
 
-        # not from PublishedContent directly:
-        mapping.field("title", Text(boost=1.5))
-        mapping.field("description", Text(boost=1.5))
-        mapping.field("tags", Text(boost=2.0))
-        mapping.field("categories", Keyword(boost=1.5))
-        mapping.field("subcategories", Keyword(boost=1.5))
-        mapping.field("text", Text())  # for article and mini-tuto, text is directly included into the main object
-        mapping.field("has_chapters", Boolean())  # ... otherwise, it is written
-        mapping.field("picked", Boolean())
-
-        # not indexed:
-        mapping.field("get_absolute_url_online", Keyword(index=False))
-        mapping.field("thumbnail", Keyword(index=False))
-
-        return mapping
+        return search_engine_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
-        q = super().get_es_django_indexable(force_reindexing)
+        q = super().get_indexable_objects(force_reindexing)
         return (
             q.prefetch_related("content")
             .prefetch_related("content__tags")
@@ -1025,14 +1069,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         )
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
+    def get_indexable(cls, force_reindexing=False):
         """Overridden to also include chapters"""
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        search_engine_manager = SearchIndexManager()
 
         # fetch initial batch
         last_pk = 0
-        objects_source = super().get_es_indexable(force_reindexing)
+        objects_source = super().get_indexable(force_reindexing)
         objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
         while objects:
@@ -1043,16 +1087,12 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
                 # chapters are only indexed for middle and big tuto
                 if versioned.has_sub_containers():
-
-                    # delete possible previous chapters
-                    if content.es_already_indexed:
-                        index_manager.delete_by_query(
-                            FakeChapter.get_es_document_type(), ES_Q("match", _routing=content.es_id)
-                        )
-
+                    # delete previous chapters already indexed
+                    if not content.search_engine_requires_index:
+                        FakeChapter.remove_from_search_engine(search_engine_manager, content.search_engine_id)
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.es_id))
+                        chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
 
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
@@ -1067,68 +1107,113 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             last_pk = objects[-1].pk
             objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=[]):
         """Overridden to handle the fact that most information are versioned"""
 
-        excluded_fields = excluded_fields or []
-        excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "picked"])
+        excluded_fields.extend(
+            ["title", "description", "tags", "categories", "subcategories", "text", "thumbnail", "publication_date"]
+        )
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
 
         # fetch versioned information
         versioned = self.load_public_version()
 
         data["title"] = versioned.title
         data["description"] = versioned.description
-        data["tags"] = [tag.title for tag in versioned.tags.all()]
+        data["publication_date"] = date_to_timestamp_int(self.publication_date)
+
+        data["tags"] = []
+        data["tag_slugs"] = []
+        for tag in versioned.tags.all():
+            data["tags"].append(tag.title)
+            data["tag_slugs"].append(tag.slug)  # store also slugs to have them from search results
 
         if self.content.image:
             data["thumbnail"] = self.content.image.physical["content_thumb"].url
 
-        categories = []
-        subcategories = []
+        data["categories"] = []
+        data["subcategories"] = []
         for subcategory in versioned.subcategory.all():
             parent_category = subcategory.get_parent_category()
-            if subcategory.slug not in subcategories:
-                subcategories.append(subcategory.slug)
-            if parent_category and parent_category.slug not in categories:
-                categories.append(parent_category.slug)
-
-        data["categories"] = categories
-        data["subcategories"] = subcategories
+            if subcategory.slug not in data["subcategories"]:
+                data["subcategories"].append(subcategory.slug)
+            if parent_category and parent_category.slug not in data["categories"]:
+                data["categories"].append(parent_category.slug)
 
         if versioned.has_extracts():
-            data["text"] = versioned.get_content_online()
-            data["has_chapters"] = False
-        else:
-            data["has_chapters"] = True
+            data["text"] = clean_html(versioned.get_content_online())
 
-        data["picked"] = False
-
-        if self.content_type == "OPINION" and self.content.sha_picked is not None:
-            data["picked"] = True
+        is_multipage = versioned.has_sub_containers()
+        data["weight"] = self._get_search_weight(is_multipage)
 
         return data
 
+    def _get_search_weight(self, is_multipage: bool):
+        """
+        Calculate the weight used to sort search results.
+        We make a difference between validated content (either single or multipage) and content published freely
+        (picked for the front page or not).
+        """
+        weights = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]
+
+        if self.content.requires_validation():
+            if is_multipage:
+                return weights["if_validated_and_multipage"]
+            else:
+                return weights["if_validated"]
+        else:
+            assert self.content_type == "OPINION"
+            if self.content.is_picked():
+                return weights["if_opinion"]
+            else:
+                return weights["if_opinion_not_picked"]
+
+    @classmethod
+    def get_search_query(cls, category_slug=None, subcategory_slug=None):
+        ret = {
+            "query_by": "title,description,categories,subcategories,tags,text",
+            "query_by_weights": "{},{},{},{},{},{}".format(
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
+            ),
+            "sort_by": "weight:desc",
+        }
+
+        filter_by = SearchFilter()
+
+        if category_slug is not None and len(category_slug.strip()) != 0:
+            filter_by.add_exact_filter("categories", [category_slug])
+        if subcategory_slug is not None and len(subcategory_slug.strip()) != 0:
+            filter_by.add_exact_filter("subcategories", [subcategory_slug])
+
+        if str(filter_by) != "":
+            ret["filter_by"] = str(filter_by)
+
+        return ret
+
 
 @receiver(pre_delete, sender=PublishedContent)
-def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
-    """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
-    chapters.
+def delete_published_content_in_search_engine(sender, instance, **kwargs):
+    """Catch the pre_delete signal to ensure the deletion in the search engine.
+    Also, handle the deletion of the corresponding chapters.
     """
 
-    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+    search_engine_manager = SearchIndexManager()
 
-    if index_manager.index_exists:
-        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q("match", _routing=instance.es_id))
-
-    return delete_document_in_elasticsearch(instance)
+    FakeChapter.remove_from_search_engine(search_engine_manager, instance.search_engine_id)
+    search_engine_manager.delete_document(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)
-def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
-    """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
-    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
+def delete_published_content_in_search_engine_if_set_to_redirect(sender, instance, **kwargs):
+    """If the slug of the content changes, the ``must_redirect`` field is set
+    to ``True`` and a new PublishedContnent is created. To avoid duplicates,
+    the previous ones must be removed from the search engine.
     """
 
     try:
@@ -1137,15 +1222,15 @@ def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instanc
         pass  # nothing to worry about
     else:
         if not obj.must_redirect and instance.must_redirect:
-            delete_published_content_in_elasticsearch(sender, instance, **kwargs)
+            delete_published_content_in_search_engine(sender, instance, **kwargs)
 
 
-class FakeChapter(AbstractESIndexable):
-    """A simple class that is used by ES to index chapters, constructed from the containers.
+class FakeChapter(AbstractSearchIndexable):
+    """A simple class that is used by Typesense to index chapters, constructed from the containers.
 
-    In mapping, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
+    In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 
-    Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
+    Note that this class is only indexable, not updatable, since it cannot maintain a value of ``search_engine_requires_index``.
     """
 
     parent_model = PublishedContent
@@ -1166,7 +1251,9 @@ class FakeChapter(AbstractESIndexable):
         self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.es_id = main_container.slug + "__" + chapter.slug  # both slugs are unique by design, so id remains unique
+        self.search_engine_id = (
+            main_container.slug + "__" + chapter.slug
+        )  # both slugs are unique by design, so id remains unique
 
         self.parent_title = main_container.title
         self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
@@ -1185,36 +1272,72 @@ class FakeChapter(AbstractESIndexable):
                 self.categories.append(parent_category.slug)
 
     @classmethod
-    def get_es_document_type(cls):
+    def get_search_document_type(cls):
         return "chapter"
 
     @classmethod
-    def get_es_mapping(self):
-        """Define mapping and parenting"""
+    def get_search_document_schema(self):
+        search_engine_schema = super().get_search_document_schema()
 
-        mapping = Mapping(self.get_es_document_type())
-        mapping.meta("parent", type="publishedcontent")
+        search_engine_schema["fields"] = [
+            {"name": "parent_id", "type": "string", "facet": False},  # we filter on it when content is removed
+            {"name": "title", "type": "string", "facet": False},  # we search on it
+            {"name": "parent_title", "type": "string", "index": False},
+            {"name": "parent_publication_date", "type": "int64", "index": False},
+            {"name": "text", "type": "string", "facet": False},  # we search on it
+            {"name": "get_absolute_url_online", "type": "string", "index": False},
+            {"name": "parent_get_absolute_url_online", "type": "string", "index": False},
+            {"name": "thumbnail", "type": "string", "index": False},
+            {"name": "weight", "type": "float", "facet": False},  # we sort on it
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
+        ]
 
-        mapping.field("title", Text(boost=1.5))
-        mapping.field("text", Text())
-        mapping.field("categories", Keyword(boost=1.5))
-        mapping.field("subcategories", Keyword(boost=1.5))
+        return search_engine_schema
 
-        # not indexed:
-        mapping.field("get_absolute_url_online", Keyword(index=False))
-        mapping.field("parent_title", Text(index=False))
-        mapping.field("parent_get_absolute_url_online", Keyword(index=False))
-        mapping.field("parent_publication_date", Date(index=False))
-        mapping.field("thumbnail", Keyword(index=False))
+    def get_document_source(self, excluded_fields=[]):
+        """Overridden to handle the fact that most information are versioned"""
 
-        return mapping
+        excluded_fields.extend(["text"])
 
-    def get_es_document_as_bulk_action(self, index, action="index"):
-        """Overridden to handle parenting between chapter and PublishedContent"""
+        data = super().get_document_source(excluded_fields=excluded_fields)
+        data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
+        data["weight"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
+        data["text"] = clean_html(self.text)
 
-        document = super().get_es_document_as_bulk_action(index, action)
-        document["_parent"] = self.parent_id
-        return document
+        return data
+
+    @classmethod
+    def get_search_query(cls, category_slug=None, subcategory_slug=None):
+        ret = {
+            "query_by": "title,categories,subcategories,text",
+            "query_by_weights": "{},{},{},{}".format(
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["categories"],
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["subcategories"],
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
+            ),
+            "sort_by": "weight:desc",
+        }
+
+        filter_by = SearchFilter()
+
+        if category_slug is not None and len(category_slug.strip()) != 0:
+            filter_by.add_exact_filter("categories", [category_slug])
+        if subcategory_slug is not None and len(subcategory_slug.strip()) != 0:
+            filter_by.add_exact_filter("subcategories", [subcategory_slug])
+
+        if str(filter_by) != "":
+            ret["filter_by"] = str(filter_by)
+
+        return ret
+
+    @classmethod
+    def remove_from_search_engine(cls, search_engine_manager: SearchIndexManager, parent_search_engine_id: int):
+        filter_by = SearchFilter()
+        filter_by.add_exact_filter("parent_id", parent_search_engine_id)
+
+        search_engine_manager.delete_by_query(cls.get_search_document_type(), {"filter_by": str(filter_by)})
 
 
 class ContentReaction(Comment):
@@ -1483,14 +1606,14 @@ class ContentContribution(models.Model):
 
 
 class ContentSuggestion(models.Model):
-    """
-    Content suggestion
-    """
+    class Meta:
+        verbose_name = "Suggestion de publication"
+        verbose_name_plural = "Suggestions de publication"
 
     publication = models.ForeignKey(
         PublishableContent,
         null=False,
-        verbose_name="Contenu",
+        verbose_name="Publication",
         db_index=True,
         on_delete=models.CASCADE,
         related_name="publication",
@@ -1505,7 +1628,19 @@ class ContentSuggestion(models.Model):
     )
 
     def __str__(self):
-        return f"<Suggest '{self.suggestion.title}' for content {self.publication.title}, #{self.pk}>"
+        return f"<Suggest '{self.suggestion.title}' for content '{self.publication.title}', #{self.pk}>"
+
+    @staticmethod
+    def get_random_public_suggestions(publication: PublishableContent, count: int):
+        """
+        Get random public suggestions for the given publication.
+        At most `count` suggestions are returned.
+        """
+        all_suggestions = (
+            ContentSuggestion.objects.filter(publication=publication).order_by("?").prefetch_related("suggestion")
+        )
+        public_suggestions = [suggestion for suggestion in all_suggestions if suggestion.suggestion.in_public()]
+        return public_suggestions[:count]
 
 
 @receiver(models.signals.pre_delete, sender=User)

@@ -1,0 +1,105 @@
+{% extends "member/admin/base.html" %}
+
+{% load captureas %}
+{% load date %}
+{% load i18n %}
+{% load remove_url_scheme %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% trans "Membres par IP" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Membres par IP" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Membres par IP" %} : <strong>{{ ip }}</strong>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% captureas city %}{% if ip_location %}&nbsp;({{ ip_location }}){% endif %}{% endcaptureas %}
+        {% blocktrans %}
+            Liste des membres dont la dernière IP connue est <code>{{ ip }}</code>{{ city }}
+        {% endblocktrans %}
+    </p>
+
+    <table>
+        <thead>
+            <th>{% trans "Membre" %}</th>
+            <th>{% trans "Inscription" %}</th>
+            <th>{% trans "Dernière connexion" %}</th>
+        </thead>
+        <tbody>
+            {% for member in members %}
+                {% captureas last_visit %}{% if member.last_visit %}{{ member.last_visit|format_date:True }}{% else %}<i>{% trans "Jamais" %}</i>{% endif %}{% endcaptureas %}
+                <tr>
+                    <td>
+                        {% include "misc/member_item.part.html" with member=member avatar=True %}
+                        {% include "misc/badge.part.html" with member=member.user long_badge=False %}
+                    </td>
+                    <td>{{ member.user.date_joined|format_date:True }}</td>
+                    <td>{{ last_visit }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_ipv6 %}
+    <p>
+        {% blocktrans %}
+            Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}</code>
+        {% endblocktrans %}
+    </p>
+
+    <table>
+        <thead>
+            <th>{% trans "Membre" %}</th>
+            <th>{% trans "Inscription" %}</th>
+            <th>{% trans "Dernière connexion" %}</th>
+        </thead>
+        <tbody>
+            {% for member in network_members %}
+                {% captureas last_visit %}{% if member.last_visit %}{{ member.last_visit|format_date:True }}{% else %}<i>{% trans "Jamais" %}</i>{% endif %}{% endcaptureas %}
+                <tr>
+                    <td>
+                        {% include "misc/member_item.part.html" with member=member avatar=True %}
+                        {% include "misc/badge.part.html" with member=member.user long_badge=False %}
+                    </td>
+                    <td>{{ member.user.date_joined|format_date:True }}</td>
+                    <td>{{ last_visit }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        {% blocktrans %}
+            En IPv6, les adresses sont attribuées par bloc d'IP. Un bot de spam
+            peut donc facilement changer d'adresse IP au sein de ce bloc. Sont
+            affichés ici tous les membres dont l'IPv6 fait partie du même bloc que
+            l'IP demandée.
+        {% endblocktrans %}
+    </p>
+    {% endif %}
+
+    {% if ip_is_already_blocked %}
+        <p class="clearfix">
+            <a class="btn btn-cancel" disabled>{% trans "Cette adresse IP est déjà bloquée" %}</a>
+        </p>
+        {% include "member/includes/blocked_ips.part.html" with blocked_ips=blocked_ips %}
+    {% else %}
+        <p>
+            <a href="#blocked-ip-modal" class="btn btn-cancel open-modal">{% trans "Bloquer cette adresse IP" %}</a>
+        </p>
+        {% crispy blocked_ip_form %}
+    {% endif %}
+{% endblock %}

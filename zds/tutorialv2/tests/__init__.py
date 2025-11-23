@@ -1,10 +1,9 @@
 import copy
-
-from django.conf import settings
 import shutil
 
-from django.urls import reverse
+from django.conf import settings
 from django.test.utils import override_settings
+from django.urls import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -14,21 +13,19 @@ overridden_zds_app = copy.deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
 overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
 overridden_zds_app["content"]["extra_content_generation_policy"] = "SYNC"
-overridden_zds_app["content"]["build_pdf_when_published"] = False
 
 
 class override_for_contents(override_settings):
     def __init__(self, **kwargs):
         kwargs.update(MEDIA_ROOT=settings.BASE_DIR / "media-test", ZDS_APP=overridden_zds_app)
 
-        if "ES_ENABLED" not in kwargs:
-            kwargs.update(ES_ENABLED=False)
+        if "SEARCH_ENABLED" not in kwargs:
+            kwargs.update(SEARCH_ENABLED=False)
 
         super().__init__(**kwargs)
 
 
 class TutorialTestMixin:
-
     overridden_zds_app = overridden_zds_app
 
     def clean_media_dir(self):

@@ -1,15 +1,25 @@
 import datetime
+
 from django.conf import settings
 from django.test import TestCase
+
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.tests.factories import PublishedContentFactory
-from zds.utils.misc import contains_utf8mb4, check_essential_accounts
-from zds.utils.models import Alert
 from zds.utils.context_processor import get_header_notifications
+from zds.utils.misc import check_essential_accounts, contains_utf8mb4, remove_utf8mb4
+from zds.utils.models import Alert
 
 
 class Misc(TestCase):
-    def test_utf8mb4(self):
+    def test_remove_utf8mb4(self):
+        self.assertEqual("abc", remove_utf8mb4("abc"))
+        self.assertEqual("abc", remove_utf8mb4("abc"))
+        self.assertEqual("abc€", remove_utf8mb4("abc€"))
+        self.assertEqual("abc€", remove_utf8mb4("abc€"))
+        self.assertEqual("atbc€", remove_utf8mb4("a🐙tbc€"))
+        self.assertEqual("atbc€", remove_utf8mb4("a🐙tbc€"))
+
+    def test_contains_utf8mb4(self):
         self.assertFalse(contains_utf8mb4("abc"))
         self.assertFalse(contains_utf8mb4("abc"))
         self.assertFalse(contains_utf8mb4("abc€"))

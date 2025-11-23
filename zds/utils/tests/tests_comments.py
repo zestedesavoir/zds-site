@@ -9,10 +9,10 @@ from rest_framework.test import APIClient
 from zds.forum.tests.factories import PostFactory, create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.member.utils import get_bot_account
-from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.models import CONTENT_TYPES
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.utils.models import Alert
 
 

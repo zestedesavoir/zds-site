@@ -10,22 +10,25 @@ THUMBNAIL_PRESERVE_EXTENSIONS = ("svg",)
 
 social_auth_config = config.get("social_auth", {})
 
+SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = "zds.member.validators.clean_username_social_auth"
+
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {"fields": "name,email"}
 
 SOCIAL_AUTH_PIPELINE = (
-    "social.pipeline.social_auth.social_details",
-    "social.pipeline.social_auth.social_uid",
-    "social.pipeline.social_auth.auth_allowed",
-    "social.pipeline.social_auth.social_user",
-    "social.pipeline.user.get_username",
-    "social.pipeline.social_auth.associate_by_email",
-    "social.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.social_user",
+    "social_core.pipeline.user.get_username",
+    "social_core.pipeline.social_auth.associate_by_email",
+    "social_core.pipeline.user.create_user",
     "zds.member.models.save_profile",
-    "social.pipeline.social_auth.associate_user",
-    "social.pipeline.social_auth.load_extra_data",
-    "social.pipeline.user.user_details",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
 )
 
 # Before adding new providers such as Facebook and Google,
@@ -51,11 +54,6 @@ SOCIAL_AUTH_SANITIZE_REDIRECTS = social_auth_config.get(
 recaptcha_config = config.get("recaptcha", {})
 
 USE_CAPTCHA = recaptcha_config.get("use_captcha", False)
-# Seems to be used by `django-recaptcha` (what a poorly-namespaced
-# setting!).
-# Set to `True` to use the “No Captcha” engine instead of the old API.
-NOCAPTCHA = True
-RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = recaptcha_config.get("public_key", "dummy")
 RECAPTCHA_PRIVATE_KEY = recaptcha_config.get("private_key", "dummy")
 

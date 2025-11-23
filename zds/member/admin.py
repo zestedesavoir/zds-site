@@ -1,13 +1,14 @@
 from django.contrib import admin
 
 from zds.member.models import (
-    Profile,
     Ban,
-    TokenRegister,
-    TokenForgotPassword,
+    BannedEmailProvider,
+    BlockedIP,
     KarmaNote,
     NewEmailProvider,
-    BannedEmailProvider,
+    Profile,
+    TokenForgotPassword,
+    TokenRegister,
 )
 
 
@@ -75,6 +76,15 @@ class BannedEmailProviderAdmin(admin.ModelAdmin):
     raw_id_fields = ("moderator",)
 
 
+class BlockedIPAdmin(admin.ModelAdmin):
+    """Representation of BlockedIP model in the admin interface"""
+
+    list_display = ("ip_address", "is_network_address", "moderator", "reason")
+    ordering = ("-blocked_date",)
+    search_fields = ("ip_address", "moderator")
+    raw_id_fields = ("moderator",)
+
+
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Ban, BanAdmin)
 admin.site.register(TokenRegister, TokenRegisterAdmin)
@@ -82,3 +92,4 @@ admin.site.register(TokenForgotPassword, TokenForgotPasswordAdmin)
 admin.site.register(KarmaNote, KarmaNoteAdmin)
 admin.site.register(NewEmailProvider, NewEmailProviderAdmin)
 admin.site.register(BannedEmailProvider, BannedEmailProviderAdmin)
+admin.site.register(BlockedIP, BlockedIPAdmin)

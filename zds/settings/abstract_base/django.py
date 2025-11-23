@@ -3,8 +3,8 @@ from urllib.parse import quote
 from django.contrib.messages import constants as message_constants
 from django.utils.translation import gettext_lazy as _
 
-from .config import config
 from .base_dir import BASE_DIR
+from .config import config
 
 # especially for debug toolbar:
 INTERNAL_IPS = (
@@ -39,12 +39,11 @@ USE_I18N = True
 
 LOCALE_PATHS = (str(BASE_DIR / "conf" / "locale"),)
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = False
-
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
+
+# prepare for django 6
+FORMS_URLFIELD_ASSUME_HTTPS = True
 
 LANGUAGES = (
     ("fr", _("Français")),
@@ -107,6 +106,7 @@ MIDDLEWARE = (
     "zds.utils.ThreadLocals",
     "zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware",
     "zds.middlewares.matomomiddleware.MatomoMiddleware",
+    "zds.middlewares.managesessionsmiddleware.ManageSessionsMiddleware",
     "zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware",
 )
 
@@ -136,12 +136,15 @@ django_template_engine = {
             "zds.utils.context_processor.app_settings",
             "zds.utils.context_processor.version",
             "zds.utils.context_processor.header_notifications",
+            "zds.utils.context_processor.member_login_url",
             "zds.gallery.auto_upload_gallery.get_auto_upload_gallery",
         ],
     },
 }
 
 TEMPLATES = [django_template_engine]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap"
 
 CRISPY_TEMPLATE_PACK = "bootstrap"
 
@@ -156,14 +159,15 @@ INSTALLED_APPS = (
     "easy_thumbnails",
     "easy_thumbnails.optimize",
     "crispy_forms",
-    "munin",
+    "crispy_forms_bootstrap2",
     "social_django",
     "rest_framework",
     "drf_yasg",
     "dry_rest_permissions",
     "corsheaders",
     "oauth2_provider",
-    "captcha",
+    "django_recaptcha",
+    "django_munin.munin",
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
     "zds.utils",
@@ -174,15 +178,13 @@ INSTALLED_APPS = (
     "zds.tutorialv2",
     "zds.member",
     "zds.featured",
-    "zds.searchv2",
+    "zds.search",
     "zds.notification",
     # Uncomment the next line to enable the admin:
     "django.contrib.admin",
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
-
-SITE_ID = 1
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "zds.api.pagination.DefaultPagination",
@@ -284,7 +286,7 @@ LOGGING = {
     },
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "zds.utils.custom_cached_db_backend"
 
 LOGIN_URL = "member-login"
 LOGIN_REDIRECT_URL = "/"

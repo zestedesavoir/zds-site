@@ -1,6 +1,6 @@
-=========================
-Les tutoriels et articles
-=========================
+================================
+Les tutoriels, articles, billets
+================================
 
 Vocabulaire et définitions
 ==========================
@@ -50,56 +50,54 @@ Un contenu
 
 Un **contenu** est un agencement particulier de conteneurs et d'extraits. Il
 est décrit par des métadonnées (*metadata*), détaillées
-`ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article
-ou tutoriel. Leur visée pédagogique diffère, mais aussi leur structure : un
-article ne peut comporter de conteneurs, seulement des extraits, ce qui n'est
-pas le cas d'un tutoriel.
+`ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article, tutoriel ou billet.
 
-Les exemples suivants devraient éclairer ces notions.
+Techniquement, le type n'a pas d'influence sur la structure du contenu. On rencontre cependant
+des structures typiques selon la longueur du contenu.
 
-Communément appelé « mini-tutoriel » :
+Structure typique pour un contenu court :
 
 .. sourcecode:: none
 
-    + Tutoriel
+    + Contenu
         + Section
         + Section
         + Section
 
-Communément appelé « moyen-tutoriel » :
+Structure typique pour un contenu de taille moyenne :
+
+.. sourcecode:: none
+
+    + Contenu
+        + Partie
+            + Section
+        + Partie
+            + Section
+            + Section
+
+Structure typique pour un contenu long :
+
+.. sourcecode:: none
+
+    + Contenu
+        + Partie
+            + Chapitre
+                + Section
+                + Section
+            + Chapitre
+                + Section
+        + Partie
+            + Chapitre
+                + Section
+                + Section
+
+Des structures plus complexes sont possibles, avec des niveaux de conteneurs différents selon les parties :
 
 .. sourcecode:: none
 
     + Tutoriel
         + Partie
             + Section
-        + Partie
-            + Section
-            + Section
-
-Communément appelé « big-tutoriel » :
-
-.. sourcecode:: none
-
-    + Tutoriel
-        + Partie
-            + Chapitre
-                + Section
-                + Section
-            + Chapitre
-                + Section
-        + Partie
-            + Chapitre
-                + Section
-                + Section
-
-On peut aussi faire un mélange des conteneurs :
-
-.. sourcecode:: none
-
-    + Tutoriel
-        + Partie
-            + Section
             + Section
         + Partie
             + Chapitre
@@ -107,7 +105,7 @@ On peut aussi faire un mélange des conteneurs :
             + Chapitre
                 + Section
 
-Mais pas de conteneurs et d'extraits adjacents :
+Il n'est pas possible d'avoir à la fois des conteneurs et des extraits au même niveau :
 
 .. sourcecode:: none
 
@@ -121,15 +119,6 @@ Mais pas de conteneurs et d'extraits adjacents :
             + Chapitre
                 + Section
             + Section /!\ Impossible !
-
-Pour finir, un article. Même structure qu'un mini-tutoriel, mais vocation
-pédagogique différente :
-
-.. sourcecode:: none
-
-    + Article
-        + Section
-        + Section
 
 D'autre part, tout contenu se voit attribuer un identifiant unique sous la
 forme d'un entier naturel (en anglais : *pk*, pour *primary key*). Cet
@@ -294,10 +283,9 @@ est configurable selon trois niveaux à affecter au paramètre ``ZDS_APP['conten
 **Ajouter un nouveau format d'export**
 
 Les fichiers téléchargeables générés le sont à partir d'un registre de créateur.
-Par défaut le registre contient les 3 formats pandoc HTML, PDF et EPUB.
+Par défaut le registre contient les 3 formats HTML, PDF et EPUB.
 
 Vous pouvez définir votre propre formateur qui devra alors hériter de la classe ``zds.tutorialv2.publication_utils.Publicator`` et implémenter la méthode ``publish``.
-Si vous désirez vous passer de pandoc, il vous suffira d'appeler ``map(PublicatorRegistry.unregister, ["pdf", "epub", "html"])``.
 Vous pouvez aussi simplement surcharger chacun des ``Publicator`` par défaut en en enregistrant un nouveau sous le même nom.
 
 L'entraide
@@ -490,7 +478,7 @@ La publication se passe comme suit :
     * Si celui-ci contient des extraits, ils sont tous rassemblés dans un seul fichier HTML, avec l'introduction et la conclusion ;
     * Dans le cas contraire, l'introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le *manifest* sont mis à jour.
 3. Le *manifest* correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
-4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `pandoc (en) <http://pandoc.org/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
+4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `ZMarkdown <https://github.com/zestedesavoir/zmarkdown/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
 5. Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l'ancienne version publiée. Un objet ``PublishedContent`` est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l'affichage dans la liste des contenus publiés. Le ``sha_public`` est mis à jour dans la base de données et l'objet ``Validation`` est également changé.
 
 Consultation d'un contenu publié
@@ -614,7 +602,6 @@ Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['content']``:
 - ``user_page_number``:  Nombre de contenus de chaque type qu'on affiche sur le profil d'un utilisateur, 5 par défaut,
 - ``default_image``: chemin vers l'image utilisée par défaut dans les icônes de contenu,
 - ``import_image_prefix``: préfixe mnémonique permettant d'indiquer que l'image se trouve dans l'archive jointe lors de l'import de contenu
-- ``build_pdf_when_published``: indique que la publication générera un PDF (quelque soit la politique, si ``False``, les PDF ne seront pas générés, sauf à appeler la commande adéquate),
 - ``maximum_slug_size``: taille maximale du slug d'un contenu
 
 Paramètres propres aux tribunes libres
@@ -629,19 +616,9 @@ Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['opinions']``:
 Statistiques
 ============
 
-Pour permettre aux auteurs d'avoir des statistiques sur leurs contenus, il faut créer un fichier ``api_analytics_secrets.json`` contenant les identifiants nécessaires pour se connecter à l'API de Google Analytics. Voici un gabarit pour ce fichier :
+Les statistiques du site sont gérées par un serveur `Matomo
+<https://matomo.org/>`_. La collecte des statistiques est faite avec le
+middleware ``zds.middlewares.matomomiddleware.MatomoMiddleware``.
 
-.. sourcecode:: json
-
-    {
-        "type": "service_account",
-        "project_id": "fake-project_id",
-        "private_key_id": "fake-private_key_id",
-        "private_key": "fake_private_key",
-        "client_email": "fake-client_email",
-        "client_id": "fake-client_id",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://accounts.google.com/o/oauth2/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "fake-client_x509_cert_url"
-    }
+Chaque contenu a une page (non publique) *Statistiques* qui récupère auprès de
+Matomo et affiche les statistiques d'affichage de chaque page du contenu.

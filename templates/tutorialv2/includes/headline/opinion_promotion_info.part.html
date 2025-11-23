@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% if content.is_opinion %}
+    {% if content.converted_to %}
+        {% if content.converted_to.get_absolute_url_online %}
+            <div class="alert-box info">
+                {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
+                    Ce billet a été promu en <a href="{{ url_article }}">article</a>.
+                {% endblocktrans %}
+            </div>
+        {% elif is_staff %}
+            <div class="alert-box info">
+                {% blocktrans with url_article=content.converted_to.get_absolute_url %}
+                    Ce billet a fait l’objet d’une demande de publication <a href="{{ url_article }}">en tant qu’article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
+                {% endblocktrans %}
+            </div>
+        {% endif %}
+    {% endif %}
+{% endif %}

@@ -1,72 +1,81 @@
 name: CI
 
-on: ["push", "pull_request"]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
-  NODE_VERSION: "16" # needs to be also updated in .nvmrc
-  PYTHON_VERSION: "3.7"
-  MARIADB_VERSION: "10.4.10"
-  COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
-  BLACK_VERSION: "22.8.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
-  GECKODRIVER_VERSION: "0.31.0"
+  NODE_VERSION: "18" # needs to be also updated in .nvmrc
+  PYTHON_VERSION: "3.11"
+  PIP_VERSION: "25.1.1" # needs to be also updated in scripts/define_variable.sh
+  MARIADB_VERSION: "10.11.11"
+  COVERALLS_VERSION: "4.0.2" # check if Coverage needs to be also updated in requirements-ci.txt
+  TYPESENSE_VERSION: "29.0" # needs to be also updated in scripts/define_variable.sh
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  ELASTICSEARCH_VERSION: "5.5.2"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
-  # Lint the Python back-end with flake8.
-  lint-back:
-    name: Lint back-end
-    runs-on: ubuntu-22.04
+  # Lint all source files by executing pre-commit hooks.
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Install python dependencies
-        run: pip install black==${{ env.BLACK_VERSION }}
-
-      - name: Lint back-end
-        run: make lint-back
+      - name: Execute pre-commit
+        uses: pre-commit/action@v3.0.1
 
   # Build the documentation and upload it as an artifact.
   build-doc:
     name: Build Sphinx documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Upgrade pip
-        run: pip install --upgrade pip
+        run: pip install pip==${{ env.PIP_VERSION }}
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
+      - name: Install Cairo
+        run: sudo apt-get update && sudo apt-get install libcairo2-dev
 
       - name: Install python dependencies
         run: pip install -r requirements-dev.txt
@@ -74,33 +83,34 @@ jobs:
       - name: Build documentation
         run: make generate-doc
 
-      - name: Upload documentation as an artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload documentation as a page artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: doc
           path: doc/build/html
-          retention-days: 1
 
   # Build the website front-end and upload built assets as an artifact.
   build-front:
     name: Lint and build front-end
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ env.NODE_VERSION }}"
 
       - name: Retrieve yarn cache directory
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -118,7 +128,7 @@ jobs:
         run: make build-front
 
       - name: Upload font-end assets for subsequent tests
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: assets
           path: dist
@@ -126,39 +136,23 @@ jobs:
 
   # Test the zds-site project.
   # Install the project, using assets created during the previous job,
-  # and install elasticsearch & memcache as a service. Then, run the tests
+  # and install Typesense & Memcached as a service. Then, run the tests
   # in a matrix build to parallelize multiple components.
   test:
     name: Install and test zds-site
     needs: build-front
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
         module:
           [
             "zds.tutorialv2",
-            "zds.member zds.gallery zds.searchv2 zds.middlewares zds.pages",
+            "zds.member zds.gallery zds.search zds.middlewares zds.pages",
             "zds.forum zds.featured zds.mp zds.notification zds.utils",
           ]
 
     services:
-      elasticsearch:
-        image: "elasticsearch:5.5.2"
-        ports:
-          - "9200:9200"
-        env:
-          "http.host": "0.0.0.0"
-          "transport.host": "127.0.0.1"
-          "xpack.security.enabled": false
-          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
-        options: >-
-          -e="discovery.type=single-node"
-          --health-cmd="curl http://localhost:9200/_cluster/health"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
       memcached:
         image: "memcached:1.6"
         ports:
@@ -177,35 +171,35 @@ jobs:
           mysql database: "ci_db_name"
           mysql root password: "ci_root_password"
 
-      - name: Install Firefox
-        run: sudo apt-get update && sudo apt-get install firefox
-
-      - name: Install Geckodriver
-        run: |
-          wget https://github.com/mozilla/geckodriver/releases/download/v${{ env.GECKODRIVER_VERSION }}/geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz
-          mkdir geckodriver
-          tar -xzf geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz -C geckodriver
+      - name: Start Typesense
+        uses: jirevwe/typesense-github-action@v1.0.1
+        with:
+          typesense-version: ${{ env.TYPESENSE_VERSION }}
+          typesense-api-key: xyz
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Download previously built assets
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: assets
           path: dist
 
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ env.PYTHON_VERSION }}"
+
       - name: Upgrade pip
-        run: |
-          pip install --upgrade pip
+        run: pip install pip==${{ env.PIP_VERSION }}
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
@@ -213,22 +207,20 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Cache Node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: "${{ env.PYTHON_VERSION }}"
-
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ env.NODE_VERSION }}"
+
+      - name: Install Cairo
+        run: sudo apt-get update && sudo apt-get install libcairo2-dev
 
       - name: Install Python dependencies
         run: pip install -r requirements-ci.txt
@@ -242,9 +234,7 @@ jobs:
           make zmd-start
 
       - name: Run tests for ${{ matrix.module }}
-        run: |
-          export PATH="$PATH:$PWD/geckodriver"
-          coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
+        run: coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
 
       - name: Analyze coverage
         shell: bash -l {0}
@@ -256,16 +246,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.github_token }}
           COVERALLS_PARALLEL: true
           COVERALLS_FLAG_NAME: "${{ matrix.module }}"
+          COVERALLS_SERVICE_JOB_ID: "${{ github.run_id }}"  # https://github.com/TheKevJames/coveralls-python/issues/252#issuecomment-1823885633
 
   # Push coverage data to Coveralls.
   coverage:
     name: Push coverage to Coveralls
     needs: test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -281,20 +272,19 @@ jobs:
   push_doc:
     name: Push documentation to GitHub Pages
     needs: ["build-doc", "test"]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: "github.ref == 'refs/heads/dev'"
 
-    steps:
-      - name: Download previously built documentation
-        uses: actions/download-artifact@v2
-        with:
-          name: doc
-          path: doc/build/html
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: doc/build/html
-          CLEAN: true
+        id: deployment
+        uses: actions/deploy-pages@v4

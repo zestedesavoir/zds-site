@@ -1,8 +1,7 @@
-from django.db import models, migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("member", "0003_auto_20151019_2333"),
     ]

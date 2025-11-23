@@ -3,11 +3,11 @@ from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
 
-from zds.mp.managers import PrivateTopicManager, PrivatePostManager
 from zds.mp import signals
+from zds.mp.managers import PrivatePostManager, PrivateTopicManager
 from zds.utils import get_current_user, old_slugify
 
 
@@ -66,6 +66,11 @@ class PrivateTopic(models.Model):
     )
     pubdate = models.DateTimeField("Date de création", auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._cache_is_unread = dict()
+        self._cache_first_post = None
 
     @staticmethod
     def create(title, subtitle, author, recipients):
@@ -140,7 +145,10 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object first answer (PrivatePost)
         :rtype: PrivatePost object or None
         """
-        return PrivatePost.objects.filter(privatetopic=self).order_by("position_in_topic").first()
+        if self._cache_first_post is None:
+            self._cache_first_post = PrivatePost.objects.filter(privatetopic=self).order_by("position_in_topic").first()
+
+        return self._cache_first_post
 
     def last_read_post(self, user=None):
         """
@@ -212,7 +220,7 @@ class PrivateTopic(models.Model):
             return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
-        """Determine the primary ey of position of the last post read by a user.
+        """Determine the primary key of position of the last post read by a user.
 
         :param user: the current (authenticated) user. Please do not try with unauthenticated user, il would lead to a \
         useless request.
@@ -252,7 +260,10 @@ class PrivateTopic(models.Model):
         if user is None:
             user = get_current_user()
 
-        return is_privatetopic_unread(self, user)
+        if user not in self._cache_is_unread:
+            self._cache_is_unread[user] = is_privatetopic_unread(self, user)
+
+        return self._cache_is_unread[user]
 
     def is_author(self, user):
         """
@@ -475,7 +486,6 @@ class PrivatePost(models.Model):
 
 
 class PrivatePostVote(models.Model):
-
     """Set of Private Post votes."""
 
     class Meta:
@@ -501,6 +511,7 @@ class PrivateTopicRead(models.Model):
     class Meta:
         verbose_name = "Message privé lu"
         verbose_name_plural = "Messages privés lus"
+        constraints = [models.UniqueConstraint(fields=["privatetopic", "user"], name="unique_privatetopicread")]
 
     privatetopic = models.ForeignKey(PrivateTopic, db_index=True, on_delete=models.CASCADE)
     privatepost = models.ForeignKey(PrivatePost, db_index=True, on_delete=models.CASCADE)

@@ -59,16 +59,7 @@
                 {% if gallery.linked_content in linked_contents %}
                     {% with content=linked_contents|get_item:gallery.linked_content %}
                         <p class="topic-last-answer">
-                            {% trans "Liée" %}
-                            {% if content.is_article %}
-                                {% trans "à l’article" %}
-                            {% elif content.is_tutorial %}
-                                {% trans "au tutoriel" %}
-                            {% elif content.is_opinion %}
-                                {% trans "au billet" %}
-                            {% else %}
-                                {% trans "au contenu" %}
-                            {% endif %}
+                            {% trans "Liée à la publication" %}
                             «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
                         </p>
                     {% endwith %}

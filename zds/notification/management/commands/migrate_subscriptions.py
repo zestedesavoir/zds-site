@@ -1,13 +1,14 @@
 from django.core.management import BaseCommand
 from django.db.models import F, Q
-from zds.forum.models import TopicRead, Topic
+
+from zds.forum.models import Topic, TopicRead
 from zds.member.models import Profile
-from zds.mp.models import PrivateTopicRead, PrivateTopic
+from zds.mp.models import PrivateTopic, PrivateTopicRead
 from zds.notification.models import (
-    TopicFollowed,
-    TopicAnswerSubscription,
     ContentReactionAnswerSubscription,
     PrivateTopicAnswerSubscription,
+    TopicAnswerSubscription,
+    TopicFollowed,
 )
 from zds.tutorialv2.models.database import ContentReaction, ContentRead, PublishableContent
 

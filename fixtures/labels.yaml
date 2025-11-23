@@ -1,0 +1,24 @@
+-   model: tutorialv2.Label
+    pk: 1
+    fields:
+        name: Les plus lus
+        description: Les contenus les plus visités du site.
+        slug: populaires
+-   model: tutorialv2.Label
+    pk: 2
+    fields:
+        name: Les mieux notés
+        description: Les contenus les mieux notés du site.
+        slug: note
+-   model: tutorialv2.Label
+    pk: 3
+    fields:
+        name: A ne pas manquer
+        description: Contenu jugé intéressant par un grand nombre de personnes.
+        slug: manquer
+-   model: tutorialv2.Label
+    pk: 4
+    fields:
+        name: Suggestion
+        description: Contenu suggéré par l'équipe de développement.
+        slug: suggestion

@@ -8,7 +8,7 @@ from django.urls import reverse
 from zds.gallery.models import UserGallery
 from zds.member.tests.factories import ProfileFactory
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 
 

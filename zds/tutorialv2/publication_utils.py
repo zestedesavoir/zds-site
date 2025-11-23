@@ -10,20 +10,22 @@ from os import makedirs, path
 from pathlib import Path
 
 import requests
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.defaultfilters import date
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
+
+from zds.forum.utils import lock_topic, send_post
 from zds.tutorialv2 import signals
 from zds.tutorialv2.epub_utils import build_ebook
-from zds.tutorialv2.models.database import ContentReaction, PublishedContent, PublicationEvent
+from zds.tutorialv2.models.database import ContentReaction, PublicationEvent, PublishedContent
 from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import export_content
-from zds.forum.utils import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown
-from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
+from zds.utils.templatetags.smileys_def import LICENSES_BASE_PATH, SMILEYS_BASE_PATH
 
 logger = logging.getLogger(__name__)
 licences = {
@@ -90,12 +92,12 @@ def publish_content(db_object, versioned, is_major_update=True):
     altered_version.pubdate = datetime.now()
 
     md_file_path = base_name + ".md"
-    with contextlib.suppress(OSError):
-        Path(Path(md_file_path).parent, "images").mkdir()
+    Path(Path(md_file_path).parent, "images").mkdir(exist_ok=True)
     is_update = False
 
     if db_object.public_version:
-        is_update, public_version = update_existing_publication(db_object, versioned)
+        public_version = update_existing_publication(db_object, versioned)
+        is_update = True
     else:
         public_version = PublishedContent()
 
@@ -104,11 +106,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_type = versioned.type
     public_version.content_pk = db_object.pk
     public_version.content = db_object
-    public_version.must_reindex = True
     public_version.char_count = char_count
     public_version.save()
-    with contextlib.suppress(FileExistsError):
-        makedirs(public_version.get_extra_contents_directory())
+    makedirs(public_version.get_extra_contents_directory(), exist_ok=True)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
     elif is_update:
@@ -136,10 +136,9 @@ def publish_content(db_object, versioned, is_major_update=True):
 
 def update_existing_publication(db_object, versioned):
     public_version = db_object.public_version
-    # the content has been published in the past, so clean up old files!
+    # the content has been published in the past, so we will clean up old files!
     old_path = public_version.get_prod_path()
-    logging.getLogger(__name__).debug("erase " + old_path)
-    shutil.rmtree(old_path)
+
     # if the slug has changed, create a new object instead of reusing the old one
     # this allows us to handle permanent redirection so that SEO is not impacted.
     if versioned.slug != public_version.content_public_slug:
@@ -151,7 +150,13 @@ def update_existing_publication(db_object, versioned):
 
         # keep the same publication date if the content is already published
         public_version.publication_date = publication_date
-    return True, public_version
+
+    # remove old files only if everything succeed so far: if something bad
+    # happened, we don't want to have a published content without content!
+    logging.getLogger(__name__).debug("erase " + old_path)
+    shutil.rmtree(old_path)
+
+    return public_version
 
 
 def write_md_file(md_file_path, parsed_with_local_images, versioned):
@@ -168,22 +173,16 @@ def write_md_file(md_file_path, parsed_with_local_images, versioned):
             )
 
 
-def generate_external_content(
-    base_name, extra_contents_path, md_file_path, overload_settings=False, excluded=None, **kwargs
-):
+def generate_external_content(base_name, extra_contents_path, md_file_path, excluded=None, **kwargs):
     """
     generate all static file that allow offline access to content
 
     :param base_name: base nae of file (without extension)
     :param extra_contents_path: internal directory where all files will be pushed
     :param md_file_path: bundled markdown file path
-    :param overload_settings: this option force the function to generate all registered formats even when settings \
-    ask for PDF not to be published
     :param excluded: list of excluded format, None if no exclusion
     """
     excluded = excluded or ["watchdog"]
-    if not settings.ZDS_APP["content"]["build_pdf_when_published"] and not overload_settings:
-        excluded.append("pdf")
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
             publicator.publish(
@@ -359,8 +358,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         base_directory = Path(base_name).parent
         image_dir = base_directory / "images"
-        with contextlib.suppress(FileExistsError):
-            image_dir.mkdir(parents=True)
+        image_dir.mkdir(parents=True, exist_ok=True)
         if (settings.MEDIA_ROOT / "galleries" / str(gallery_pk)).exists():
             for image in (settings.MEDIA_ROOT / "galleries" / str(gallery_pk)).iterdir():
                 with contextlib.suppress(OSError):
@@ -407,7 +405,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileys_directory=str(SMILEYS_BASE_PATH / "svg"),
             images_download_dir=str(base_directory / "images"),
             local_url_to_local_path=["/", replacement_image_url],
-            heading_shift=-1,
+            date=date(published_content_entity.last_publication_date, "l d F Y"),
         )
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
@@ -453,10 +451,6 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         # let's put 10 min of timeout because we do not generate latex everyday
         command_process.communicate(timeout=600)
-        with contextlib.suppress(ImportError):
-            import sentry_sdk
-
-            sentry_sdk.add_breadcrumb(message="lualatex call", data=command, type="cmd")
 
         pdf_file_path = path.splitext(texfile)[0] + self.extension
         return path.exists(pdf_file_path)
@@ -467,10 +461,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             command, shell=True, cwd=path.dirname(texfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         std_out, std_err = command_process.communicate()
-        with contextlib.suppress(ImportError):
-            import sentry_sdk
 
-            sentry_sdk.add_breadcrumb(message="makeglossaries call", data=command, type="cmd")
         # TODO: check makeglossary exit codes to see if we can enhance error detection
         if "fatal" not in std_out.decode("utf-8").lower() and "fatal" not in std_err.decode("utf-8").lower():
             return True
@@ -496,10 +487,6 @@ def handle_tex_compiler_error(latex_file_path, ext):
 
             errors = "\n".join(lines)
     logger.debug("%s ext=%s", errors, ext)
-    with contextlib.suppress(ImportError):
-        import sentry_sdk
-
-        sentry_sdk.add_breadcrumb(message="luatex call", data=errors, type="cmd")
 
     raise FailureDuringPublication(errors)
 
@@ -522,8 +509,7 @@ class ZMarkdownEpubPublicator(Publicator):
             epub_path = Path(published_content_entity.get_extra_contents_directory(), Path(epub_file_path.name))
             if epub_path.exists():
                 os.remove(str(epub_path))
-            if not epub_path.parent.exists():
-                epub_path.parent.mkdir(parents=True)
+            epub_path.parent.mkdir(parents=True, exist_ok=True)
             logger.info(
                 "created %s. moving it to %s", epub_file_path, published_content_entity.get_extra_contents_directory()
             )

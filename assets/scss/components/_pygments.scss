@@ -64,36 +64,36 @@
     width: 100% !important;
     table-layout: fixed;
     border-color: rgba(0, 0, 0, 0.15);
-    
+
     td {
         padding: 0;
         vertical-align: top;
     }
-    
+
     .linenos {
         background-color: rgb(251, 251, 252);
         border-right: 1px solid rgb(236, 236, 240);
         width: 46px; /* Can handle up to 9999 lines of code without overflowing */
     }
-    
+
     .codehilite pre,
     .linenos {
         padding-top: 15px;
         padding-bottom: 15px;
     }
-    
+
     .linenodiv pre {
         text-align: right;
         padding-right: 7px;
         color: rgb(190, 190, 197);
     }
-    
+
     .codehilite {
         width: 100%;
         height: auto;
         overflow: auto;
     }
-    
+
     .codehilite pre {
         white-space: pre; overflow: auto;
         overflow: auto;

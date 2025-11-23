@@ -2,53 +2,49 @@ from django.contrib.auth.views import LogoutView
 from django.urls import path
 
 from zds.member.views import MemberList
-from zds.member.views.profile import (
-    UpdateMember,
-    UpdateGitHubToken,
-    remove_github_token,
-    UpdateAvatarMember,
-    UpdatePasswordMember,
-    UpdateUsernameEmailMember,
-    redirect_old_profile_to_new,
+from zds.member.views.admin import settings_promote
+from zds.member.views.emailproviders import (
+    AddBannedEmailProvider,
+    BannedEmailProvidersList,
+    MembersWithProviderList,
+    NewEmailProvidersList,
+    check_new_email_provider,
+    remove_banned_email_provider,
 )
-from zds.member.views.moderation import (
-    modify_karma,
-    settings_mini_profile,
-    member_from_ip,
-    modify_profile,
-)
-from zds.member.views.login import LoginView
 from zds.member.views.hats import (
+    HatDetail,
+    HatRequestDetail,
+    HatsList,
     HatsSettings,
     RequestedHatsList,
-    HatRequestDetail,
+    SolvedHatRequestsList,
     add_hat,
     remove_hat,
     solve_hat_request,
-    HatsList,
-    HatDetail,
-    SolvedHatRequestsList,
 )
-from zds.member.views.emailproviders import (
-    BannedEmailProvidersList,
-    NewEmailProvidersList,
-    AddBannedEmailProvider,
-    remove_banned_email_provider,
-    check_new_email_provider,
-    MembersWithProviderList,
+from zds.member.views.ip_addresses import BlockedIPListView, members_from_ip
+from zds.member.views.login import LoginView
+from zds.member.views.moderation import modify_karma, modify_profile, settings_mini_profile
+from zds.member.views.password_recovery import forgot_password, new_password
+from zds.member.views.profile import (
+    UpdateAvatarMember,
+    UpdateGitHubToken,
+    UpdateMember,
+    UpdatePasswordMember,
+    UpdateUsernameEmailMember,
+    redirect_old_profile_to_new,
+    remove_github_token,
 )
 from zds.member.views.register import (
     RegisterView,
     SendValidationEmailView,
-    unregister,
-    warning_unregister,
     activate_account,
     generate_token_account,
+    unregister,
+    warning_unregister,
 )
-from zds.member.views.password_recovery import forgot_password, new_password
-from zds.member.views.admin import settings_promote
 from zds.member.views.reports import CreateProfileReportView, SolveProfileReportView
-
+from zds.member.views.sessions import DeleteSession, ListSessions
 
 urlpatterns = [
     # list
@@ -62,13 +58,17 @@ urlpatterns = [
     path("parametres/profil/maj_avatar/", UpdateAvatarMember.as_view(), name="update-avatar-member"),
     path("parametres/compte/", UpdatePasswordMember.as_view(), name="update-password-member"),
     path("parametres/user/", UpdateUsernameEmailMember.as_view(), name="update-username-email-member"),
+    path("parametres/sessions/", ListSessions.as_view(), name="list-sessions"),
+    path("parametres/sessions/supprimer/", DeleteSession.as_view(), name="delete-session"),
     # moderation
     path("profil/signaler/<int:profile_pk>/", CreateProfileReportView.as_view(), name="report-profile"),
     path("profil/resoudre/<int:alert_pk>/", SolveProfileReportView.as_view(), name="solve-profile-alert"),
     path("profil/karmatiser/", modify_karma, name="member-modify-karma"),
     path("profil/modifier/<int:user_pk>/", modify_profile, name="member-modify-profile"),
     path("parametres/mini_profil/<user_name>/", settings_mini_profile, name="member-settings-mini-profile"),
-    path("profil/multi/<ip_address>/", member_from_ip, name="member-from-ip"),
+    # ip addresses
+    path("adresse-ip/<ip_address>/", members_from_ip, name="members-from-ip"),
+    path("adresses-ip-bloquees/", BlockedIPListView.as_view(), name="list-blocked-ips"),
     # email providers
     path("fournisseurs-email/nouveaux/", NewEmailProvidersList.as_view(), name="new-email-providers"),
     path(

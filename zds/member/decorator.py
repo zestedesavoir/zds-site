@@ -1,7 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
+
+from zds.member.models import BlockedIP
+from zds.member.utils import get_client_ip
 
 
 def can_write_and_read_now(func):
@@ -38,3 +40,15 @@ class LoggedWithReadWriteHability(LoginRequiredMixin):
     @method_decorator(can_write_and_read_now)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+
+class BlockedIPMixin:
+    """
+    Raises a PermissionDenied if the request comes from a blocked IP.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        ip_address = get_client_ip(request)
+        if BlockedIP.objects.is_blocked(ip_address):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)

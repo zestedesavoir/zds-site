@@ -1,9 +1,8 @@
-from django.db import models, migrations
 from django.conf import settings
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("forum", "0005_auto_20151119_2224"),
     ]

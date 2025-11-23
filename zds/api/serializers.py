@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.relations import PrimaryKeyRelatedField, ManyRelatedField
+from rest_framework.relations import ManyRelatedField, PrimaryKeyRelatedField
 
 
 class ZdSModelSerializer(serializers.ModelSerializer):

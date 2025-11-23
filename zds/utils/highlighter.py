@@ -1,12 +1,10 @@
 from haystack.utils import Highlighter
 
-
 MAX_WRAP_TEXT = 50
 
 
 class SearchHighlighter(Highlighter):
     def render_html(self, highlight_locations=None, start_offset=None, end_offset=None):
-
         if start_offset is not None:
             start_offset = max([0, start_offset - MAX_WRAP_TEXT])
         if end_offset is not None:

@@ -1,24 +1,26 @@
 from django.urls import path
 
 from zds.pages.views import (
-    about,
-    association,
-    eula,
-    alerts,
-    cookies,
-    index,
-    ContactView,
     CommentEditsHistory,
+    ContactView,
     EditDetail,
-    restore_edit,
+    about,
+    accessibility,
+    alerts,
+    association,
+    cookies,
     delete_edit_content,
+    eula,
+    index,
+    restore_edit,
 )
 
 urlpatterns = [
     # single pages
-    path("apropos/", about, name="pages-about"),
+    path("technologies/", about, name="pages-technologies"),
     path("association/", association, name="pages-association"),
     path("contact/", ContactView.as_view(), name="pages-contact"),
+    path("accessibilite/", accessibility, name="pages-accessibility"),
     path("cgu/", eula, name="pages-eula"),
     path("alertes/", alerts, name="pages-alerts"),
     path("cookies/", cookies, name="pages-cookies"),

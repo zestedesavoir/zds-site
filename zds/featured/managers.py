@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 
 from zds.forum.models import Topic
 from zds.utils import get_current_user
@@ -14,12 +14,8 @@ class FeaturedResourceManager(models.Manager):
     Custom featured resource manager.
     """
 
-    def get_last_featured(self):
-        return (
-            self.order_by("-pubdate")
-            .exclude(pubdate__gt=datetime.now())
-            .prefetch_related("authors__user")[: settings.ZDS_APP["featured_resource"]["home_number"]]
-        )
+    def get_last_featured(self, count):
+        return self.order_by("-pubdate").exclude(pubdate__gt=datetime.now()).prefetch_related("authors__user")[:count]
 
 
 class FeaturedMessageManager(models.Manager):

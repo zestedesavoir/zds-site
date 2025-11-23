@@ -1,7 +1,6 @@
 {% extends "tutorialv2/base.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
-{% load append_query_params %}
 {% load datedelta_from_day %}
 {% load seconds_to_duration %}
 {% load static %}
@@ -191,7 +190,7 @@
                 <li>
                     {% with start_date=-7|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "7 derniers jours" %}
                     </a>
                     {% endwith %}
@@ -199,7 +198,7 @@
                 <li>
                     {% with start_date=-30|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "30 derniers jours" %}
                     </a>
                     {% endwith %}
@@ -207,7 +206,7 @@
                 <li>
                     {% with start_date=-365|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "La dernière année" %}
                     </a>
                     {% endwith %}
@@ -215,7 +214,7 @@
                 <li>
                     {% with start_date=db_content.public_version.last_publication_date.date end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "Depuis la dernière publication" %}
                     </a>
                     {% endwith %}
@@ -224,7 +223,7 @@
                     <li>
                         {% with start_date=db_content.first_publication_date.date end_date=0|datedelta_from_day %}
                         <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                           href="{% append_query_params start_date=start_date,end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                           href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
                             {% trans "Depuis la première publication" %}
                         </a>
                         {% endwith %}

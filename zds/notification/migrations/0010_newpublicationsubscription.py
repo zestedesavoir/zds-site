@@ -1,9 +1,9 @@
 from django.db import migrations, models
+
 import zds.notification.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notification", "0009_newtopicsubscription"),
     ]

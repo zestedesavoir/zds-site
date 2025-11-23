@@ -1,6 +1,6 @@
 Doucement, la fin de la troisième partie de ce tutoriel approche, et avec elle vous avez appris les bases nécessaires pour créer un site web dynamique avec ASP.NET.
 
-Avant de publier ce site web, vous allez néanmoins vouloir vous assurer que votre site fonctionne et que tout s'affiche là où il faut. Pour vous faciliter la tâche, vous allez sûrement ajouter quelques données à votre base de données. 
+Avant de publier ce site web, vous allez néanmoins vouloir vous assurer que votre site fonctionne et que tout s'affiche là où il faut. Pour vous faciliter la tâche, vous allez sûrement ajouter quelques données à votre base de données.
 
 Heureusement, comme nous avons choisi l'approche CodeFirst, il y a une méthode *simple* pour insérer des données **automatiquement** et ça, ça n'a pas de prix.
 
@@ -14,7 +14,7 @@ Vous trouverez en argument de cette fonction le contexte de données qui établi
 
 ## Ajoutons un article
 
-Commençons par faire simple. Ajoutons un article. 
+Commençons par faire simple. Ajoutons un article.
 
 Cela se passe exactement comme dans nos contrôleurs. Il suffit de créer un objet `Article`, de l'ajouter au contexte et de sauvegarder le tout.
 
@@ -56,7 +56,7 @@ L'identité et l'authenticité sont deux concepts importants qui seront détaill
 
 Il faut ajouter que les utilisateurs ont des *roles*. Par exemple, sur zeste de savoir, je suis un simple membre, mais certains sont membre du *staff* et peuvent valider un tuto ou modérer les forums, et au dessus de tous, il y a des administrateurs qui ont sûrement quelques super pouvoirs.
 
-Pour gérer tout ça, vous ne pourrez pas vous contenter de faire un `Context.Users.Add()`, vous le comprenez sûrement. Il faut appeler un *manager* qui lui même sait gérer les différentes tables qui lui sont présentés dans un *Store*. 
+Pour gérer tout ça, vous ne pourrez pas vous contenter de faire un `Context.Users.Add()`, vous le comprenez sûrement. Il faut appeler un *manager* qui lui même sait gérer les différentes tables qui lui sont présentés dans un *Store*.
 
 Nous n'irons pas plus loin pour l'instant, passons au code :
 
@@ -89,7 +89,7 @@ Nous l'avons vu, pour créer un jeu de données, il suffit de créer des objets 
 - pour créer un jeu de données qui doit être représentatif de tous les cas d'utilisation, il faut tout écrire à la main. Imaginez-vous devoir écrire 50 articles complets juste pour tester !
 - Vous perdez le "sens" de vos données. Si pour être représentatif, vous devez avoir un article qui a un tag, un qui en a deux, un qui n'en a pas, répété cela pour les articles qui sont courts, longs, très longs... Si vous chargez vos articles dans un fichier json comme je vous l'avez proposé dans la partie précédente, comment savez vous quel article représente quel cas quand vous lisez votre code? Comment savez-vous que vous n'avez pas oublié de cas?
 
-Pour résoudre ces problèmes, nous allons donc procéder par étapes: 
+Pour résoudre ces problèmes, nous allons donc procéder par étapes:
 
 Premièrement, nous allons générer des données **cohérentes** en grand nombre de manière automatique.
 
@@ -97,7 +97,7 @@ Pour cela, téléchargez le package NuGet `Faker.NET`. Ce module vous permet de 
 
 Nom | Commentaires | Méthodes utiles (non exhaustif)
 ----|--------------|--------------------------------
-Address|Vous permet d'accéder à tout ce qui concerne une adresse, de la rue au code postal.|City(), StreetAddress(). Beaucoup de méthodes propres aux US et UK. 
+Address|Vous permet d'accéder à tout ce qui concerne une adresse, de la rue au code postal.|City(), StreetAddress(). Beaucoup de méthodes propres aux US et UK.
 Company|Vous permet d'accéder aux différentes dénominations pour les entreprises|Name() (pour le nom) et CatchPhrase() (pour simuler un slogan)
 Internet|Très utile pour simuler ce qui est propre aux sites web| DomainName() et DomainSuffix() pour générer des adresses de site web, UserName() pour générer un pseudo !
 Lorem|Génère des textes plus ou moins long sur le modèle du [Lorem](http://fr.lipsum.com/).|Sentence() pour générer une phrase, `Words(1).First()` pour un seul mot, Paragraph() pour un seul paragraphe, Paragraphs(42) pour avoir la réponse à la question sur l'univers et le sens de la vie en latin, of course.
@@ -143,7 +143,7 @@ En effet, les caractéristiques de ces jeux de données et la manière de les cr
 
 Je vais donc vous donner quelques conseils pour que vous mettiez en place des données cohérentes rapidement.
 
-Nous allons nous servir d'une propriété très intéressante des fichiers de configuration de ASP.NET. Comme nous avons plusieurs "versions de données", nous allons aller dans le fichier `Web.config`. 
+Nous allons nous servir d'une propriété très intéressante des fichiers de configuration de ASP.NET. Comme nous avons plusieurs "versions de données", nous allons aller dans le fichier `Web.config`.
 
 Une fois dans ce fichier, il faudra localiser la section `appSettings`. Là, nous y ajouterons une ligne `<add key="data_version" value="debug"/>`.
 
@@ -168,7 +168,7 @@ protected override void Seed(Blog.Models.ApplicationDbContext context)
     {
          seedDebug(context);
     }
-}            
+}
 ```
 
 Vous pouvez étoffer votre code de test en y mettant de nouvelles données, vous pouvez aussi vous inspirer du patron de conception Factory pour créer des articles qui correspondent à des paramètres différents.
@@ -198,7 +198,7 @@ Du coup on peut encore créer une méthode privée dans le fichier `Migrations/C
             {
                 seedProduction(context);
             }
-            
+
         }
         private void seedProduction(ApplicationDbContext context)
         {
@@ -210,7 +210,7 @@ Il ne nous reste plus qu'à savoir quoi mettre dans la fonction `seedProduction`
 
 Et là, plus question de faire de la génération automatique, il va falloir créer les objets un à un.
 
-Dans cette configuration, j'ai un petit faible pour les fichiers *JSON* ou *YAML* qui regroupent une description des objets à créer. On appelle ces fichiers des *fixtures*. 
+Dans cette configuration, j'ai un petit faible pour les fichiers *JSON* ou *YAML* qui regroupent une description des objets à créer. On appelle ces fichiers des *fixtures*.
 
 Ils ont de nombreux avantages :
 

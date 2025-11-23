@@ -1,15 +1,15 @@
 ## Définition
 
-**Application sur une seule page**, cela peut sembler étrange à première vue.  
+**Application sur une seule page**, cela peut sembler étrange à première vue.
 Alors, qu'est-ce que c'est ? Une application sur une seule page est... une application Web qui ne charge qu'une seule et unique page HTML.
 
 [[question]]
 | Donc on est obligé de tout mettre dans un fichier?
 
-Non, rassurez-vous. En fait, cela vaut juste dire que le serveur ne génèrera qu'une seule page html, pour le reste, il va être un peu plus fin.  
+Non, rassurez-vous. En fait, cela vaut juste dire que le serveur ne génèrera qu'une seule page html, pour le reste, il va être un peu plus fin.
 Dans une application sur une seule page, le contenu se rafraîchit  de manière "dynamique" au fur et à mesure de l'interaction avec le visiteur. Par exemple, si vous faites un blog sur une seule page, lorsque l'utilisateur cliquera sur "commenter", le formulaire se créera tout seul et quand vous enverrez le commentaire, il ne rechargera pas la page, il va juste dire au serveur "enregistre le commentaire" et c'est tout.
 
-Ce modèle utilise massivement des technologies JavaScript pour créer des applications Web fluides et réactives qui n'ont pas besoin de recharger constamment les pages. 
+Ce modèle utilise massivement des technologies JavaScript pour créer des applications Web fluides et réactives qui n'ont pas besoin de recharger constamment les pages.
 
 ## différence avec une application Web ASP.NET classique
 

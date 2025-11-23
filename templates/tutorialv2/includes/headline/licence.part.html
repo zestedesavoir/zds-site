@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% if show_form %}
+    {% if licence %}
+      <div class="editable-element license">
+        <p>{{ licence }}</p>
+        <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+          <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+        </a>
+      </div>
+    {% else %}
+        <p class="license">
+            <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
+        </p>
+    {% endif %}
+
+    {% crispy form %}
+{% elif licence %}
+    <span class="license" itemprop="license">{{ licence }}</span>
+{% endif %}

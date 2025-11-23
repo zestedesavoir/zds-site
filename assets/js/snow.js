@@ -15,7 +15,7 @@
 
     canvas.style.background = window
       .getComputedStyle(this._parent)
-      .getPropertyValue('background-color')
+      .getPropertyValue('background')
     this._parent.style.background = 'transparent'
 
     // Append the canvas...

@@ -7,11 +7,10 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
-from zds.forum.tests.factories import PostFactory, TagFactory
-from zds.forum.models import Topic, Post
-from zds.notification.models import TopicAnswerSubscription
+from zds.forum.models import Post, Topic
+from zds.forum.tests.factories import PostFactory, TagFactory, create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import DevProfileFactory, ProfileFactory, StaffProfileFactory
+from zds.notification.models import TopicAnswerSubscription
 from zds.utils.models import CommentEdit, Hat
 
 
@@ -96,7 +95,8 @@ class CategoriesForumsListViewTests(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        topics_nb = len(Topic.objects.get_last_topics())
+        topics_count = 5
+        topics_nb = len(Topic.objects.get_last_topics(topics_count))
 
         self.client.force_login(staff.user)
         data = {"lock": "true", "topic": topic.pk}
@@ -105,7 +105,7 @@ class CategoriesForumsListViewTests(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
 
-        self.assertEqual(len(Topic.objects.get_last_topics()), topics_nb - 1)
+        self.assertEqual(len(Topic.objects.get_last_topics(topics_count)), topics_nb - 1)
 
 
 class CategoryForumsDetailViewTest(TestCase):
@@ -1518,6 +1518,8 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
         post_before_edit = Post.objects.get(pk=topic.last_message.pk)
 
+        post_before_edit.save(search_engine_requires_index=False)
+
         edits_count = CommentEdit.objects.count()
 
         # Edit post
@@ -1536,6 +1538,10 @@ class PostEditTest(TestCase):
         self.assertEqual(post_before_edit.pk, edit.comment.pk)
         self.assertEqual(post_before_edit.text, edit.original_text)
         self.assertEqual(profile.user, edit.editor)
+
+        # Check the post was marked as to reindex
+        post_before_edit.refresh_from_db()
+        self.assertTrue(post_before_edit.search_engine_requires_index)
 
 
 class PostUsefulTest(TestCase):

@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -54,6 +54,7 @@ class SolveContentAlert(LoginRequiredMixin, FormView):
         return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        # Note: a specific permission would be better.
         if not request.user.has_perm("tutorialv2.change_contentreaction"):
             raise PermissionDenied
         try:
@@ -61,6 +62,9 @@ class SolveContentAlert(LoginRequiredMixin, FormView):
             content = PublishableContent.objects.get(pk=alert.content.id)
         except (KeyError, ValueError):
             raise Http404("L'alerte n'existe pas.")
+
+        if alert.solved:
+            raise Http404("L'alerte a déjà été résolue.")
 
         resolve_reason = ""
         msg_title = ""

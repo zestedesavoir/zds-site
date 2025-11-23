@@ -40,7 +40,7 @@ Comme on parle de tâches automatiques, il ne faudra pas avoir peur du terminal,
 
 Dans le menu "Outils" puis "Gestionnaire de package NuGet", sélectionnez "Console du gestionnaire de paquet".
 
-Là, il vous faudra entrer la commande `Enable-Migrations` puis lancer la commande `Add-Migration initial`. 
+Là, il vous faudra entrer la commande `Enable-Migrations` puis lancer la commande `Add-Migration initial`.
 
 Plus tard, quand vous désirerez ajouter une migration, il faudra utiliser la commande `Add-Migration nom_lisible_par_un_humain_pour_la_migration`. Ensuite, la commande magique s'appellera `Update-Database`.
 

@@ -1,20 +1,18 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 
-from django.conf import settings
-
-from zds.member.utils import get_bot_account, get_anonymous_account, get_external_account
-from zds.tutorialv2.models.database import PublishableContent
-from zds.utils.models import Category, SubCategory, CategorySubCategory, Tag
+from zds.member.utils import get_anonymous_account, get_bot_account, get_external_account
 from zds.mp.utils import send_mp
+from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.models import Category, CategorySubCategory, SubCategory, Tag
 
 
 @transaction.atomic
 class Command(BaseCommand):
-
     help = (
         "Change all content categories to tags (ZEP-25).\n\n\nOptions:\n\n  No options run all commands (except he"
         "lp) in this order : tags, categories, alert, prod\n\n  alert         Send a private message to all author"

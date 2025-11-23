@@ -6,7 +6,7 @@ Pour utiliser (et éventuelement modifier) Zeste de Savoir, il est nécessaire d
 
 La première étape est de créer `un fork <https://help.github.com/articles/fork-a-repo/>`_: une fois connecté à votre compte Github, rendez-vous `sur la page du dépot zds-site <https://github.com/zestedesavoir/zds-site>`_ et cliquez sur "Fork" en haut à droite.
 
-Pour la suite, vous avez besoin de l'outil ``git``, qui peut être trouvé dans le gestionnaire de paquet de votre distribution (Linux et macOS) ou `téléchargé <https://git-scm.com/downloads>`_ (si vous êtes sous Windows, vous pouvez utiliser `cette version <https://gitforwindows.org/>`_).
+Pour la suite, vous avez besoin de l'outil ``git``, qui peut être trouvé dans le gestionnaire de paquet de votre distribution (Linux et macOS) ou `téléchargé <https://git-scm.com/downloads>`_.
 
 Ensuite, utilisez les commandes suivantes:
 

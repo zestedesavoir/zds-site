@@ -1,8 +1,12 @@
-from django.db import models
-from django.conf import settings
+import ipaddress
 from datetime import datetime
+
+from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db import models
 from django.db.models import Q
+
+from zds.member.utils import get_network_ip_filter, is_ipv6
 
 
 class ProfileManager(models.Manager):
@@ -25,3 +29,31 @@ class ProfileManager(models.Manager):
         )
 
         return qs
+
+
+class BlockedIPManager(models.Manager):
+    def get_custom_queryset(self, ip_address: str):
+        qs = self.get_queryset()
+        if is_ipv6(ip_address):
+            network_ip = get_network_ip_filter(ip_address)
+            return qs.filter(
+                Q(ip_address=ip_address) | (Q(is_network_address=True) & Q(ip_address__startswith=network_ip))
+            )
+        else:
+            return qs.filter(ip_address=ip_address)
+
+    def get_details(self, ip_address: str):
+        """
+        Gets blocked IP details (blocked date, reason, moderator...)
+        """
+        qs = self.get_custom_queryset(ip_address)
+        if qs:
+            return qs.all()
+        else:
+            return None
+
+    def is_blocked(self, ip_address: str):
+        """
+        Checks if an IP address is blocked or not.
+        """
+        return self.get_custom_queryset(ip_address).count() > 0

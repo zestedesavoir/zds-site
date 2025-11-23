@@ -1,4 +1,5 @@
 from django.db import migrations, models
+
 from zds.forum.models import TopicRead
 
 
@@ -17,7 +18,6 @@ def force_unicity(*args, **kwargs):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("forum", "0008_remove_forum_image"),
     ]

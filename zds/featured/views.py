@@ -1,19 +1,19 @@
 from datetime import datetime
 
-from django.contrib import messages
-from django.db.models import Count
-from django.urls import reverse
-from django.shortcuts import redirect
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.utils.translation import gettext as _
-from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
-from django.views.generic.list import MultipleObjectMixin
-from django.http import HttpResponse
-
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Count
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.views.generic import CreateView, DeleteView, FormView, RedirectView, UpdateView
+from django.views.generic.list import MultipleObjectMixin
+
 from zds import json_handler
-from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
-from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested, FEATUREABLES
+from zds.featured.forms import FeaturedMessageForm, FeaturedResourceForm
+from zds.featured.models import FEATUREABLES, FeaturedMessage, FeaturedRequested, FeaturedResource
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView
@@ -169,7 +169,6 @@ class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-
         self.object.title = form.cleaned_data.get("title")
         self.object.type = form.cleaned_data.get("type")
         self.object.authors = form.cleaned_data.get("authors")
@@ -337,20 +336,16 @@ class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
 
 
 class FeaturedMessageDelete(FeaturedViewMixin, DeleteView):
-    """
-    Delete the featured message.
-    """
+    """Delete the featured message."""
 
-    http_method_names = ["post", "delete"]
-    last_message = None
+    http_method_names = ["post"]
+    model = FeaturedMessage
 
-    def dispatch(self, request, *args, **kwargs):
-        self.last_message = FeaturedMessage.objects.get_last_message()
-        return super().dispatch(request, *args, **kwargs)
+    def get_object(self, queryset=None):
+        return FeaturedMessage.objects.get_last_message()
 
-    def delete(self, request, *args, **kwargs):
-        if self.last_message:
-            self.last_message.delete()
-
+    def form_valid(self, form):
+        if self.object is not None:
+            self.object.delete()
         messages.success(self.request, _("Le message a été supprimé."))
         return redirect(reverse("featured:resource-list"))

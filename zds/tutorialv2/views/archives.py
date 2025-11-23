@@ -6,7 +6,6 @@ import time
 import zipfile
 from datetime import datetime
 
-from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,9 +13,10 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 from easy_thumbnails.files import get_thumbnailer
+from PIL import Image as ImagePIL
 
 from zds import json_handler
-from zds.gallery.models import Image, Gallery
+from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import ImportContentForm, ImportNewContentForm
 from zds.tutorialv2.mixins import SingleContentDownloadViewMixin, SingleContentFormViewMixin
@@ -24,13 +24,13 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import (
     BadArchiveError,
-    get_content_from_json,
     BadManifestError,
     default_slug_pool,
+    get_content_from_json,
     init_new_repo,
 )
-from zds.utils.validators import InvalidSlugError
 from zds.utils.uuslug_wrapper import slugify
+from zds.utils.validators import InvalidSlugError
 
 
 class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):
@@ -39,7 +39,6 @@ class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):
     """
 
     mimetype = "application/zip"
-    only_draft_version = False  # beta version can also be downloaded
     must_be_author = False  # other user can download archive
 
     @staticmethod
@@ -183,7 +182,6 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         for child in copy_from.children:
             if isinstance(child, Container):
-
                 introduction = ""
                 conclusion = ""
 
@@ -237,7 +235,6 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             os.makedirs(temp)
 
         for image_path in zip_file.namelist():
-
             image_basename = os.path.basename(image_path)
 
             if not image_basename.strip():  # don't deal with directory
@@ -347,7 +344,6 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 messages.error(self.request, e.message)
                 return super().form_invalid(form)
             else:
-
                 # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read("manifest.json"), "utf-8"))
                 if new_version.licence and "licence" in manifest and manifest["licence"] != new_version.licence.code:
@@ -443,7 +439,6 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
     object = None
 
     def form_valid(self, form):
-
         if self.request.FILES["archive"]:
             try:
                 zfile = zipfile.ZipFile(self.request.FILES["archive"], "r")
@@ -460,7 +455,6 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 messages.error(self.request, _(e.message + " n'est pas correctement renseigné."))
                 return super().form_invalid(form)
             else:
-
                 # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read("manifest.json"), "utf-8"))
                 if new_content.licence and "licence" in manifest and manifest["licence"] != new_content.licence.code:

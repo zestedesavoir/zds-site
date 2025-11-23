@@ -24,7 +24,7 @@ Tout cela devra être mis dans la méthode "Edit" de votre contrôleur.
 Code: Les méthodes d'édition
 
 [[i]]
-|Toutes les étapes sont importantes. Si vous ne faites pas la première, EF va possiblement croire que vous êtes en train de créer une **nouvelle** entité. 
+|Toutes les étapes sont importantes. Si vous ne faites pas la première, EF va possiblement croire que vous êtes en train de créer une **nouvelle** entité.
 
 Je vous encourage à créer la vue Edit comme nous l'avions vu plus tôt. Il faudra aussi apporter quelques légères modifications à la vue `List` pour que la page d'édition soit accessible :
 
@@ -105,20 +105,20 @@ Code: la méthode Edit
 |             fileName = "";
 |             if (articleCreation.Image != null)
 |             {
-|                 
+|
 |                 if (articleCreation.Image.ContentLength > 1024 * 1024)
 |                 {
 |                     ModelState.AddModelError("Image", "Le fichier téléchargé est trop grand.");
 |                     hasError = true;
 |                 }
-| 
+|
 |                 if (!AcceptedTypes.Contains(articleCreation.Image.ContentType)
 |                        || AcceptedExt.Contains(Path.GetExtension(articleCreation.Image.FileName).ToLower()))
 |                 {
 |                     ModelState.AddModelError("Image", "Le fichier doit être une image.");
 |                     hasError = true;
 |                 }
-| 
+|
 |                 try
 |                 {
 |                     string fileNameFile = Path.GetFileName(articleCreation.Image.FileName);
@@ -132,7 +132,7 @@ Code: la méthode Edit
 |                     ModelState.AddModelError("Image", "Erreur à l'enregistrement.");
 |                     hasError = true;
 |                 }
-|                 
+|
 |             }
 |             return !hasError;
 |         }
@@ -170,7 +170,7 @@ Je vous laisse le faire en exercice.
 |         }
 | ```
 | Code: le contrôleur de suppression
-| 
+|
 | ```html
 | @using (Html.BeginForm("Delete", "Article", new { id = item.ID }, FormMethod.Post, null))
 |                     {

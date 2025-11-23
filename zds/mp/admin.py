@@ -3,7 +3,6 @@ from django.contrib import admin
 
 from .models import PrivatePost, PrivateTopic, PrivateTopicRead
 
-
 if settings.DEBUG:
 
     class PrivatePostAdmin(admin.ModelAdmin):

@@ -20,7 +20,7 @@ namespace BonjourMVC.Models
 }
 ```
 
-Rajoutons maintenant notre propriété `Prenom`. Le visiteur va rentrer son prénom dans un champ de texte, donc la propriété sera de type `string`. Ce qui donne : 
+Rajoutons maintenant notre propriété `Prenom`. Le visiteur va rentrer son prénom dans un champ de texte, donc la propriété sera de type `string`. Ce qui donne :
 
 ```csharp
 public class Visiteur

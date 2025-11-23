@@ -1,17 +1,16 @@
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core import mail
-from django.urls import reverse
-from oauth2_provider.models import Application, AccessToken
-from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
-
-from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
-from zds.member.models import TokenRegister, BannedEmailProvider
-from rest_framework_extensions.settings import extensions_api_settings
 from django.core.cache import caches
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+from rest_framework_extensions.settings import extensions_api_settings
+
+from zds.api.pagination import REST_MAX_PAGE_SIZE, REST_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
+from zds.api.utils import authenticate_oauth2_client
+from zds.member.models import BannedEmailProvider, TokenRegister
+from zds.member.tests.factories import ProfileFactory, ProfileNotSyncFactory, StaffProfileFactory
 
 
 class MemberListAPITest(APITestCase):
@@ -44,6 +43,15 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(len(response.data.get("results")), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get("next"))
         self.assertIsNone(response.data.get("previous"))
+
+    def test_head_list_of_users(self):
+        """
+        Gets head list of users not empty in the database does not generate error 500.
+        """
+        self.create_multiple_users()
+
+        response = self.client.head(reverse("api:member:list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_of_users_with_several_pages(self):
         """
@@ -139,6 +147,29 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.data.get("count"), 0)
         self.assertIsNone(response.data.get("next"))
         self.assertIsNone(response.data.get("previous"))
+
+    def test_search_with_results_in_right_order(self):
+        """
+        Gets list of users corresponding to part of a username and
+        verifies that this list is in the right order, which is:
+        1. "is equal" case sensitive
+        2. "is equal" ignoring the case
+        3. "starts with" case sensitive
+        4. "starts with" ignoring the case
+        5. "contains" case sensitive
+        6. "contains" ignoring the case
+
+        The test also checks that:
+        - usernames containing letters of the searched word (here: 'a', 'n', 'd' and 'r')
+          but NOT the searched word ("andr") are not returned
+        - usernames containing non-ascii letters (eg with accents) can be returned as well
+        """
+        for username in ("pierre", "andr", "Radon", "alexandre", "MisterAndrew", "andré", "dragon", "Andromède"):
+            ProfileFactory(user__username=username)
+
+        response = self.client.get(reverse("api:member:list") + "?search=Andr")
+        list_of_usernames = [item.get("username") for item in response.data.get("results")]
+        self.assertEqual(list_of_usernames, ["andr", "Andromède", "andré", "MisterAndrew", "alexandre"])
 
     def test_register_new_user(self):
         """
@@ -366,9 +397,8 @@ class MemberMyDetailAPITest(APITestCase):
         Gets all information about the user.
         """
         profile = ProfileFactory()
-        client_oauth2 = create_oauth2_client(profile.user)
         client_authenticated = APIClient()
-        authenticate_client(client_authenticated, client_oauth2, profile.user.username, "hostel77")
+        authenticate_oauth2_client(client_authenticated, profile.user, "hostel77")
 
         response = client_authenticated.get(reverse("api:member:profile"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -378,7 +408,7 @@ class MemberMyDetailAPITest(APITestCase):
         self.assertEqual(profile.user.is_active, response.data.get("is_active"))
         self.assertIsNotNone(response.data.get("date_joined"))
         self.assertEqual(profile.site, response.data.get("site"))
-        self.assertEqual(profile.get_avatar_url(), response.data.get("avatar_url"))
+        self.assertEqual(profile.get_absolute_avatar_url(), response.data.get("avatar_url"))
         self.assertEqual(profile.biography, response.data.get("biography"))
         self.assertEqual(profile.sign, response.data.get("sign"))
         self.assertFalse(response.data.get("show_email"))
@@ -403,9 +433,8 @@ class MemberDetailAPITest(APITestCase):
         self.client = APIClient()
         self.profile = ProfileFactory()
 
-        client_oauth2 = create_oauth2_client(self.profile.user)
         self.client_authenticated = APIClient()
-        authenticate_client(self.client_authenticated, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client_authenticated, self.profile.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -421,7 +450,7 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(self.profile.user.is_active, response.data.get("is_active"))
         self.assertIsNotNone(response.data.get("date_joined"))
         self.assertEqual(self.profile.site, response.data.get("site"))
-        self.assertEqual(self.profile.get_avatar_url(), response.data.get("avatar_url"))
+        self.assertEqual(self.profile.get_absolute_avatar_url(), response.data.get("avatar_url"))
         self.assertEqual(self.profile.biography, response.data.get("biography"))
         self.assertEqual(self.profile.sign, response.data.get("sign"))
         self.assertFalse(response.data.get("show_email"))
@@ -497,9 +526,8 @@ class MemberDetailAPITest(APITestCase):
         """
         decal = ProfileNotSyncFactory()
 
-        client_oauth2 = create_oauth2_client(decal.user)
         client_authenticated = APIClient()
-        authenticate_client(client_authenticated, client_oauth2, decal.user.username, "hostel77")
+        authenticate_oauth2_client(client_authenticated, decal.user, "hostel77")
 
         response = client_authenticated.put(reverse("api:member:detail", args=[decal.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -681,9 +709,8 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
 
         self.profile = ProfileFactory()
         self.staff = StaffProfileFactory()
-        client_oauth2 = create_oauth2_client(self.staff.user)
         self.client_authenticated = APIClient()
-        authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, "hostel77")
+        authenticate_oauth2_client(self.client_authenticated, self.staff.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -749,9 +776,8 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Tries to apply a read only sanction at a member with a user isn't authenticated.
         """
-        client_oauth2 = create_oauth2_client(self.profile.user)
         client_authenticated = APIClient()
-        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(client_authenticated, self.profile.user, "hostel77")
 
         response = client_authenticated.post(reverse("api:member:read-only", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -817,9 +843,8 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Tries to remove a read only sanction at a member with a user isn't authenticated.
         """
-        client_oauth2 = create_oauth2_client(self.profile.user)
         client_authenticated = APIClient()
-        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(client_authenticated, self.profile.user, "hostel77")
 
         response = client_authenticated.delete(reverse("api:member:read-only", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -840,9 +865,8 @@ class MemberDetailBanAPITest(APITestCase):
 
         self.profile = ProfileFactory()
         self.staff = StaffProfileFactory()
-        client_oauth2 = create_oauth2_client(self.staff.user)
         self.client_authenticated = APIClient()
-        authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, "hostel77")
+        authenticate_oauth2_client(self.client_authenticated, self.staff.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -908,9 +932,8 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Tries to apply a ban sanction at a member with a user isn't authenticated.
         """
-        client_oauth2 = create_oauth2_client(self.profile.user)
         client_authenticated = APIClient()
-        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(client_authenticated, self.profile.user, "hostel77")
 
         response = client_authenticated.post(reverse("api:member:ban", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -976,9 +999,8 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Tries to remove a ban sanction at a member with a user isn't authenticated.
         """
-        client_oauth2 = create_oauth2_client(self.profile.user)
         client_authenticated = APIClient()
-        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(client_authenticated, self.profile.user, "hostel77")
 
         response = client_authenticated.delete(reverse("api:member:ban", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -1011,9 +1033,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have the permission to read any member.
         """
-        authenticate_client(
-            self.client, create_oauth2_client(self.profile.user), self.profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1023,7 +1043,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Staff users have the permission to read any member.
         """
-        authenticate_client(self.client, create_oauth2_client(self.staff.user), self.staff.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.staff.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1041,9 +1061,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         A user authenticated have write permissions.
         """
-        authenticate_client(
-            self.client, create_oauth2_client(self.profile.user), self.profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1053,7 +1071,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         A staff user have write permissions.
         """
-        authenticate_client(self.client, create_oauth2_client(self.staff.user), self.staff.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.staff.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1071,9 +1089,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Only the user authenticated have update permissions.
         """
-        authenticate_client(
-            self.client, create_oauth2_client(self.profile.user), self.profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1083,7 +1099,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Only the user authenticated have update permissions.
         """
-        authenticate_client(self.client, create_oauth2_client(self.staff.user), self.staff.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.staff.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1101,9 +1117,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Only staff have ban permission.
         """
-        authenticate_client(
-            self.client, create_oauth2_client(self.profile.user), self.profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1113,7 +1127,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Only staff have ban permission.
         """
-        authenticate_client(self.client, create_oauth2_client(self.staff.user), self.staff.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.staff.user, "hostel77")
 
         response = self.client.get(reverse("api:member:detail", args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1132,14 +1146,12 @@ class CacheMemberAPITest(APITestCase):
         profile = ProfileFactory()
         another_profile = ProfileFactory()
 
-        authenticate_client(self.client, create_oauth2_client(profile.user), profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, profile.user, "hostel77")
         response = self.client.get(reverse("api:member:profile"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(profile.user.username, response.data.get("username"))
 
-        authenticate_client(
-            self.client, create_oauth2_client(another_profile.user), another_profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, another_profile.user, "hostel77")
         response = self.client.get(reverse("api:member:profile"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(another_profile.user.username, response.data.get("username"))
@@ -1167,26 +1179,3 @@ class CacheMemberAPITest(APITestCase):
         response = self.client.get(reverse("api:member:list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), count + 1)
-
-
-def create_oauth2_client(user):
-    client = Application.objects.create(
-        user=user, client_type=Application.CLIENT_CONFIDENTIAL, authorization_grant_type=Application.GRANT_PASSWORD
-    )
-    client.save()
-    return client
-
-
-def authenticate_client(client, client_auth, username, password):
-    client.post(
-        "/oauth2/token/",
-        {
-            "client_id": client_auth.client_id,
-            "client_secret": client_auth.client_secret,
-            "username": username,
-            "password": password,
-            "grant_type": "password",
-        },
-    )
-    access_token = AccessToken.objects.get(user__username=username)
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")

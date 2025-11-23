@@ -21,7 +21,7 @@ Au moment ou nous soumettons le formulaire, tout le mécanisme s'enclenche et la
     <title>Index</title>
 </head>
 <body>
-    <div> 
+    <div>
 <form action="/Salutation/Index" method="post">            <h1>BonjourMVC</h1>
             <p>Comment t'appelles-tu jeune Zesteur ?</p>
 <input id="prenom_visiteur" name="prenom_visiteur" type="text" value="Arthur" />            <input type="submit" value="Valider" />

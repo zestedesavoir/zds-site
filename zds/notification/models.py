@@ -1,26 +1,26 @@
 import logging
 from smtplib import SMTPException
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
-from django.core.validators import validate_email, ValidationError
-from django.db import models, IntegrityError, transaction
+from django.core.validators import ValidationError, validate_email
+from django.db import IntegrityError, models, transaction
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
-from zds.forum.models import Topic, Post
+from zds.forum.models import Post, Topic
 from zds.notification.managers import (
+    NewPublicationSubscriptionManager,
+    NewTopicSubscriptionManager,
     NotificationManager,
     SubscriptionManager,
-    TopicFollowedManager,
     TopicAnswerSubscriptionManager,
-    NewTopicSubscriptionManager,
+    TopicFollowedManager,
 )
 from zds.utils.misc import convert_camel_to_underscore
-
 
 LOG = logging.getLogger(__name__)
 
@@ -349,7 +349,7 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     """
 
     module = _("Contenu")
-    objects = SubscriptionManager()
+    objects = NewPublicationSubscriptionManager()
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>').format(

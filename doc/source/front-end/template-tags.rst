@@ -8,25 +8,6 @@ Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres p
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
 
-append_query_params
-===================
-
-L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
-``module/toto``, le code de template suivant :
-
-.. sourcecode:: html+django
-
-    {% load append_query_params %}
-    <a href="{% append_query_params key1=var1,key2=var2 %}">Mon lien</a>
-
-produira le code suivant :
-
-.. sourcecode:: html+django
-
-    <a href="module/toto?key1=1&key2=2">Mon lien</a>
-
-…si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
-
 Le module ``trail``
 ===================
 
@@ -86,30 +67,24 @@ Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur
 
 Ce filtre effectue la même chose que ``format_date`` mais à destination des ``tooltip``.
 
-``humane_time``
----------------
+``date_from_timestamp``
+-----------------------
 
-Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisible. Ainsi :
+Convertit une date au format *Nombre de seconde depuis Epoch* en un objet
+accepté par les autres filtres de ce module. Ainsi :
 
 .. sourcecode:: html+django
 
     {% load date %}
-    {{ date_epoch|humane_time }}
+    {{ date_epoch|date_from_timestamp|format_date }}
 
 sera rendu :
 
 .. sourcecode:: text
 
-    jeudi 01 janvier 1970 à 00h00
+    jeudi 01 janvier 1970 à 00h02
 
- …si le contenu de ``date_epoch`` était de ``42``.
-
-``from_elasticsearch_date``
----------------------------
-
-Par défaut, Elasticsearch stocke ces dates au format ``yyyy-MM-dd'T'HH:mm:ss.SSSZ``
-(il s'agit du format ``strict_date_time``, voir à ce sujet `la documentation d'Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/5.1/mapping-date-format.html>`_).
-Ce filtre transforme cette date en une date que les autres filtres de ce module peuvent exploiter.
+ …si le contenu de ``date_epoch`` était de ``122``.
 
 Le module ``email_obfuscator``
 ==============================
@@ -463,7 +438,7 @@ Ce filtre récupère les forums, classés par catégorie.
 où,
 
 - ``top.categories`` est un dictionaire contenant le nom de la catégorie (ici ``title``) et la liste des forums situés dans cette catégorie (ici ``forums``), c'est-à-dire une liste d'objets de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__).
-- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
+- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (``ZDS_APP["forum"]["top_tag_exclu"]`` dans le fichier de configuration ``zds/settings/abstract_base/zds.py``).
 
 
 ``topbar_publication_categories``
@@ -570,21 +545,6 @@ Exemple :
     {% for authors in content|displayable_authors:False %}
        <!-- here display all author for draft version -->
     {% endfor %}
-
-Le module ``elasticsearch``
-===========================
-
-``highlight``
-
-Permet de mettre en surbrillance les résultats d'une recherche.
-
-Exemple :
-
-.. sourcecode:: html+django
-
-    {% if search_result.text %}
-        {% highlight search_result "text" %}
-    {% endif %}
 
 Le module ``joinby``
 ====================

@@ -1,27 +1,26 @@
-from django import forms
-from django.conf import settings
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
-from django.urls import reverse
+from crispy_forms.layout import HTML, ButtonHolder, Field, Hidden, Layout, Submit
+from django import forms
+from django.conf import settings
 from django.core.validators import MinLengthValidator
-
-from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
-from zds.utils.models import SubCategory, Licence
-from zds.tutorialv2.models import TYPE_CHOICES
-from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole, ContentSuggestion
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from zds.member.models import Profile
-from zds.utils.forms import TagValidator, IncludeEasyMDE
-from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
+
+from zds.tutorialv2.models import TYPE_CHOICES
+from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.utils import get_content_version_url
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor, IncludeEasyMDE
+from zds.utils.models import SubCategory
+from zds.utils.validators import InvalidSlugError, slugify_raise_on_invalid
 
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label=_("Titre"), max_length=PublishableContent._meta.get_field("title").max_length, required=False
     )
+
+    error_messages = {"bad_slug": _("Le titre « {} » n'est pas autorisé, car son slug est invalide !")}
 
     def clean(self):
         cleaned_data = super().clean()
@@ -34,10 +33,8 @@ class FormWithTitle(forms.Form):
 
         try:
             slugify_raise_on_invalid(title)
-        except InvalidSlugError as e:
-            self._errors["title"] = self.error_class(
-                [_("Ce titre n'est pas autorisé, son slug est invalide {} !").format(e)]
-            )
+        except InvalidSlugError:
+            self._errors["title"] = self.error_class([self.error_messages["bad_slug"].format(title)])
 
         return cleaned_data
 
@@ -60,128 +57,7 @@ class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
         return obj.title
 
 
-class ContributionForm(forms.Form):
-
-    contribution_role = ReviewerTypeModelChoiceField(
-        label=_("Role"),
-        required=True,
-        queryset=ContentContributionRole.objects.order_by("title").all(),
-    )
-
-    username = forms.CharField(
-        label=_("Contributeur"),
-        required=True,
-        widget=forms.TextInput(
-            attrs={"placeholder": _("Pseudo du membre à ajouter."), "data-autocomplete": "{ 'type': 'single' }"}
-        ),
-    )
-
-    comment = forms.CharField(
-        label=_("Commentaire"),
-        required=False,
-        widget=forms.Textarea(attrs={"placeholder": _("Commentaire sur ce contributeur."), "rows": "3"}),
-    )
-
-    def __init__(self, content, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_id = "add-contributor"
-        self.helper.form_method = "post"
-        self.helper.form_action = reverse("content:add-contributor", kwargs={"pk": content.pk})
-        self.helper.layout = Layout(
-            Field("username"),
-            Field("contribution_role"),
-            Field("comment"),
-            ButtonHolder(
-                StrictButton(_("Ajouter"), type="submit", css_class="btn-submit"),
-            ),
-        )
-        super().__init__(*args, **kwargs)
-
-    def clean_username(self):
-        cleaned_data = super().clean()
-        if cleaned_data.get("username"):
-            username = cleaned_data.get("username")
-            user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                cleaned_data["user"] = user.user
-            else:
-                self._errors["user"] = self.error_class([_("L'utilisateur sélectionné n'existe pas")])
-
-        if "user" not in cleaned_data:
-            self._errors["user"] = self.error_class([_("Veuillez renseigner l'utilisateur")])
-
-        return cleaned_data
-
-
-class RemoveContributionForm(forms.Form):
-
-    pk_contribution = forms.CharField(
-        label=_("Contributeur"),
-        required=True,
-    )
-
-
-class AuthorForm(forms.Form):
-
-    username = forms.CharField(label=_("Auteurs à ajouter séparés d'une virgule."), required=True)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = "content-wrapper"
-        self.helper.form_method = "post"
-        self.helper.layout = Layout(
-            Field("username"),
-            ButtonHolder(
-                StrictButton(_("Ajouter"), type="submit"),
-            ),
-        )
-
-    def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
-
-        :return: a dictionary of all treated data with the users key added
-        """
-        cleaned_data = super().clean()
-        users = []
-        if cleaned_data.get("username"):
-            for username in cleaned_data.get("username").split(","):
-                user = (
-                    Profile.objects.contactable_members()
-                    .filter(user__username__iexact=username.strip().lower())
-                    .first()
-                )
-                if user is not None:
-                    users.append(user.user)
-            if len(users) > 0:
-                cleaned_data["users"] = users
-        return cleaned_data
-
-    def is_valid(self):
-        return super().is_valid() and "users" in self.clean()
-
-
-class RemoveAuthorForm(AuthorForm):
-    def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
-
-        :return: a dictionary of all treated data with the users key added
-        """
-        cleaned_data = super(AuthorForm, self).clean()
-        users = []
-        for username in cleaned_data.get("username").split(","):
-            # we can remove all users (bots inclued)
-            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                users.append(user.user)
-        if len(users) > 0:
-            cleaned_data["users"] = users
-        return cleaned_data
-
-
 class ContainerForm(FormWithTitle):
-
     introduction = forms.CharField(
         label=_("Introduction"),
         required=False,
@@ -243,70 +119,15 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-
-    description = forms.CharField(
-        label=_("Description"),
-        max_length=PublishableContent._meta.get_field("description").max_length,
-        required=False,
-    )
-
-    image = forms.FileField(
-        label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
-            str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
-        ),
-        validators=[with_svg_validator],
-        required=False,
-    )
-
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
-
-    subcategory = forms.ModelMultipleChoiceField(
-        label=_("Sélectionnez les catégories qui correspondent à votre contenu."),
-        queryset=SubCategory.objects.order_by("title").all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple(),
-    )
-
-    source = forms.URLField(
-        label=_(
-            """Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
-                       indiquez le lien de la publication originale : """
-        ),
-        max_length=PublishableContent._meta.get_field("source").max_length,
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": _("https://...")}),
-    )
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True)
 
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field("title"),
-            Field("description"),
             Field("type"),
-            Field("image"),
-            Field("introduction", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-            with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-            with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("source"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+            StrictButton("Valider", type="submit"),
         )
-
-        self.helper.layout.append(Field("msg_commit"))
-        self.helper.layout.append(ButtonHolder(StrictButton("Valider", type="submit")))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -319,117 +140,8 @@ class ContentForm(ContainerForm):
         if "type" in self.initial:
             self.helper["type"].wrap(Field, disabled=True)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        image = cleaned_data.get("image", None)
-        if image is not None and image.size > settings.ZDS_APP["gallery"]["image_max_size"]:
-            self._errors["image"] = self.error_class(
-                [
-                    _("Votre logo est trop lourd, la limite autorisée est de {} Ko").format(
-                        settings.ZDS_APP["gallery"]["image_max_size"] / 1024
-                    )
-                ]
-            )
-        return cleaned_data
-
-
-class EditContentTagsForm(forms.Form):
-    tags = forms.CharField(
-        label=_("Tags séparés par des virgules (exemple : python,api,web) :"),
-        max_length=64,
-        required=False,
-        widget=forms.TextInput(
-            attrs={"data-autocomplete": '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'}
-        ),
-        error_messages={"max_length": _("La liste de tags saisie dépasse la longueur maximale autorisée.")},
-    )
-
-    def __init__(self, content, db_content, *args, **kwargs):
-        self.db_content = db_content
-        kwargs["initial"] = {"tags": ", ".join(db_content.tags.values_list("title", flat=True))}
-        super(forms.Form, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_class = "content-wrapper"
-        self.helper.form_method = "post"
-        self.helper.form_id = "edit-tags"
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_action = reverse("content:edit-tags", kwargs={"pk": content.pk})
-        self.helper.layout = Layout(
-            HTML(
-                """<p>Les tags permettent de grouper les publications plus finement que les catégories.
-                    Par exemple, vous pouvez indiquer une technologie ou une sous-discipline.
-                     Consultez <a href="/contenus/tags">la page des tags</a> pour voir des exemples."""
-            ),
-            Field("tags"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
-        )
-        self.previous_page_url = reverse("content:view", kwargs={"pk": content.pk, "slug": content.slug})
-
-    def clean_tags(self):
-        validator = TagValidator()
-        cleaned_tags = self.cleaned_data.get("tags")
-        if not validator.validate_raw_string(cleaned_tags):
-            self.add_error("tags", self.error_class(validator.errors))
-        return cleaned_tags
-
-
-class EditContentLicenseForm(forms.Form):
-    license = forms.ModelChoiceField(
-        label=_("Licence de votre publication : "),
-        queryset=Licence.objects.order_by("title").all(),
-        required=True,
-        empty_label=_("Choisir une licence"),
-        error_messages={
-            "required": _("Merci de choisir une licence."),
-            "invalid_choice": _("Merci de choisir une licence valide dans la liste."),
-        },
-    )
-
-    update_preferred_license = forms.BooleanField(
-        label=_("Je souhaite utiliser cette licence comme choix par défaut pour mes futures publications."),
-        required=False,
-    )
-
-    def __init__(self, versioned_content, *args, **kwargs):
-        kwargs["initial"] = {"license": versioned_content.licence}
-        super(forms.Form, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_class = "content-wrapper"
-        self.helper.form_method = "post"
-        self.helper.form_id = "edit-license"
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_action = reverse("content:edit-license", kwargs={"pk": versioned_content.pk})
-        self.previous_page_url = reverse(
-            "content:view", kwargs={"pk": versioned_content.pk, "slug": versioned_content.slug}
-        )
-        self._create_layout()
-
-        if "type" in self.initial:
-            self.helper["type"].wrap(Field, disabled=True)
-
-    def _create_layout(self):
-        self.helper.layout = Layout(
-            HTML(
-                """<p>{} encourage l'utilisation de licences facilitant le partage,
-                    telles que les licences <a href="https://creativecommons.org/">Creative Commons</a>.</p>
-                    <p>Pour choisir la licence de votre publication, aidez-vous de la
-                    <a href="{}" alt="{}">présentation
-                    des différentes licences proposées sur le site</a>.</p>""".format(
-                    settings.ZDS_APP["site"]["literal_name"],
-                    settings.ZDS_APP["site"]["licenses"]["licence_info_title"],
-                    settings.ZDS_APP["site"]["licenses"]["licence_info_link"],
-                )
-            ),
-            Field("license"),
-            Field("update_preferred_license"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
-        )
-
 
 class ExtractForm(FormWithTitle):
-
     text = forms.CharField(
         label=_("Texte"),
         required=False,
@@ -461,7 +173,6 @@ class ExtractForm(FormWithTitle):
 
 
 class ImportForm(forms.Form):
-
     file = forms.FileField(label=_("Sélectionnez le contenu à importer."), required=True)
     images = forms.FileField(label=_("Fichier zip contenant les images du contenu."), required=False)
 
@@ -500,7 +211,6 @@ class ImportForm(forms.Form):
 
 
 class ImportContentForm(forms.Form):
-
     archive = forms.FileField(label=_("Sélectionnez l'archive de votre contenu."), required=True)
     image_archive = forms.FileField(label=_("Sélectionnez l'archive des images."), required=False)
 
@@ -552,7 +262,6 @@ class ImportContentForm(forms.Form):
 
 
 class ImportNewContentForm(ImportContentForm):
-
     subcategory = forms.ModelMultipleChoiceField(
         label=_(
             "Sous catégories de votre contenu. Si aucune catégorie ne convient "
@@ -687,7 +396,6 @@ class NoteEditForm(NoteForm):
 
 
 class AskValidationForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=False,
@@ -712,7 +420,7 @@ class AskValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
-        self.previous_page_url = content.get_absolute_url() + "?version=" + content.current_version
+        self.previous_page_url = get_content_version_url(content, content.current_version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:ask", kwargs={"pk": content.pk, "slug": content.slug})
@@ -724,9 +432,9 @@ class AskValidationForm(forms.Form):
         no_category_msg = HTML(
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    Vous devez <a href="{}">choisir une catégorie</a>
                                     avant de demander la validation.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
+                    reverse("content:edit-categories", kwargs={"pk": content.pk}),
                 )
             )
         )
@@ -751,17 +459,7 @@ class AskValidationForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
-        text = cleaned_data.get("text")
-
         base_error_msg = "La validation n'a pas été demandée. "
-
-        if text is None or not text.strip():
-            error = [_(base_error_msg + "Vous devez fournir un commentaire aux validateurs.")]
-            self.add_error(field="text", error=error)
-
-        elif len(text) < 3:
-            error = _(base_error_msg + "Votre commentaire doit faire au moins 3 caractères.")
-            self.add_error(field="text", error=error)
 
         if self.no_subcategories:
             error = [_(base_error_msg + "Vous devez choisir au moins une catégorie pour votre publication.")]
@@ -775,7 +473,6 @@ class AskValidationForm(forms.Form):
 
 
 class AcceptValidationForm(forms.Form):
-
     validation = None
 
     text = forms.CharField(
@@ -797,13 +494,7 @@ class AcceptValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-
-        # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         super().__init__(*args, **kwargs)
 
@@ -822,7 +513,6 @@ class AcceptValidationForm(forms.Form):
 
 
 class CancelValidationForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=True,
@@ -834,12 +524,7 @@ class CancelValidationForm(forms.Form):
     def __init__(self, validation, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:cancel", kwargs={"pk": validation.pk})
@@ -872,7 +557,6 @@ class CancelValidationForm(forms.Form):
 
 
 class RejectValidationForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=True,
@@ -890,12 +574,7 @@ class RejectValidationForm(forms.Form):
         """
         super().__init__(*args, **kwargs)
 
-        # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:reject", kwargs={"pk": validation.pk})
@@ -926,7 +605,6 @@ class RejectValidationForm(forms.Form):
 
 
 class RevokeValidationForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     text = forms.CharField(
@@ -972,7 +650,6 @@ class RevokeValidationForm(forms.Form):
 
 
 class JsFiddleActivationForm(forms.Form):
-
     js_support = forms.BooleanField(label="À cocher pour activer JSFiddle.", required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
@@ -1003,7 +680,6 @@ class JsFiddleActivationForm(forms.Form):
 
 
 class MoveElementForm(forms.Form):
-
     child_slug = forms.HiddenInput()
     container_slug = forms.HiddenInput()
     first_level_slug = forms.HiddenInput()
@@ -1028,90 +704,6 @@ class MoveElementForm(forms.Form):
         )
 
 
-class WarnTypoForm(forms.Form):
-
-    text = forms.CharField(
-        label="",
-        required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3", "id": "warn_text"}),
-    )
-
-    target = forms.CharField(widget=forms.HiddenInput(), required=False)
-    version = forms.CharField(widget=forms.HiddenInput(), required=True)
-
-    def __init__(self, content, targeted, public=True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.content = content
-        self.targeted = targeted
-
-        # modal form, send back to previous page if any:
-        if public:
-            self.previous_page_url = targeted.get_absolute_url_online()
-        else:
-            self.previous_page_url = targeted.get_absolute_url_beta()
-
-        # add an additional link to send PM if needed
-        type_ = _("l'article")
-
-        if content.is_tutorial:
-            type_ = _("le tutoriel")
-        elif content.is_opinion:
-            type_ = _("le billet")
-
-        if targeted.get_tree_depth() == 0:
-            pm_title = _("J'ai trouvé une faute dans {} « {} ».").format(type_, targeted.title)
-        else:
-            pm_title = _("J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
-
-        usernames = ""
-        num_of_authors = content.authors.count()
-        for index, user in enumerate(content.authors.all()):
-            if index != 0:
-                usernames += "&"
-            usernames += "username=" + user.username
-
-        msg = _('<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
-            reverse("mp:create"), pm_title, usernames, _("à l'auteur") if num_of_authors == 1 else _("aux auteurs")
-        )
-
-        version = content.sha_beta
-        if public:
-            version = content.sha_public
-
-        # create form
-        self.helper = FormHelper()
-        self.helper.form_action = reverse("content:warn-typo") + f"?pk={content.pk}"
-        self.helper.form_method = "post"
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_id = "warn-typo-modal"
-        self.helper.layout = Layout(
-            Field("target"),
-            Field("text"),
-            HTML(msg),
-            Hidden("pk", "{{ content.pk }}"),
-            Hidden("version", version),
-            ButtonHolder(StrictButton(_("Envoyer"), type="submit", css_class="btn-submit")),
-        )
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        text = cleaned_data.get("text")
-
-        if text is None or not text.strip():
-            self._errors["text"] = self.error_class([_("Vous devez indiquer la faute commise.")])
-            if "text" in cleaned_data:
-                del cleaned_data["text"]
-
-        elif len(text) < 3:
-            self._errors["text"] = self.error_class([_("Votre commentaire doit faire au moins 3 caractères.")])
-            if "text" in cleaned_data:
-                del cleaned_data["text"]
-
-        return cleaned_data
-
-
 class PublicationForm(forms.Form):
     """
     The publication form (used only for content without preliminary validation).
@@ -1132,9 +724,9 @@ class PublicationForm(forms.Form):
         no_category_msg = HTML(
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    Vous devez <a href="{}">choisir une catégorie</a>
                                     avant de publier.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
+                    reverse("content:edit-categories", kwargs={"pk": content.pk})
                 )
             )
         )
@@ -1172,7 +764,6 @@ class PublicationForm(forms.Form):
 
 
 class UnpublicationForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     text = forms.CharField(
@@ -1204,7 +795,6 @@ class UnpublicationForm(forms.Form):
 
 
 class PickOpinionForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
@@ -1268,7 +858,6 @@ class DoNotPickOpinionForm(forms.Form):
 
 
 class UnpickOpinionForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     text = forms.CharField(
@@ -1297,7 +886,6 @@ class UnpickOpinionForm(forms.Form):
 
 
 class PromoteOpinionToArticleForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
@@ -1340,62 +928,3 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_("Vous devez choisir des URL a comparer"))
         if len(urls) < 2:
             raise forms.ValidationError(_("Il faut au minimum 2 urls à comparer"))
-
-
-class SearchSuggestionForm(forms.Form):
-    suggestion_pk = forms.CharField(
-        label="Contenu à suggérer",
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-autocomplete": '{"type": "multiple_checkbox",'
-                '"limit": 10,'
-                '"fieldname": "title",'
-                '"url": "/rechercher/suggestion-contenu/?q=%s&excluded=%e"}',
-                "placeholder": "Rechercher un contenu",
-            }
-        ),
-    )
-    excluded_pk = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"class": "excluded_field"}))
-
-    def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_action = reverse("content:add-suggestion", kwargs={"pk": content.pk})
-        self.helper.form_class = "modal modal-large"
-        self.helper.form_id = "add-suggestion"
-        self.helper.form_method = "post"
-
-        self.helper.layout = Layout(
-            Field("suggestion_pk"), Field("excluded_pk"), StrictButton(_("Ajouter"), type="submit")
-        )
-        super().__init__(*args, **kwargs)
-
-
-class RemoveSuggestionForm(forms.Form):
-
-    pk_suggestion = forms.IntegerField(
-        label=_("Suggestion"),
-        required=True,
-        error_messages={"does_not_exist": _("La suggestion sélectionnée n'existe pas.")},
-    )
-
-    def clean_pk_suggestion(self):
-        pk_suggestion = self.cleaned_data.get("pk_suggestion")
-        suggestion = ContentSuggestion.objects.filter(id=pk_suggestion).first()
-        if suggestion is None:
-            self.add_error("pk_suggestion", self.fields["pk_suggestion"].error_messages["does_not_exist"])
-        return pk_suggestion
-
-
-class ToggleHelpForm(forms.Form):
-    help_wanted = forms.CharField()
-    activated = forms.BooleanField(required=False)
-
-    def clean(self):
-        clean_data = super().clean()
-        clean_data["help_wanted"] = HelpWriting.objects.filter(title=(self.data["help_wanted"] or "").strip()).first()
-        if not clean_data["help_wanted"]:
-            self.add_error("help_wanted", _("Inconnu"))
-        return clean_data

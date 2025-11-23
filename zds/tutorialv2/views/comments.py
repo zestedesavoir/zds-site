@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, StreamingHttpResponse, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
@@ -15,16 +15,16 @@ from django.views.generic import FormView
 
 from zds import json_handler
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 from zds.notification.models import ContentReactionAnswerSubscription
-from zds.tutorialv2.forms import NoteForm, NoteEditForm
-from zds.tutorialv2.mixins import SingleOnlineContentFormViewMixin, MustRedirect, SingleOnlineContentViewMixin
+from zds.tutorialv2.forms import NoteEditForm, NoteForm
+from zds.tutorialv2.mixins import MustRedirect, SingleOnlineContentFormViewMixin, SingleOnlineContentViewMixin
 from zds.tutorialv2.models.database import ContentReaction
-from zds.utils.models import CommentEdit, get_hat_from_request, Alert
+from zds.utils.misc import is_ajax
+from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):
-
     denied_if_lock = True
     form_class = NoteForm
     check_as = True
@@ -82,7 +82,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         return context
 
     def get(self, request, *args, **kwargs):
-
         # handle quoting case
         if "cite" in self.request.GET:
             try:
@@ -99,7 +98,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                 text = "\n".join("> " + line for line in reaction.text.split("\n"))
                 text += f"\nSource: [{reaction.author.username}]({reaction.get_absolute_url()})"
 
-                if self.request.is_ajax():
+                if is_ajax(self.request):
                     return StreamingHttpResponse(json_handler.dumps({"text": text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
@@ -112,15 +111,13 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             )
 
     def post(self, request, *args, **kwargs):
-
-        if "preview" in request.POST and request.is_ajax():
+        if "preview" in request.POST and is_ajax(request):
             content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
             return StreamingHttpResponse(content)
         else:
             return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
-
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 
@@ -366,6 +363,6 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
             response["follow"] = ContentReactionAnswerSubscription.objects.toggle_follow(
                 self.get_object(), self.request.user, True
             ).is_active
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return HttpResponse(json_handler.dumps(response), content_type="application/json")
         return redirect(self.get_object().get_absolute_url())

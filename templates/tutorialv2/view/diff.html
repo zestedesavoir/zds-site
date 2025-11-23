@@ -33,22 +33,22 @@
         {{ content.title }}
     </h1>
 
-    {% include 'tutorialv2/includes/tags_authors.part.html' with online=False%}
-
     <a href="{{ content.get_absolute_url }}" class="btn btn-grey ico-after arrow-left">Retour</a>
 
     <ul>
         <li>
             <strong>Version 1 :</strong>
             {{ commit_from.message }}
-            (<a href="{% url "content:view" content.pk content.slug %}?version={{ commit_from.hexsha }}">
+            {% url "content:view-version" pk=content.pk slug=content.slug version=commit_from.hexsha as url_version_from %}
+            (<a href="{{ url_version_from }}">
                 {{ commit_from.hexsha|truncatechars:8 }}
             </a>)
         </li>
         <li>
             <strong>Version 2 :</strong>
             {{ commit_to.message }}
-            (<a href="{% url "content:view" content.pk content.slug %}?version={{ commit_to.hexsha }}">
+            {% url "content:view-version" pk=content.pk slug=content.slug version=commit_to.hexsha as url_version_to %}
+            (<a href="{{ url_version_to }}">
                 {{ commit_to.hexsha|truncatechars:8 }}
             </a>)
         </li>

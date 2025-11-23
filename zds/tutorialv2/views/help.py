@@ -1,5 +1,6 @@
 import json
 
+from django import forms
 from django.conf import settings
 from django.db.models import Count, Q
 from django.http import HttpResponse, JsonResponse
@@ -7,12 +8,23 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2 import signals
-from zds.tutorialv2.forms import ToggleHelpForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
-
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.utils.misc import is_ajax
 from zds.utils.paginator import ZdSPagingListView
+
+
+class ToggleHelpForm(forms.Form):
+    help_wanted = forms.CharField()
+    activated = forms.BooleanField(required=False)
+
+    def clean(self):
+        clean_data = super().clean()
+        clean_data["help_wanted"] = HelpWriting.objects.filter(title=(self.data["help_wanted"] or "").strip()).first()
+        if not clean_data["help_wanted"]:
+            self.add_error("help_wanted", _("Inconnu"))
+        return clean_data
 
 
 class ContentsWithHelps(ZdSPagingListView):
@@ -84,12 +96,12 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             self.object.helps.remove(data["help_wanted"])
         self.object.save()
         signals.help_management.send(sender=self.__class__, performer=self.request.user, content=self.object)
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return JsonResponse({"state": data["activated"]})
         self.success_url = self.object.get_absolute_url()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return JsonResponse({"errors": form.errors}, status=400)
         return super().form_invalid(form)

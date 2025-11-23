@@ -1,38 +1,38 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect
-from django.views.generic import DeleteView, FormView, View
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import FormView, View
 
 from zds.gallery.forms import (
     ArchiveImageForm,
-    ImageForm,
-    UpdateImageForm,
     GalleryForm,
-    UpdateGalleryForm,
-    UserGalleryForm,
     ImageAsAvatarForm,
+    ImageForm,
+    UpdateGalleryForm,
+    UpdateImageForm,
+    UserGalleryForm,
 )
-from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
 from zds.gallery.mixins import (
     GalleryCreateMixin,
     GalleryMixin,
     GalleryUpdateOrDeleteMixin,
-    NoMoreUserWithWriteIfLeave,
-    ImageUpdateOrDeleteMixin,
     ImageCreateMixin,
+    ImageUpdateOrDeleteMixin,
+    NoMoreUserWithWriteIfLeave,
+    NotAnImage,
     UserAlreadyInGallery,
     UserNotInGallery,
-    NotAnImage,
 )
+from zds.gallery.models import GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.utils.paginator import ZdSPagingListView
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.paginator import ZdSPagingListView
 
 
 class ListGallery(LoginRequiredMixin, ZdSPagingListView):
@@ -144,7 +144,6 @@ class EditGallery(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, FormV
         return context
 
     def form_valid(self, form):
-
         self.perform_update(
             {
                 "title": form.cleaned_data["title"],
@@ -157,7 +156,6 @@ class EditGallery(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, FormV
 
 
 class DeleteGalleries(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, View):
-
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -400,25 +398,23 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         return super().form_valid(form)
 
 
-class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWithReadWriteHability, DeleteView):
+class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWithReadWriteHability, View):
     """Delete a given image"""
 
     model = Image
-    http_method_names = ["post", "delete"]
+    http_method_names = ["post"]
     must_write = True
 
-    def delete(self, request, *args, **kwargs):
-
+    def post(self, request, *args, **kwargs):
         if "delete_multi" in request.POST:
             list_items = request.POST.getlist("g_items")
             Image.objects.filter(pk__in=list_items, gallery=self.gallery).delete()
         elif "delete" in request.POST:
             try:
-                self.get_image(self.request.POST.get("image"))
+                self.get_image(request.POST.get("image"))
                 self.perform_delete()
             except Image.DoesNotExist:
                 raise Http404()
-
         return redirect(self.gallery.get_absolute_url())
 
 
@@ -434,10 +430,8 @@ class ImportImages(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWit
 
         error_files = self.perform_create_multi(archive)
 
-        if len(error_files) > 0:
-            messages.error(
-                self.request, _('Les fichiers suivants n\'ont pas été importés: "{}"').format('", "'.join(error_files))
-            )
+        for e in error_files:
+            messages.error(self.request, _(f'Le fichier {e["filename"]} n\'a pas été importé : {e["error"]}.'))
 
         self.success_url = self.gallery.get_absolute_url()
         return super().form_valid(form)

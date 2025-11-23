@@ -1,6 +1,7 @@
+import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
-import sentry_sdk
+from sentry_sdk.types import Event, Hint
 
 from .abstract_base import *
 
@@ -14,8 +15,6 @@ from .abstract_base import *
 
 
 DEBUG = False
-
-USE_L10N = True
 
 DATABASES = {
     "default": {
@@ -57,13 +56,18 @@ CACHES = {
     }
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 4
 
 MEDIA_ROOT = Path("/opt/zds/data/media")
 
 STATIC_ROOT = Path("/opt/zds/data/static")
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"},
+}
 
 django_template_engine["APP_DIRS"] = False
 django_template_engine["OPTIONS"]["loaders"] = [
@@ -86,6 +90,15 @@ def _get_version():
         return f"{__version__}/{git_version[:7]}"
 
 
+def sentry_before_send(event: Event, hint: Hint) -> Event:
+    # Do not log KeyboardInterrupt exceptions: they can only be triggered from
+    # manage.py commands in an interactive shell, intentionally by the user.
+    if hint.get("exc_info", [None])[0] == KeyboardInterrupt:
+        return None
+
+    return event
+
+
 sentry_sdk.init(
     dsn=config["sentry"]["dsn"],
     integrations=[DjangoIntegration()],
@@ -103,6 +116,7 @@ sentry_sdk.init(
     release=_get_version().replace("/", "#"),
     # /!\ It cannot contain slashes
     environment=config["sentry"]["environment"],
+    before_send=sentry_before_send,
 )
 
 # Ignoring emarkdown logging because it is too noisy
@@ -122,35 +136,14 @@ THUMBNAIL_OPTIMIZE_COMMAND = {
 }
 
 
-# python-social-auth
-# http://psa.matiasaguirre.net/docs/configuration/django.html
-SOCIAL_AUTH_PIPELINE = (
-    "social.pipeline.social_auth.social_details",
-    "social.pipeline.social_auth.social_uid",
-    "social.pipeline.social_auth.auth_allowed",
-    "social.pipeline.social_auth.social_user",
-    "social.pipeline.user.get_username",
-    "social.pipeline.social_auth.associate_by_email",
-    "social.pipeline.user.create_user",
-    "zds.member.models.save_profile",
-    "social.pipeline.social_auth.associate_user",
-    "social.pipeline.social_auth.load_extra_data",
-    "social.pipeline.user.user_details",
-)
-
-
 ###############################################################################
 # ZESTE DE SAVOIR SETTINGS
 
-
-ES_SEARCH_INDEX["shards"] = config["elasticsearch"].get("shards", 3)
-
+SEARCH_CONNECTION["api_key"] = config["typesense"].get("api_key", "xyz")
 
 ZDS_APP["site"]["association"]["email"] = "communication@zestedesavoir.com"
 
 # content
-# ZDS_APP['content']['build_pdf_when_published'] = False
-ZDS_APP["article"]["repo_path"] = "/opt/zds/data/articles-data"
 ZDS_APP["content"]["repo_private_path"] = "/opt/zds/data/contents-private"
 ZDS_APP["content"]["repo_public_path"] = "/opt/zds/data/contents-public"
 ZDS_APP["content"]["extra_content_generation_policy"] = "WATCHDOG"

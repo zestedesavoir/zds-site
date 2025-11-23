@@ -1,8 +1,9 @@
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.urls import reverse
 from django.test import TestCase
-from django.conf import settings
+from django.urls import reverse
+
 from zds.member.tests.factories import ProfileFactory
 from zds.mp.models import PrivateTopic
 
@@ -75,7 +76,6 @@ class MpUtilTest(TestCase):
         PrivateTopic.objects.all().delete()
 
     def test_answer_mp_email(self):
-
         # Create a MP
         self.client.post(
             reverse("mp:create"),

@@ -1,13 +1,13 @@
-import re
 import json
 import logging
-from requests import post, HTTPError
+import re
 
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from requests import HTTPError, post
 
 logger = logging.getLogger(__name__)
 register = template.Library()
@@ -37,7 +37,12 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         logger.error(f"kwargs: {kwargs!r}")
 
     inline = kwargs.get("inline", False) is True
-    full_json = kwargs.pop("full_json", False)
+
+    # If use_manifest is True, we send to ZMarkdown all content (eg all
+    # chapters) at once (used especially for HTML and TeX)
+    use_manifest = kwargs.pop("use_manifest", False)
+    if output_format.startswith("tex"):
+        use_manifest = True
 
     if settings.ZDS_APP["zmd"]["disable_pings"] is True:
         kwargs["disable_ping"] = True
@@ -47,11 +52,13 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
     try:
         timeout = 10
         real_input = str(md_input)
-        if output_format.startswith("tex") or full_json:
-            # latex may be really long to generate but it is also restrained by server configuration
-            timeout = 120
-            # use manifest renderer
-            real_input = md_input
+        kwargs["heading_shift"] = 2
+        if use_manifest:
+            timeout = 120  # tex or manifest can be long to generate
+            real_input = md_input  # with manifest rendering, md_input is actually a dict/JSON object with metadata
+            kwargs["heading_shift"] = 0  # by default when manifest is used
+        if output_format.startswith("tex"):
+            kwargs["heading_shift"] = -1  # required for tex export
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
@@ -82,7 +89,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
             content = content.strip()
         if inline:
             content = content.replace("</p>\n", "\n\n").replace("\n<p>", "\n")
-        if full_json:
+        if use_manifest:
             return content, metadata, messages
         return mark_safe(content), metadata, messages
     except:  # noqa

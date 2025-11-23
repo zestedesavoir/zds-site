@@ -20,7 +20,6 @@ def remove_skeleton(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("member", "0018_auto_20190114_1301"),
     ]

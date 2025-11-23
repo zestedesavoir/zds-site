@@ -1,0 +1,60 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% load set %}
+
+
+{% block title %}
+    {% blocktrans %}Déclaration d'accessibilité{% endblocktrans %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Déclaration d'accessibilité" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>{% trans "Déclaration d'accessibilité" %}</h1>
+{% endblock %}
+
+
+
+{% block content %}
+{% set app.site.association.name as asso_name %}
+{% set app.site.email_asso_accessibility as email_asso %}
+{% set app.site.email_tech_accessibility as email_tech %}
+{% set app.site.dns as site_dns %}
+{% set app.site.social.github as url_github %}
+{% blocktrans %}
+    <p>L’association {{asso_name}} s’engage à rendre son site internet accessible conformément à
+        <a href="https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000037388867" rel="nofollow">l’article 47 de la loi №&nbsp;2005-102 du 11 février 2005</a>.</p>
+{% endblocktrans %}
+    <p>
+        {% blocktrans %}À cette fin, une attention est portée à l’accessibilité des mises à jour effectuées depuis décembre 2020 sur le site, date d'une reprise graphique de ce dernier, et des efforts de corrections ont été réalisés, parfois en coopération avec des personnes concernées volontaires. {% endblocktrans %}
+    </p>
+
+    <p>
+        {% blocktrans %}Cette déclaration d’accessibilité s’applique au site web de {{asso_name}} (<code class="notranslate">{{site_dns}}</code>). {% endblocktrans %}
+    </p>
+
+    <h3>{% trans "État de conformité" %}</h3>
+    <p>
+        {% blocktrans %}Aucun audit n’a été encore effectué. Le site web {{asso_name}} est non-conforme avec le référentiel général d’amélioration de l’accessibilité (RGAA). {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans %}Cependant, un audit de conformité est envisagé, sans que l'échéance n'ait été encore définie. {% endblocktrans %}
+    </p>
+
+    <h3>{% trans "Retour d’information et contact" %}</h3>
+
+    <p>{% trans "Si vous n’arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable du site internet ou son équipe de développement, pour être orienté·e vers une alternative accessible ou obtenir le contenu sous une autre forme." %}</p>
+
+    {% blocktrans %}
+    <ul>
+        <li>Contacter le Conseil d’Administration de l’association {{asso_name}}, à l’adresse <a href="mailto:{{email_asso}}">{{email_asso}}</a> ;</li>
+        <li>Contacter l’équipe de développement de {{asso_name}} <a href="{{url_github}}/issues/new">sur GitHub</a> ou par courriel à l’adresse <a href="mailto:{{email_tech}}">{{email_tech}}</a> .</li>
+    </ul>
+    {% endblocktrans %}
+{% endblock %}

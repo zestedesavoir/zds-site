@@ -1,12 +1,11 @@
 import logging
 import time
-
 from pathlib import Path
 
 from django.core.management import BaseCommand
 
 from zds.tutorialv2.models.database import PublicationEvent
-from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPublication
+from zds.tutorialv2.publication_utils import FailureDuringPublication, PublicatorRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -54,8 +53,7 @@ class Command(BaseCommand):
                 building_extra_content_path = Path(
                     str(Path(extra_content_dir).parent) + "__building", "extra_contents", content.content_public_slug
                 )
-                if not building_extra_content_path.exists():
-                    building_extra_content_path.mkdir(parents=True)
+                building_extra_content_path.mkdir(parents=True, exist_ok=True)
                 base_name = str(building_extra_content_path)
                 md_file_path = base_name + ".md"
 

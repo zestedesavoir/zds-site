@@ -1,18 +1,20 @@
-from collections import OrderedDict, namedtuple
-import os
 import logging
-from urllib.parse import urlsplit, urlunsplit, quote
-from django.contrib.auth.models import User
-from django.http import Http404
-from django.utils.translation import gettext_lazy as _
-from git import Repo, Actor
+import os
+from collections import OrderedDict, namedtuple
+from urllib.parse import quote, urlsplit, urlunsplit
 
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.http import Http404
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from git import Actor, Repo
+
 from zds.tutorialv2 import signals
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils.models import Licence
-from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError, check_slug
+from zds.utils.validators import InvalidSlugError, check_slug, slugify_raise_on_invalid
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +132,7 @@ def never_read(content, user=None):
 
 
 def last_participation_is_old(content, user):
-    from zds.tutorialv2.models.database import ContentRead, ContentReaction
+    from zds.tutorialv2.models.database import ContentReaction, ContentRead
 
     if user is None or not user.is_authenticated:
         return False
@@ -148,8 +150,7 @@ def mark_read(content, user=None):
     :param user: user that read the content, if ``None`` will use currrent user
     """
 
-    from zds.tutorialv2.models.database import ContentRead
-    from zds.tutorialv2.models.database import ContentReaction
+    from zds.tutorialv2.models.database import ContentReaction, ContentRead
 
     if not user:
         user = get_current_user()
@@ -317,7 +318,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     :rtype: zds.tutorialv2.models.versioned.VersionedContent|zds.tutorialv2.models.database.PublishedContent
     """
 
-    from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
+    from zds.tutorialv2.models.versioned import Container, Extract, PublicContent, VersionedContent
 
     if "version" in json and json["version"] in (2, 2.1, 2.2):  # add newest version of manifest
         if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
@@ -464,7 +465,6 @@ def fill_containers_from_json(json_sub, parent):
     from zds.tutorialv2.models.versioned import Container, Extract
 
     if "children" in json_sub:
-
         for child in json_sub["children"]:
             if not all_is_string_appart_from_given_keys(child, ("children", "ready_to_publish", "is_quizz")):
                 raise BadManifestError(
@@ -510,7 +510,7 @@ def fill_containers_from_json(json_sub, parent):
                 raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child["object"]))
 
 
-def init_new_repo(db_object, introduction_text, conclusion_text, commit_message="", do_commit=True):
+def init_new_repo(db_object, introduction_text="", conclusion_text="", commit_message="", do_commit=True):
     """Create a new repository in ``settings.ZDS_APP['contents']['private_repo']``\
      to store the files for a new content. Note that ``db_object.sha_draft`` will be set to the good value
 
@@ -744,3 +744,9 @@ class BadArchiveError(Exception):
 
 
 NamedUrl = namedtuple("NamedUrl", ["name", "url", "level"])
+
+
+def get_content_version_url(versioned_content, version):
+    route_parameters = {"pk": versioned_content.pk, "slug": versioned_content.slug, "version": version}
+    url = reverse("content:view-version", kwargs=route_parameters)
+    return url

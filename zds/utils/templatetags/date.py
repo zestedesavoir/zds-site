@@ -85,15 +85,7 @@ def tooltip_date(value):
 
 
 @register.filter
-def humane_time(timestamp):
-    """Render time (number of second from epoch) to an human readable string"""
-    return format_date(datetime.fromtimestamp(timestamp))
-
-
-@register.filter
-def from_elasticsearch_date(value):
-    try:
-        date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
-    except ValueError:
-        date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
-    return date
+def date_from_timestamp(timestamp):
+    """Convert a timestamp (number of second from epoch) to a datetime object,
+    another filter should then be used to format the datetime object."""
+    return datetime.fromtimestamp(timestamp)

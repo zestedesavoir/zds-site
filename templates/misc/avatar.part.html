@@ -1,0 +1,9 @@
+{% load captureas %}
+
+{# Template used by the templatetag "avatar" defined in zds/utils/templatetags/profile.py #}
+
+{% if avatar_url %}
+    <img src="{{ avatar_url }}" alt="" class="avatar" itemprop="image" aria-hidden="true">
+{% else %}
+    <canvas width="{{ avatar_size }}" height="{{ avatar_size }}" data-jdenticon-value="{{ username }}" class="avatar" aria-hidden="true"></canvas>
+{% endif %}

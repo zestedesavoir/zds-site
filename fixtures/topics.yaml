@@ -6,7 +6,6 @@
         forum: 10
         author: 3
         pubdate: 2013-12-21 13:20:30
-        update_index_date: 2013-12-21 13:20:30
         last_message: 1
 -   model: forum.Topic
     pk: 2
@@ -16,7 +15,6 @@
         forum: 3
         author: 3
         pubdate: 2013-12-21 13:20:30
-        update_index_date: 2013-12-21 13:20:30
         last_message: 2
 -   model: forum.Topic
     pk: 3
@@ -25,7 +23,6 @@
         forum: 2
         author: 3
         pubdate: 2013-12-21 13:20:30
-        update_index_date: 2013-12-21 13:20:30
         last_message: 4
 -   model: forum.Topic
     pk: 4
@@ -34,7 +31,6 @@
         forum: 12
         author: 3
         pubdate: 2014-01-05 18:20:30
-        update_index_date: 2013-12-21 13:20:30
         last_message: 5
 -   model: forum.Post
     pk: 1
@@ -49,7 +45,6 @@
         like: 42
         dislike: 0
         pubdate: 2013-12-21 13:20:30
-        update_index_date: 2013-12-21 13:20:30
         position: 1
 -   model: forum.Post
     pk: 2
@@ -64,7 +59,6 @@
         like: 3
         dislike: 12
         pubdate: 2013-12-21 13:20:30
-        update_index_date: 2013-12-21 13:20:30
         position: 1
 -   model: forum.Post
     pk: 3
@@ -79,7 +73,6 @@
         like: 42
         dislike: 0
         pubdate: 2013-12-21 13:22:30
-        update_index_date: 2013-12-21 13:20:30
         position: 2
 -   model: forum.Post
     pk: 4
@@ -94,7 +87,6 @@
         like: 0
         dislike: 0
         pubdate: 2013-12-21 13:20:30
-        update_index_date: 2013-12-21 13:20:30
         position: 1
 -   model: forum.Post
     pk: 5
@@ -275,5 +267,4 @@
         like: 1337
         dislike: 0
         pubdate: 2014-01-05 18:20:30
-        update_index_date: 2013-12-21 13:20:30
         position: 1

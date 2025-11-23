@@ -1,10 +1,10 @@
-from django.db import models, migrations
 from django.conf import settings
+from django.db import migrations, models
+
 import zds.forum.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0001_initial"),
         ("auth", "0001_initial"),

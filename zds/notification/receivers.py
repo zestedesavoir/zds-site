@@ -1,35 +1,31 @@
 import inspect
 import logging
-
-try:
-    from functools import wraps
-except ImportError:
-    from django.utils.functional import wraps
+from functools import wraps
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError
-from django.db.models.signals import post_save, m2m_changed, pre_delete
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 
-from zds.forum.models import Topic, Post, Forum
 import zds.forum.signals as forum_signals
-from zds.mp.models import PrivateTopic, PrivatePost
 import zds.mp.signals as mp_signals
-from zds.notification.models import (
-    TopicAnswerSubscription,
-    ContentReactionAnswerSubscription,
-    PrivateTopicAnswerSubscription,
-    Subscription,
-    Notification,
-    NewTopicSubscription,
-    NewPublicationSubscription,
-    PingSubscription,
-)
 import zds.notification.signals as notification_signals
-from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 import zds.tutorialv2.signals as tuto_signals
 import zds.utils.signals as utils_signals
+from zds.forum.models import Forum, Post, Topic
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.notification.models import (
+    ContentReactionAnswerSubscription,
+    NewPublicationSubscription,
+    NewTopicSubscription,
+    Notification,
+    PingSubscription,
+    PrivateTopicAnswerSubscription,
+    Subscription,
+    TopicAnswerSubscription,
+)
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.utils.models import Tag
 
 logger = logging.getLogger(__name__)
@@ -40,7 +36,6 @@ def remove_group_subscription_on_quitting_groups(*, sender, instance, action, pk
     if action not in ("pre_clear", "pre_remove"):  # only on updating
         return
     if action == "pre_clear":
-
         remove_group_subscription_on_quitting_groups(
             sender=sender,
             instance=instance,
@@ -49,7 +44,11 @@ def remove_group_subscription_on_quitting_groups(*, sender, instance, action, pk
         )
         return
 
-    for forum in Forum.objects.filter(groups__pk__in=list(pk_set)):
+    all_groups_pk = instance.groups.values_list("pk", flat=True)
+    removed_groups_pk = pk_set
+    kept_groups_pk = set(all_groups_pk) - set(removed_groups_pk)
+
+    for forum in Forum.objects.filter(groups__pk__in=removed_groups_pk).exclude(groups__pk__in=kept_groups_pk):
         subscriptions = []
 
         forum_subscription = NewTopicSubscription.objects.get_existing(instance, forum, True)
@@ -158,13 +157,20 @@ def mark_content_reactions_read(sender, *, instance, user=None, target, **__):
             subscription = ContentReactionAnswerSubscription.objects.get_existing(user, instance, is_active=True)
             if subscription:
                 subscription.mark_notification_read()
-    elif target == PublishableContent:
-        authors = list(instance.authors.all())
-        for author in authors:
-            subscription = NewPublicationSubscription.objects.get_existing(user, author)
-            # a subscription has to be handled only if it is active OR if it was triggered from the publication
-            # event that creates an "autosubscribe" which is immediately deactivated.
-            if subscription and (subscription.is_active or subscription.user in authors):
+    elif target == PublishableContent and user is not None:
+        # We cannot use the list of authors of the content, because the user we
+        # are subscribed to may have left the authorship of the content (see issue #5544).
+        followed_users = list(NewPublicationSubscription.objects.get_objects_followed_by(user))
+        if user not in followed_users:
+            # When a content is published, their authors are subscribed for
+            # notifications of their own publications, but these subscriptions
+            # are not activated (see receiver for signal content_published).
+            # Since followed_users contains only active subscriptions, current
+            # user should not be in it, so we add it manually:
+            followed_users.append(user)
+        for followed_user in followed_users:
+            subscription = NewPublicationSubscription.objects.get_existing(user, followed_user)
+            if subscription:
                 subscription.mark_notification_read(content=instance)
 
 

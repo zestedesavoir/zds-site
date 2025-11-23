@@ -1,43 +1,43 @@
 import datetime
 import logging
 
-from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
-from django.db.models.signals import post_save, post_delete
+from django.db.models import Case, IntegerField, Value, When
+from django.db.models.signals import post_delete, post_save
+from django.utils.translation import gettext_lazy as _
 from dry_rest_permissions.generics import DRYPermissions
-from rest_framework import filters
-from rest_framework import status
+from rest_framework import filters, status
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
-    RetrieveUpdateAPIView,
     RetrieveAPIView,
+    RetrieveUpdateAPIView,
     get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
-from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 
+from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
+from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
+from zds.member.api.permissions import IsOwnerOrReadOnly
 from zds.member.api.serializers import (
-    ProfileListSerializer,
     ProfileCreateSerializer,
     ProfileDetailSerializer,
+    ProfileListSerializer,
     ProfileValidatorSerializer,
 )
-from zds.member.api.permissions import IsOwnerOrReadOnly
-from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
 from zds.member.commons import (
-    TemporaryReadingOnlySanction,
-    ReadingOnlySanction,
-    DeleteReadingOnlySanction,
-    TemporaryBanSanction,
     BanSanction,
     DeleteBanSanction,
+    DeleteReadingOnlySanction,
     ProfileCreate,
+    ReadingOnlySanction,
+    TemporaryBanSanction,
+    TemporaryReadingOnlySanction,
     TokenGenerator,
 )
 from zds.member.models import Profile
@@ -81,12 +81,31 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     Profile resource to list and register.
     """
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("user__username",)
     list_key_func = PagingSearchListKeyConstructor()
+    permission_classes = [AllowAny, DRYPermissions]
 
     def get_queryset(self):
-        return Profile.objects.contactable_members()
+        queryset = Profile.objects.contactable_members()
+        search_param = self.request.query_params.get("search", None)
+
+        if search_param:
+            queryset = (
+                queryset.filter(user__username__icontains=search_param)
+                .annotate(
+                    priority=Case(
+                        When(user__username=search_param, then=Value(1)),
+                        When(user__username__iexact=search_param, then=Value(2)),
+                        When(user__username__startswith=search_param, then=Value(3)),
+                        When(user__username__istartswith=search_param, then=Value(4)),
+                        When(user__username__contains=search_param, then=Value(5)),
+                        default=Value(6),
+                        output_field=IntegerField(),
+                    )
+                )
+                .order_by("priority", "user__username")
+            )
+
+        return queryset
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -136,18 +155,12 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
-            return ProfileListSerializer
-        elif self.request.method == "POST":
+        if self.request.method == "POST":
             return ProfileCreateSerializer
-
-    def get_permissions(self):
-        permission_classes = [
-            AllowAny,
-        ]
-        if self.request.method == "GET" or self.request.method == "POST":
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
+        # DRF uses the GET workflow to handle HEAD queries but only returns headers afterward
+        # you can see that in django.views.generic.base.View where the setup method tells
+        # `self.head = self.get`
+        return ProfileListSerializer
 
 
 class MemberExistsAPI(ListAPIView):
@@ -159,6 +172,7 @@ class MemberExistsAPI(ListAPIView):
     search_fields = ("=user__username",)
     list_key_func = PagingSearchListKeyConstructor()
     serializer_class = ProfileDetailSerializer
+    permission_classes = [AllowAny, DRYPermissions]
 
     def get_queryset(self):
         return Profile.objects.contactable_members()
@@ -191,14 +205,6 @@ class MemberExistsAPI(ListAPIView):
         if r.data["count"] == 0:
             return Response(r.data, status=status.HTTP_404_NOT_FOUND)
         return r
-
-    def get_permissions(self):
-        permission_classes = [
-            AllowAny,
-        ]
-        if self.request.method == "GET":
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
 
 
 class MemberMyDetailAPI(RetrieveAPIView):

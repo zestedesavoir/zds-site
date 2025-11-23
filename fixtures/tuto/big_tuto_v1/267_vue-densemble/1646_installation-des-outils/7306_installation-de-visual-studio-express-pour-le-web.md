@@ -16,7 +16,7 @@ Visual Studio nous demande notre adresse de compte Microsoft.
 [[question]]
 | Je n'ai pas de compte Microsoft moi !
 
-Si vous n'avez pas d'adresse de messagerie, ce n'est pas un problème : le programme de mise en route vous permet d'en créer une.  
+Si vous n'avez pas d'adresse de messagerie, ce n'est pas un problème : le programme de mise en route vous permet d'en créer une.
 Pour cela, cliquez sur **Inscription** pour obtenir une nouvelle adresse de messagerie. Vous devez alors choisir votre nouvelle adresse et entrer quelques informations utiles. Une fois que vous aurez terminé, vous pourrez passer à l'étape suivante.
 
 ->![Informations supplémentaires](/media/galleries/304/4996f8f0-7615-44b7-a59f-be91132b3028.png.960x960_q85.jpg)<-

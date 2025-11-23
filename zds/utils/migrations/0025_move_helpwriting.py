@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("utils", "0024_alter_hatrequest_is_granted")]
 
     database_operations = [migrations.AlterModelTable("HelpWriting", "tutorialv2_helpwriting")]

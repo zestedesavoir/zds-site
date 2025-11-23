@@ -5,12 +5,13 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
-from django.utils.translation import gettext as _
-from zds.forum.models import Topic, Post
-from zds.member.views import get_client_ip
-from zds.utils.misc import contains_utf8mb4
+
+from zds.forum.models import Forum, Post, Topic
+from zds.member.utils import get_client_ip
+from zds.utils.misc import contains_utf8mb4, is_ajax
 from zds.utils.mixins import QuoteMixin
 from zds.utils.models import CommentVote, get_hat_from_request
 
@@ -141,7 +142,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         if "cite" in request.GET:
             text = self.build_quote(request.GET.get("cite"), request.user)
 
-            if request.is_ajax():
+            if is_ajax(request):
                 return HttpResponse(json.dumps({"text": text}), content_type="application/json")
 
         form = self.create_forum(self.form_class, **{"text": text})
@@ -172,11 +173,11 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
         new_post = None
-        if not request.is_ajax():
+        if not is_ajax(request):
             new_post = self.object.last_message.pk != int(request.POST.get("last_post"))
 
         if "preview" in request.POST or new_post:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
                 return StreamingHttpResponse(content)
             else:

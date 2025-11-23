@@ -1,5 +1,5 @@
-from django.test import TestCase
 from django.template import Context, Template, TemplateSyntaxError
+from django.test import TestCase
 
 
 class CaptureasNodeTest(TestCase):
@@ -7,7 +7,6 @@ class CaptureasNodeTest(TestCase):
         self.context = Context()
 
     def test_valid_templatetag(self):
-
         # Test empty element
         self.assertFalse("var1" in self.context)
         tr = Template("{% load captureas %}" "{% captureas var1%}" "{% endcaptureas %}").render(self.context)

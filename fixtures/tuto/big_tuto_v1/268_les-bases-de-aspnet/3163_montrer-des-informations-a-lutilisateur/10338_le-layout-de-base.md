@@ -94,57 +94,57 @@ Voici le contenu du fichier **Blog.css** :
 |     padding: 0px;
 |     border: none;
 | }
-| 
+|
 | body {
 |     font-family: Arial, Helvetica, sans-serif;
 |     font-size: 14px;
 |     background-color: #FBF9EF;
 |     padding: 0px 6%;
 | }
-| 
+|
 | header {
 |     float: left;
 |     width: 100%;
 |     border-bottom: 1px dotted #5D5A53;
 |     margin-bottom: 10px;
 | }
-| 
+|
 | header h1 {
 |     font-size: 18px;
 | 	float: left;
 |     padding: 45px 0px 5px 0px;
 | }
-| 
+|
 | ul li a {
 |     font-size: 16px;
 | }
-| 
+|
 | ul
 | {
 | 	list-style-type: square;
 | 	margin-left: 25px;
 | 	font-size: 14px;
 | }
-| 
+|
 | footer {
 |     width: 100%;
 |     border-top: 1px dotted #5D5A53;
 |     margin-top: 10px;
 |     padding-top: 10px;
 | }
-| 
+|
 | /* barre de navigation header */
-| 
+|
 | ul#navliste
 | {
 | 	float: right;
 | }
-| 
+|
 | ul#navliste li
 | {
 | 	display: inline;
 | }
-| 
+|
 | ul#navliste li a
 | {
 | 	border-left: 1px dotted #8A8575;
@@ -154,49 +154,49 @@ Voici le contenu du fichier **Blog.css** :
 | 	text-decoration: none;
 | 	float: left;
 | }
-| 
+|
 | ul#navliste li:first-child a
 | {
 | 	border: none;
 | }
-| 
+|
 | ul#navliste li a:hover
 | {
 | 	color: #F6855E;
 | }
-| 
+|
 | /* fin barre de navigation header*/
-| 
+|
 | p
 | {
 | 	margin-bottom: 15px;
 | 	margin-top: 0px;
 | }
-| 
+|
 | h2
 | {
 | 	color: #5e5b54;
 | }
-| 
+|
 | header h1 a
 | {
 | 	color: #5E5B54;
 | }
-| 
+|
 | a:link, a:visited
 | {
 | 	color: #F6855E;
 | 	text-decoration: none;
 | 	font-weight: bold;
 | }
-| 
+|
 | a:hover
 | {
 | 	color: #333333;
 | 	text-decoration: none;
 | 	font-weight: bold;
 | }
-| 
+|
 | a:active
 | {
 | 	color: #006633;
