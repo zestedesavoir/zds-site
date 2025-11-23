@@ -30,7 +30,7 @@
         <div>
             {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_contents col_number=2 %}
             {% if last_contents and more_contents %}
-                <a href="{% url 'publication:list' %}?type=all" class="more-link">Plus de publications</a>
+                <a href="{% url 'publication:list' %}{% querystring type='' %}" class="more-link">Plus de publications</a>
             {% endif %}
         </div>
     </section>

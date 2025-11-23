@@ -110,20 +110,20 @@ class ViewPublications(TemplateView):
         3: "tutorialv2/view/subcategory.html",
         4: "tutorialv2/view/browse.html",
     }
-    handle_types = ["TUTORIAL", "ARTICLE"]
+    handled_types = ["TUTORIAL", "ARTICLE"]
 
     level = 1
     max_last_contents = settings.ZDS_APP["content"]["max_last_publications_level_1"]
     template_name = templates[level]
 
     @staticmethod
-    def categories_with_contents_count(handle_types):
+    def categories_with_contents_count(handled_types):
         """Select categories with subcategories and contents count in two queries"""
 
         queryset_category = (
             Category.objects.order_by("position")
             .filter(categorysubcategory__subcategory__publishablecontent__publishedcontent__must_redirect=False)
-            .filter(categorysubcategory__subcategory__publishablecontent__type__in=handle_types)
+            .filter(categorysubcategory__subcategory__publishablecontent__type__in=handled_types)
             .annotate(
                 contents_count=Count(
                     "categorysubcategory__subcategory__publishablecontent__publishedcontent", distinct=True
@@ -152,7 +152,7 @@ class ViewPublications(TemplateView):
         return categories
 
     @staticmethod
-    def subcategories_with_contents_count(category, handle_types):
+    def subcategories_with_contents_count(category, handled_types):
         """Rewritten to give the number of contents at the same time as the subcategories (in one query)"""
 
         # TODO: check if we can use ORM to do that
@@ -169,7 +169,7 @@ class ViewPublications(TemplateView):
             AND `tutorialv2_publishablecontent_subcategory`.`subcategory_id` =
               `utils_categorysubcategory`.`subcategory_id`)
         """.format(
-            ", ".join(f"'{t}'" for t in handle_types)
+            ", ".join(f"'{t}'" for t in handled_types)
         )
 
         queryset = (
@@ -198,10 +198,10 @@ class ViewPublications(TemplateView):
             self.level = 3
             self.max_last_contents = settings.ZDS_APP["content"]["max_last_publications_level_3"]
         if (
-            self.request.GET.get("category", False)
-            or self.request.GET.get("subcategory", False)
-            or self.request.GET.get("type", False)
-            or self.request.GET.get("tag", False)
+            "category" in self.request.GET
+            or "subcategory" in self.request.GET
+            or "type" in self.request.GET
+            or "tag" in self.request.GET
         ):
             self.level = 4
             self.max_last_contents = 50
@@ -211,17 +211,17 @@ class ViewPublications(TemplateView):
 
         if self.level == 1:
             # get categories and subcategories
-            categories = ViewPublications.categories_with_contents_count(self.handle_types)
+            categories = ViewPublications.categories_with_contents_count(self.handled_types)
 
             context["categories"] = categories
             context["content_count"] = PublishedContent.objects.last_contents(
-                content_type=self.handle_types, with_comments_count=False
+                content_type=self.handled_types, with_comments_count=False
             ).count()
 
         elif self.level == 2:
             context["category"] = get_object_or_404(Category, slug=self.kwargs.get("slug"))
             context["subcategories"] = ViewPublications.subcategories_with_contents_count(
-                context["category"], self.handle_types
+                context["category"], self.handled_types
             )
             recent_kwargs["subcategories"] = context["subcategories"]
 
@@ -240,27 +240,18 @@ class ViewPublications(TemplateView):
             recent_kwargs["subcategories"] = [subcategory]
 
         elif self.level == 4:
-            category = self.request.GET.get("category", None)
-            subcategory = self.request.GET.get("subcategory", None)
+            category_slug = self.request.GET.get("category")
+            subcategory_slug = self.request.GET.get("subcategory")
             subcategories = None
-            if category is not None:
-                context["category"] = get_object_or_404(Category, slug=category)
-                subcategories = context["category"].get_subcategories()
-            elif subcategory is not None:
-                subcategory = get_object_or_404(SubCategory, slug=self.request.GET.get("subcategory"))
+            if category_slug is not None:
+                category = get_object_or_404(Category, slug=category_slug)
+                context["category"] = category
+                subcategories = category.get_subcategories()
+            elif subcategory_slug is not None:
+                subcategory = get_object_or_404(SubCategory, slug=subcategory_slug)
                 context["category"] = subcategory.get_parent_category()
                 context["subcategory"] = subcategory
                 subcategories = [subcategory]
-
-            content_type = self.handle_types
-            context["type"] = None
-            if "type" in self.request.GET:
-                _type = self.request.GET.get("type", "").upper()
-                if _type in self.handle_types:
-                    content_type = _type
-                    context["type"] = TYPE_CHOICES_DICT[_type]
-                else:
-                    raise Http404(f"wrong type {_type}")
 
             tag = self.request.GET.get("tag", None)
             tags = None
@@ -269,7 +260,7 @@ class ViewPublications(TemplateView):
                 context["tag"] = tags[0]
 
             contents_queryset = PublishedContent.objects.last_contents(
-                subcategories=subcategories, tags=tags, content_type=content_type
+                subcategories=subcategories, tags=tags, content_type=self.handled_types
             )
             items_per_page = settings.ZDS_APP["content"]["content_per_page"]
             make_pagination(
@@ -283,7 +274,7 @@ class ViewPublications(TemplateView):
 
         if self.level < 4:
             last_contents = PublishedContent.objects.last_contents(
-                **dict(content_type=self.handle_types, **recent_kwargs)
+                **dict(content_type=self.handled_types, **recent_kwargs)
             )
             context["last_contents"] = last_contents[: self.max_last_contents]
             context["more_contents"] = last_contents.count() > self.max_last_contents

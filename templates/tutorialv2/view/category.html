@@ -21,7 +21,7 @@
         </h2>
         {% include 'tutorialv2/list_page_elements/list_of_online_contents.html' with public_contents=last_contents col_number=1 %}
         {% if last_contents and more_contents %}
-            <a href="{% url 'publication:list' %}{% querystring category=category.slug %}&amp;type=all" class="more-link">Plus de publications dans {{ category.title }}</a>
+            <a href="{% url 'publication:list' %}{% querystring category=category.slug %}" class="more-link">Plus de publications dans {{ category.title }}</a>
         {% endif %}
     </section>
 {% endblock %}
