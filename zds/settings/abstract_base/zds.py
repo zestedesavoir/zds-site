@@ -187,7 +187,7 @@ ZDS_APP = {
         "default_licence_pk": 7,
         "content_per_page": 42,
         "max_last_publications_level_1": 12,
-        "max_last_publications_level_2": 12,
+        "max_last_publications_level_2": 24,
         "max_last_publications_level_3": 12,
         "notes_per_page": 25,
         "helps_per_page": 20,
