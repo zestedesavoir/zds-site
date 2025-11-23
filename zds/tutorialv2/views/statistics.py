@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView, FormView
 
-from zds.tutorialv2.forms import ContentCompareStatsURLForm
+from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.quizz import QuizzAvailableAnswer, QuizzQuestion, QuizzUserAnswer
 from zds.tutorialv2.models.versioned import VersionedContent
@@ -33,7 +33,7 @@ class StatisticsException(Exception):
         super().__init__(logger, msg)
 
 
-class ContentQuizzStatistics(SingleOnlineContentFormViewMixin):
+class ContentQuizzStatistics(SingleOnlineContentDetailViewMixin):
     form_class = QuizzStatsForm
 
     def get_form_kwargs(self):
@@ -464,7 +464,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 .prefetch_related("related_question")
                 .all()
             ):
-                full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
+                full_answers_total[available_answer.label] = {"good": available_answer.good_answer, "nb": 0}
                 name = available_answer.related_question.url
                 question = available_answer.related_question.question
                 for r in total_per_label:

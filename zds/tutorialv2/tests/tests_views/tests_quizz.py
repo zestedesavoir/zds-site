@@ -1,6 +1,7 @@
 from django.test import TestCase
+
 from zds.tutorialv2.models.quizz import QuizzAvailableAnswer, QuizzQuestion, QuizzUserAnswer
-from zds.tutorialv2.tests.factories import QuizzQuestionFactory, QuizzAvailableAnswerFactory, QuizzUserAnswerFactory
+from zds.tutorialv2.tests.factories import QuizzAvailableAnswerFactory, QuizzQuestionFactory, QuizzUserAnswerFactory
 
 
 class QuizzQuestionTestCase(TestCase):
