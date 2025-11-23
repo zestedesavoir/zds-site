@@ -57,8 +57,8 @@ from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, Ta
 from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
 from zds.tutorialv2.views.statistics import (
-    ContentStatisticsView,
     ContentQuizzStatistics,
+    ContentStatisticsView,
     DeleteQuizz,
     QuizzContentStatistics,
 )

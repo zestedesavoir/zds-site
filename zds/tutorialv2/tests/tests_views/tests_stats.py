@@ -1,9 +1,8 @@
 import datetime
-from copy import deepcopy
 import json
+from copy import deepcopy
 from random import randint
 from unittest import mock
-
 
 from django.conf import settings
 from django.http import Http404

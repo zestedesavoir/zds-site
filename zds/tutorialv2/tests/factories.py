@@ -9,9 +9,9 @@ from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
 from zds.tutorialv2.models.database import ContentContributionRole, ContentReaction, PublishableContent, Validation
 from zds.tutorialv2.models.goals import Goal
-from zds.tutorialv2.models.quizz import QuizzQuestion, QuizzAvailableAnswer, QuizzUserAnswer
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.models.labels import Label
+from zds.tutorialv2.models.quizz import QuizzAvailableAnswer, QuizzQuestion, QuizzUserAnswer
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo

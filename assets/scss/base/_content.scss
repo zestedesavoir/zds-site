@@ -645,23 +645,23 @@ div.align-left, figure pre code.hljs {
 // checkbox menu
 
 li.task-list-item {
-    
+
     list-style-type: none;
     position: relative;
     display: flex;
     align-items: center;
-  
+
     input[type="checkbox"] {
       margin-right: 10px;
     }
-  
+
     &.answer-bad {
       label {
         color: $color-danger;
       }
     }
 
-  
+
     &.answer-good {
         label {
             color: green;

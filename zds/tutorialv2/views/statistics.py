@@ -1,29 +1,27 @@
 import itertools
-import uuid
-from collections import OrderedDict, Counter
 import logging
 import urllib.parse
+import uuid
+from collections import Counter, OrderedDict
 from datetime import date, datetime, timedelta
+from json import dumps, loads
 from typing import Any, List
-from json import loads, dumps
-import requests
 
-from django.views import View
-from django.db.models import Subquery
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count
+from django.db.models import Count, Subquery
 from django.http import Http404, StreamingHttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import FormView
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
+from zds.tutorialv2.models.quizz import QuizzAvailableAnswer, QuizzQuestion, QuizzUserAnswer
 from zds.tutorialv2.models.versioned import VersionedContent
-from zds.tutorialv2.models.quizz import QuizzUserAnswer, QuizzQuestion, QuizzAvailableAnswer
-
 from zds.tutorialv2.utils import NamedUrl
 
 

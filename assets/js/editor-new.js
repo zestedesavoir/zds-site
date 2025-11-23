@@ -118,7 +118,7 @@
         } else if (_type === 'n' || _type === 'neutre') {
           ret.blocNeutral = true
         }
-        
+
       }
     } else {
       // find checklist
@@ -260,7 +260,7 @@
           shiftLines(cm, startPoint.line, '| - [ ] réponse 2');
         }
 
-        
+
         shiftLines(cm, startPoint.line, '| - [ ] réponse 1');
         shiftLines(cm, startPoint.line, '[[quizz|Question]]');
       }
