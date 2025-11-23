@@ -5,18 +5,17 @@ import uuid
 from collections import Counter, OrderedDict
 from datetime import date, datetime, timedelta
 from json import dumps, loads
-from typing import Any, List
+from typing import Any
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Subquery
-from django.http import Http404, StreamingHttpResponse
+from django.http import Http404, HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views import View
-from django.views.generic import FormView
+from django.views.generic import DeleteView, FormView
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
@@ -487,30 +486,25 @@ class QuizzContentStatistics(ContentStatisticsView):
     template_name = "tutorialv2/stats/quizz_stats.html"
 
 
-class DeleteQuizz(View):
+class DeleteQuizz(DeleteView):
     def get_start_and_end_dates(self):
 
-        try:
-            end_date = self.request.GET.get("end_date", None) or date.today()
-            end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
-        except (TypeError, ValueError) as e:
-            raise Http404("Invalid end date format") from e
-
-        try:
-            start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
-            start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
-
-        except (TypeError, ValueError) as e:
-            raise Http404("Invalid start date format") from e
-
+        end_date = self.parse_and_validate_date("end_date")
+        start_date = self.parse_and_validate_date("start_date")
         return start_date, end_date
 
-    def post(self, request):
+    def parse_and_validate_date(self, date_field_name) -> date:
+        try:
+            date_to_parse = self.request.GET.get(date_field_name, None) or date.today()
+            date_to_parse = datetime.strptime(str(date_to_parse), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            raise Http404(f"Invalid {date_field_name.replace('_', '')}format") from e
+        return date_to_parse
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any):
 
         start_date, end_date = self.get_start_and_end_dates()
-
         data = loads(request.body)
-
         # Extract the quizzName from the data
         quizz_name = data.get("quizzName")
         question = data.get("question")
