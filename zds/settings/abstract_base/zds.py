@@ -188,7 +188,7 @@ ZDS_APP = {
         "content_per_page": 42,
         "max_last_publications_level_1": 12,
         "max_last_publications_level_2": 24,
-        "max_last_publications_level_3": 12,
+        "max_last_publications_level_3": 24,
         "notes_per_page": 25,
         "helps_per_page": 20,
         "commits_per_page": 20,
