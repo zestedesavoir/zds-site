@@ -1644,30 +1644,25 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("publication:list"))
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 1)
-        self.assertEqual(len(result.context["last_tutorials"]), 4)
+        self.assertEqual(len(result.context["last_contents"]), 5)
 
         # 2. Category page
         result = self.client.get(reverse("publication:category", kwargs={"slug": category_1.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 0)
-        self.assertEqual(len(result.context["last_tutorials"]), 2)
+        self.assertEqual(len(result.context["last_contents"]), 2)
 
-        pks = [x.pk for x in result.context["last_tutorials"]]
+        pks = [x.pk for x in result.context["last_contents"]]
         self.assertIn(tuto_1.pk, pks)
         self.assertIn(tuto_2.pk, pks)
 
         result = self.client.get(reverse("publication:category", kwargs={"slug": category_2.slug}))
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 1)
-        self.assertEqual(len(result.context["last_tutorials"]), 1)
+        self.assertEqual(len(result.context["last_contents"]), 2)
 
-        pks = [x.pk for x in result.context["last_tutorials"]]
+        pks = [x.pk for x in result.context["last_contents"]]
         self.assertIn(tuto_3.pk, pks)
-
-        pks = [x.pk for x in result.context["last_articles"]]
         self.assertIn(article_1.pk, pks)
 
         # 3. Subcategory page
@@ -1677,10 +1672,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 0)
-        self.assertEqual(len(result.context["last_tutorials"]), 2)
+        self.assertEqual(len(result.context["last_contents"]), 2)
 
-        pks = [x.pk for x in result.context["last_tutorials"]]
+        pks = [x.pk for x in result.context["last_contents"]]
         self.assertIn(tuto_1.pk, pks)
         self.assertIn(tuto_2.pk, pks)
 
@@ -1690,10 +1684,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 0)
-        self.assertEqual(len(result.context["last_tutorials"]), 2)
+        self.assertEqual(len(result.context["last_contents"]), 2)
 
-        pks = [x.pk for x in result.context["last_tutorials"]]
+        pks = [x.pk for x in result.context["last_contents"]]
         self.assertIn(tuto_1.pk, pks)
         self.assertIn(tuto_2.pk, pks)
 
@@ -1703,10 +1696,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 0)
-        self.assertEqual(len(result.context["last_tutorials"]), 1)
+        self.assertEqual(len(result.context["last_contents"]), 1)
 
-        pks = [x.pk for x in result.context["last_tutorials"]]
+        pks = [x.pk for x in result.context["last_contents"]]
         self.assertIn(tuto_3.pk, pks)
 
         result = self.client.get(
@@ -1715,10 +1707,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(len(result.context["last_articles"]), 1)
-        self.assertEqual(len(result.context["last_tutorials"]), 0)
+        self.assertEqual(len(result.context["last_contents"]), 1)
 
-        pks = [x.pk for x in result.context["last_articles"]]
+        pks = [x.pk for x in result.context["last_contents"]]
         self.assertIn(article_1.pk, pks)
 
         # 4. Final page and filters
@@ -1739,20 +1730,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(tuto_3.pk, pks)
         self.assertIn(article_1.pk, pks)
 
-        result = self.client.get(reverse("publication:list") + f"?category={category_2.slug}" + "&type=article")
-        self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(len(result.context["filtered_contents"]), 1)
-        pks = [x.pk for x in result.context["filtered_contents"]]
-        self.assertIn(article_1.pk, pks)
-
-        result = self.client.get(reverse("publication:list") + f"?category={category_2.slug}" + "&type=tutorial")
-        self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(len(result.context["filtered_contents"]), 1)
-        pks = [x.pk for x in result.context["filtered_contents"]]
-        self.assertIn(tuto_3.pk, pks)
-
         # filter by subcategory
         result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_1.slug}")
         self.assertEqual(result.status_code, 200)
@@ -1764,17 +1741,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # filter by subcategory and type
         result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_3.slug}")
-        self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(len(result.context["filtered_contents"]), 1)
-        pks = [x.pk for x in result.context["filtered_contents"]]
-        self.assertIn(tuto_3.pk, pks)
-
-        result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_3.slug}" + "&type=article")
-        self.assertEqual(result.status_code, 200)
-        self.assertEqual(len(result.context["filtered_contents"]), 0)
-
-        result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_3.slug}" + "&type=tutorial")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 1)
@@ -1794,7 +1760,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             # not existing (sub)categories, types or tags with slug "xxx"
             reverse("publication:list") + "?category=xxx",
             reverse("publication:list") + "?subcategory=xxx",
-            reverse("publication:list") + "?type=xxx",
             reverse("publication:list") + "?tag=xxx",
             reverse("publication:category", kwargs={"slug": "xxx"}),
             reverse("publication:subcategory", kwargs={"slug_category": category_2.slug, "slug": "xxx"}),
