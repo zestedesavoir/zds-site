@@ -82,21 +82,21 @@ feeds = [
 shareable_links = [
     path("partage/gerer/<int:pk>/", ListShareableLinksView.as_view(), name="list-shareable-links"),
     path("partage/creer/<int:pk>/", CreateShareableLinkView.as_view(), name="create-shareable-link"),
-    path("partage/modifier/<slug:id>/", EditShareableLinkView.as_view(), name="edit-shareable-link"),
-    path("partage/desactiver/<slug:id>/", DeactivateShareableLinkView.as_view(), name="deactivate-shareable-link"),
-    path("partage/reactiver/<slug:id>/", ReactivateShareableLinkView.as_view(), name="reactivate-shareable-link"),
-    path("partage/supprimer/<slug:id>/", DeleteShareableLinkView.as_view(), name="delete-shareable-link"),
+    path("partage/modifier/<uuid:id>/", EditShareableLinkView.as_view(), name="edit-shareable-link"),
+    path("partage/desactiver/<uuid:id>/", DeactivateShareableLinkView.as_view(), name="deactivate-shareable-link"),
+    path("partage/reactiver/<uuid:id>/", ReactivateShareableLinkView.as_view(), name="reactivate-shareable-link"),
+    path("partage/supprimer/<uuid:id>/", DeleteShareableLinkView.as_view(), name="delete-shareable-link"),
     path(
-        "partage/<slug:id>/<slug:parent_container_slug>/<slug:container_slug>/",
+        "partage/<uuid:id>/<slug:parent_container_slug>/<slug:container_slug>/",
         ContainerSharedView.as_view(),
         name="shareable-link-container",
     ),
     path(
-        "partage/<slug:id>/<slug:container_slug>/",
+        "partage/<uuid:id>/<slug:container_slug>/",
         ContainerSharedView.as_view(),
         name="shareable-link-container",
     ),
-    path("partage/<slug:id>/", ContentSharedView.as_view(), name="shareable-link-view"),
+    path("partage/<uuid:id>/", ContentSharedView.as_view(), name="shareable-link-view"),
 ]
 
 
