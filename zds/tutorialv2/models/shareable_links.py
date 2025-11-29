@@ -60,8 +60,8 @@ class ShareableLink(models.Model):
         self.active = True
         self.save()
 
-    def valid_indefinitely(self):
-        return not self.expiration
+    def valid_indefinitely(self) -> bool:
+        return self.expiration is None
 
-    def expired(self):
-        return self.expiration and self.expiration < datetime.now()
+    def expired(self) -> bool:
+        return (self.expiration is not None) and self.expiration < datetime.now()
