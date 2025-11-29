@@ -23,7 +23,17 @@ class ConfigForSharedView(ViewConfig):
         self.validation_actions.enabled = False
 
 
-class ContentSharedView(ContentBaseView):
+class GetShaMixin:
+    def _get_sha(self) -> str | None:
+        if self.link.type == "DRAFT":
+            return self.content.sha_draft
+        elif self.link.type == "BETA" and self.content.in_beta():
+            return self.content.sha_beta
+        else:
+            return None
+
+
+class ContentSharedView(GetShaMixin, ContentBaseView):
     must_be_author = False
     authorized_for_all = True
     sha = None
@@ -56,16 +66,8 @@ class ContentSharedView(ContentBaseView):
         url = reverse("content:shareable-link-view", kwargs=route_parameters)
         return url
 
-    def _get_sha(self):
-        if self.link.type == "DRAFT":
-            return self.content.sha_draft
-        elif self.link.type == "BETA" and self.content.in_beta():
-            return self.content.sha_beta
-        else:
-            return None
 
-
-class ContainerSharedView(ContainerBaseView):
+class ContainerSharedView(GetShaMixin, ContainerBaseView):
     must_be_author = False
     authorized_for_all = True
 
@@ -91,11 +93,3 @@ class ContainerSharedView(ContainerBaseView):
         route_parameters = {"id": self.link.id}
         url = reverse("content:shareable-link-view", kwargs=route_parameters)
         return url
-
-    def _get_sha(self):
-        if self.link.type == "DRAFT":
-            return self.content.sha_draft
-        elif self.link.type == "BETA" and self.content.in_beta():
-            return self.content.sha_beta
-        else:
-            return None
