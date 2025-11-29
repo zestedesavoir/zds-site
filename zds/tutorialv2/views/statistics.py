@@ -227,19 +227,17 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return refs
 
     def get_start_and_end_dates(self):
-
         try:
             end_date = self.request.GET.get("end_date", None) or date.today()
             end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
         except (TypeError, ValueError) as e:
-            raise Http404("Invalid end date format") from e
+            end_date = date.today()
 
         try:
             start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
             start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
-
         except (TypeError, ValueError) as e:
-            raise Http404("Invalid start date format") from e
+            start_date = end_date - timedelta(days=7)
 
         return start_date, end_date
 
@@ -489,17 +487,18 @@ class QuizzContentStatistics(ContentStatisticsView):
 class DeleteQuizz(DeleteView):
     def get_start_and_end_dates(self):
 
-        end_date = self.parse_and_validate_date("end_date")
-        start_date = self.parse_and_validate_date("start_date")
+        end_date = self.parse_and_validate_date("end_date", date.today())
+        start_date = self.parse_and_validate_date("start_date", date.today() - timedelta(days=7))
         return start_date, end_date
 
-    def parse_and_validate_date(self, date_field_name) -> date:
+    def parse_and_validate_date(self, date_field_name, default_date: date) -> date:
         try:
-            date_to_parse = self.request.GET.get(date_field_name, None) or date.today()
-            date_to_parse = datetime.strptime(str(date_to_parse), "%Y-%m-%d").date()
-        except (TypeError, ValueError) as e:
-            raise Http404(f"Invalid {date_field_name.replace('_', '')}format") from e
-        return date_to_parse
+            date_to_parse = self.request.GET.get(date_field_name, None) or default_date.strftime("%Y-%m-%d")
+            parsed_date = datetime.strptime(str(date_to_parse), "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            parsed_date = default_date
+
+        return parsed_date
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any):
 

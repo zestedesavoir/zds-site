@@ -399,14 +399,14 @@ class DeleteQuizzTestCase(TestCase):
         view.request = type("Request", (), {"GET": {"start_date": "2022-01-07", "end_date": "invalid_date_format"}})()
 
         with self.assertRaises(Http404):
-            start_date, end_date = view.get_start_and_end_dates()
+            view.get_start_and_end_dates()
 
     def test_get_start_and_end_dates_no_dates(self):
         view = self.view
         view.request = type("Request", (), {"GET": {}})()
         start_date, end_date = view.get_start_and_end_dates()
-        assert end_date == datetime.date.today()
-        assert start_date == (end_date - datetime.timedelta(days=7))
+        self.assertEqual(end_date, datetime.date.today())
+        self.assertEqual(start_date, (end_date - datetime.timedelta(days=7)))
 
     def test_get_start_and_end_dates_valid_dates(self):
         view = self.view
