@@ -16,7 +16,7 @@ from faker import Factory
 from zds.forum.models import Forum, ForumCategory, Topic
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
-from zds.member.models import Profile
+from zds.member.models import Ban, Profile
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
@@ -35,17 +35,18 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 def load_member(cli, size, fake, root, *_):
     """
-    Load members
+    Load members, including a portion as spam profiles.
     """
-    nb_users = size * 10
-    cli.stdout.write(f"Nombres de membres à créer : {nb_users}")
+    nb_users = size * 20
+    spam_ratio = 0.3  # 30% of profiles will be spam
+    cli.stdout.write(f"Nombres de membres à créer : {nb_users} (dont {int(nb_users * spam_ratio)} spammeurs)")
     tps1 = time.time()
     cpt = 1
-    # member in settings
     users_set = [
         "admin",
         settings.ZDS_APP["member"]["external_account"],
         settings.ZDS_APP["member"]["anonymous_account"],
+        settings.ZDS_APP["member"]["antispam_account"],
     ]
     for default_user in users_set:
         current_user = Profile.objects.filter(user__username=default_user).first()
@@ -64,6 +65,7 @@ def load_member(cli, size, fake, root, *_):
                 profile.last_ip_address = fake.ipv4()
                 profile.save()
 
+    # Create additional users
     for i in range(0, nb_users):
         while Profile.objects.filter(user__username=f"{root}{cpt}").count() > 0:
             cpt += 1
@@ -73,13 +75,26 @@ def load_member(cli, size, fake, root, *_):
         profile.user.last_name = fake.last_name()
         profile.user.email = fake.free_email()
         profile.user.save()
+
+        # Determine if the profile is spam
+        is_spam = random.random() < spam_ratio
+        profile.can_read = 0 if is_spam else 1
         profile.site = fake.url()
-        profile.biography = fake.text(max_nb_chars=200)
+        profile.biography = "Spam: Gagner d'argent !" if is_spam else fake.text(max_nb_chars=200)
         profile.last_ip_address = fake.ipv4()
         profile.save()
+
+        if is_spam:
+            Ban.objects.create(
+                user=profile.user,
+                note="Spam detected",
+                pubdate=datetime.now(),
+            )
+
         cpt += 1
         sys.stdout.write(f" User {i + 1}/{nb_users}  \r")
         sys.stdout.flush()
+
     tps2 = time.time()
     cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
@@ -264,7 +279,7 @@ def add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic):
 
 def load_posts(cli, size, fake, *_, **__):
     """
-    Load posts
+    Load posts, including spam posts with a "Spam:" prefix.
     """
     nb_avg_posts_in_topic = size * 20
     cli.stdout.write(f"Nombres de messages à poster en moyenne dans un sujet : {nb_avg_posts_in_topic}")
@@ -282,7 +297,29 @@ def load_posts(cli, size, fake, *_, **__):
             "Il n'y a aucun membre actuellement. " "Vous devez rajouter les membres dans vos fixtures (member)"
         )
         return
-    __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_users, topics, tps1)
+
+    profiles = list(Profile.objects.all())
+    for topic_index in range(0, nb_topics):
+        nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1
+        for post_index in range(1, nb_posts):
+            post = PostFactory(
+                topic=topics[topic_index], author=profiles[post_index % nb_users].user, position=post_index + 1
+            )
+            if post_index % 10 == 0:
+                post.text = f"Spam: Suivre le lien !"
+                post.is_visible = 0
+                post.editor = next((profile.user for profile in profiles if profile.user.username == "admin"), None)
+            else:
+                post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
+                post.is_visible = 1
+                post.editor = profiles[post_index % nb_users].user
+            post.text_html = emarkdown(post.text)
+            post.is_useful = int(nb_posts * 0.3) > 0 and post_index % int(nb_posts * 0.3) == 0
+            post.save()
+            sys.stdout.write(f" Topic {topic_index + 1}/{nb_topics}  \tPost {post_index + 1}/{nb_posts}  \r")
+            sys.stdout.flush()
+    tps2 = time.time()
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_users, topics, tps1):
