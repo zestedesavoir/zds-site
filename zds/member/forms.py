@@ -774,10 +774,7 @@ class BlockedIPForm(forms.ModelForm):
         }
 
     def __init__(self, is_ipv6, *args, **kwargs):
-        if is_ipv6:
-            is_network_address = Field("is_network_address")
-        else:
-            is_network_address = Hidden("is_network_address", False)
+        self.is_ipv6 = is_ipv6
 
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -786,9 +783,17 @@ class BlockedIPForm(forms.ModelForm):
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(
-            is_network_address,
+            Field("is_network_address") if is_ipv6 else None,
             Field("reason"),
             ButtonHolder(
                 StrictButton("Bloquer cette adresse IP", type="submit"),
             ),
         )
+
+    def clean_is_network_address(self):
+        # Un formulaire avec une case à cocher retourne
+        # - "on" (valeur par défaut) si elle est cochée
+        # - rien si elle n'est pas cochée
+        if self.is_ipv6 and self.cleaned_data.get("is_network_address"):
+            return True
+        return False
