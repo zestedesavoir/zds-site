@@ -32,6 +32,8 @@ from zds.utils.models import Category as TCategory
 from zds.utils.models import CategorySubCategory, Licence, SubCategory, Tag
 from zds.utils.templatetags.emarkdown import emarkdown
 
+# FIXME: Disable antispam logging
+
 
 def load_member(cli, size, fake, root, *_):
     """
@@ -298,6 +300,7 @@ def load_posts(cli, size, fake, *_, **__):
         )
         return
 
+    # FIXME: Code dupliqué avec la fonction __generate_topic_and_post
     profiles = list(Profile.objects.all())
     for topic_index in range(0, nb_topics):
         nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1

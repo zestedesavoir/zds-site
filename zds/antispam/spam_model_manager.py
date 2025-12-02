@@ -1,6 +1,7 @@
 import logging
 import os
 
+# FIXME: bibliothèque externe non présente dans requirements.txt et à remplacer par pickle ?
 import joblib
 from django.conf import settings
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -12,6 +13,7 @@ from zds.antispam.spam_fields import spam_fields
 class SpamModelManager:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        # FIXME: utiliser une f-string ?
         self.model_mapping = {
             "PROFILE": "profile_spam_model.pkl",
             "FORUM": "forum_spam_model.pkl",
@@ -20,6 +22,7 @@ class SpamModelManager:
         self.models = {}
 
     def ensure_directory_exists(self, model_file):
+        # FIXME: Path.mkdir(exist_ok)
         directory = os.path.dirname(model_file)
         if not directory:
             raise ValueError("The directory for the model file is not defined.")
@@ -44,6 +47,7 @@ class SpamModelManager:
             model = config["model"]
             fields = config["fields"]
 
+            # FIXME: remplacer par values_list pour des questions de performance ?
             # Query the database for all instances of the model
             instances = model.objects.all()
 
@@ -55,6 +59,7 @@ class SpamModelManager:
                         # Use the is_spam method to determine the label
                         labels.append(0 if instance.is_spam(field_name) else 1)
 
+        # FIXME: flag explicite pour les tests ?
         # if there are no 1s or no 0s in the labels use synthetic data, this is only used in the creation of the test-db
         if 0 not in labels or 1 not in labels:
             self.logger.warning(

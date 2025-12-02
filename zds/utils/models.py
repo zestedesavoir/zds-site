@@ -585,6 +585,7 @@ class Comment(models.Model):
         :param field_name: Optional field name (not used for comments).
         :return: True if the comment is hidden and the editor is not the author, False otherwise.
         """
+        # FIXME: à migrer dans la config antispam/spam_fields.py ?
         return not self.is_visible and self.editor != self.author
 
 

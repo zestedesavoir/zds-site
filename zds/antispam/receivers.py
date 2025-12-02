@@ -10,6 +10,7 @@ def analyze_record(sender, instance, **kwargs):
     """
     Signal handler to detect spam in configured fields.
     """
+    # FIXME: quel risque pour les perfs ? car post_save semble être envoyé pour tous les modèles donc à remplacer par une surcharge de save() dans le modèle ?
     for field_config in spam_fields:
         if isinstance(instance, field_config["model"]):
             detector = SpamDetector()

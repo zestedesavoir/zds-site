@@ -44,6 +44,7 @@ class SpamDetector:
         """
         try:
             # Find the spam field configuration for the instance
+            # FIXME: mieux compréhensible avec une boucle for ?
             field_config = next(
                 (
                     config
@@ -61,6 +62,7 @@ class SpamDetector:
             instance_info = field_config["get_instance_info"](instance)
 
             # Map scope to the correct Alert model field
+            # FIXME: à inclure dans spam_fields.py
             scope_to_alert_kwargs = {
                 "PROFILE": "profile",
                 "FORUM": "comment",
@@ -71,6 +73,8 @@ class SpamDetector:
                 self.logger.error(f"Unsupported scope '{scope}' for alert creation.")
                 return
 
+            # FIXME: mettre sous la forme Alerte(...).save() ?
+            # FIXME: texte de l'alerte en français
             alert_kwargs = {
                 "author": User.objects.get(username="antispam"),
                 "scope": scope,
