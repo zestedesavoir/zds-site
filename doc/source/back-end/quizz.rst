@@ -44,8 +44,8 @@ Comportement attendu des quiz
 - Dans une session, un utilisateur non connecté ne peut répondre qu’une seule fois à un quiz
 - Un utilisateur connecté peut répondre plusieurs fois à un quiz
 - Le propriétaire du quiz et le staff ont accès à une page contenant les statistiques (nombre de réponses à chaque question)
-- Le propriétaire et le staff ont la possibilité de réinitialiser les statistiques de chaque quiz et de chaque question d’un quiz indépendamment à l’aide d’un bouton 
-- Une question de quiz contient au moins une bonne réponse (pas de test) 
+- Le propriétaire et le staff ont la possibilité de réinitialiser les statistiques de chaque quiz et de chaque question d’un quiz indépendamment à l’aide d’un bouton
+- Une question de quiz contient au moins une bonne réponse (pas de test)
 - Une question quiz doit avoir une explication qui s’affiche lorsqu'il répond au quiz
 - Lors de la modification du tutoriel, les statistiques doivent rester cohérentes avec les quiz qui sont encore présents dans le tutoriel
 - Lors d’une bonne réponse, la couleur de fond passe en vert, en orange pour une bonne réponse partielle (ex : une des deux bonnes réponses a été choisie mais pas l’autre). Enfin rouge pour une mauvaise réponse.
@@ -53,7 +53,7 @@ Comportement attendu des quiz
 Comment créer un quiz
 =====================
 
-la Création d’un quiz se fait directement en zmarkdown de la façon suivante : 
+la Création d’un quiz se fait directement en zmarkdown de la façon suivante :
 
 [[quizz | la question1]]
 | - [ ] réponse 1
@@ -96,14 +96,14 @@ Fonctions
 
 - 'submit' pour chaque formulaire de quizz: lorsque l'utilisateur soumet ses réponses, le code traite les réponses et envoie les statistiques à un serveur.
 
-Sélectionneurs DOM (Document Object Model) 
+Sélectionneurs DOM (Document Object Model)
 ------------------------------------------
 
 - document.querySelectorAll('div.quizz'): sélectionne tous les éléments HTML avec la classe quizz qui contiennent des questions de quizz.
 - document.querySelectorAll('form.quizz'): sélectionne tous les éléments HTML avec la classe quizz qui sont des formulaires de quizz.
 
 
-Base de données 
+Base de données
 ===============
 
 Représentation en base de donnée des quiz
