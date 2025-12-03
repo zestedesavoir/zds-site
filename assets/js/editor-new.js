@@ -118,7 +118,6 @@
         } else if (_type === 'n' || _type === 'neutre') {
           ret.blocNeutral = true
         }
-
       }
     } else {
       // find checklist
@@ -229,7 +228,7 @@
 
   function enableBlockZmd(cm, type, start, end, startPoint, endPoint) {
     let i, text
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral'|| type === 'blocquizz') {
+    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral' || type === 'blocquizz') {
       // blocs
       for (i = startPoint.line; i <= endPoint.line; i++) {
         text = start + cm.getLine(i)
@@ -247,22 +246,19 @@
         shiftLines(cm, startPoint.line, '[[secret]]')
       } else if (type === 'blocNeutral') {
         shiftLines(cm, startPoint.line, '[[neutre|titre]]')
-      }
-      else if (type === 'blocquizz') {
-
-        if(window.location.href.includes('/contenus/')){
-          shiftLines(cm, startPoint.line, '| - Votre explication');
-          shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
-          shiftLines(cm, startPoint.line, '| - [x] réponse 2 ( bonne )');
-        }
-        else {
-          shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
-          shiftLines(cm, startPoint.line, '| - [ ] réponse 2');
+      } else if (type === 'blocquizz') {
+        if (window.location.href.includes('/contenus/')) {
+          shiftLines(cm, startPoint.line, '| - Votre explication')
+          shiftLines(cm, startPoint.line, '| - [ ] réponse 3')
+          shiftLines(cm, startPoint.line, '| - [x] réponse 2 ( bonne )')
+        } else {
+          shiftLines(cm, startPoint.line, '| - [ ] réponse 3')
+          shiftLines(cm, startPoint.line, '| - [ ] réponse 2')
         }
 
 
-        shiftLines(cm, startPoint.line, '| - [ ] réponse 1');
-        shiftLines(cm, startPoint.line, '[[quizz|Question]]');
+        shiftLines(cm, startPoint.line, '| - [ ] réponse 1')
+        shiftLines(cm, startPoint.line, '[[quizz|Question]]')
       }
       startPoint.ch = 0
       endPoint.line += 1
@@ -947,10 +943,10 @@
       },
       className: 'fas fa-question',
       title: 'Bloc quizz'
-    };
+    }
 
     const currentURL = window.location.href
-    const Toolbar =  ( currentURL.includes('/contenus/') || currentURL.includes('/forums/') ) ? [...BaseToolbar, QuizzButton] : BaseToolbar;
+    const Toolbar = (currentURL.includes('/contenus/') || currentURL.includes('/forums/')) ? [...BaseToolbar, QuizzButton] : BaseToolbar
 
     /* global EasyMDE */
     const easyMDE = new EasyMDE({

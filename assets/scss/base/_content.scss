@@ -253,6 +253,9 @@ h6 {
         }
     }
 }
+.custom-block-quizz li label.answer-label {
+  margin-top: auto; // align the label with the checkbox
+}
 .custom-block-neutral,
 .custom-block-quizz,
 .custom-block-spoiler {

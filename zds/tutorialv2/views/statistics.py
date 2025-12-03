@@ -18,10 +18,28 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView, FormView
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
-from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
+from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.quizz import QuizzAvailableAnswer, QuizzQuestion, QuizzUserAnswer
 from zds.tutorialv2.models.versioned import VersionedContent
 from zds.tutorialv2.utils import NamedUrl
+
+
+class QuizzMixin:
+
+    def get_start_and_end_dates(self):
+        try:
+            end_date = self.request.GET.get("end_date", None) or date.today()
+            end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            end_date = date.today()
+
+        try:
+            start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
+            start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            start_date = end_date - timedelta(days=7)
+
+        return start_date, end_date
 
 
 class StatisticsException(Exception):
@@ -33,7 +51,7 @@ class StatisticsException(Exception):
         super().__init__(logger, msg)
 
 
-class ContentQuizzStatistics(SingleOnlineContentDetailViewMixin):
+class PostQuizzAnswerToStatistics(SingleOnlineContentFormViewMixin):
     form_class = QuizzStatsForm
 
     def get_form_kwargs(self):
@@ -74,7 +92,7 @@ class ContentQuizzStatistics(SingleOnlineContentDetailViewMixin):
         return StreamingHttpResponse(dumps({"status": "ok"}))
 
 
-class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
+class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzMixin):
     template_name = "tutorialv2/stats/index.html"
     form_class = ContentCompareStatsURLForm
     urls = []
@@ -226,21 +244,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         return refs
 
-    def get_start_and_end_dates(self):
-        try:
-            end_date = self.request.GET.get("end_date", None) or date.today()
-            end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
-        except (TypeError, ValueError) as e:
-            end_date = date.today()
-
-        try:
-            start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
-            start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
-        except (TypeError, ValueError) as e:
-            start_date = end_date - timedelta(days=7)
-
-        return start_date, end_date
-
     def get_display_mode(self, urls):
         # TODO make display_mode an enum ?
         # Good idea, but not straightforward for the template integration
@@ -375,7 +378,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 result_report.update(export_reports)
             else:
                 result_report = reports
-        quizz_stats = self.build_quizz_stats(end_date, start_date)
         context.update(
             {
                 "display": display_mode,
@@ -385,7 +387,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 "referrers": referrers,
                 "type_referrers": type_referrers,
                 "keywords": keywords,
-                "quizz": quizz_stats,
             }
         )
         return context
@@ -433,6 +434,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             else:
                 cumulative_stats[url][field_name] = grand_totals.get(field_name, 0)
 
+
+class QuizzContentStatistics(SingleOnlineContentDetailViewMixin, QuizzMixin):
+    template_name = "tutorialv2/stats/quizz_stats.html"
+
     def build_quizz_stats(self, end_date, start_date):
         quizz_stats = {}
         base_questions = list(
@@ -462,7 +467,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 .prefetch_related("related_question")
                 .all()
             ):
-                full_answers_total[available_answer.label] = {"good": available_answer.good_answer, "nb": 0}
+                full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
                 name = available_answer.related_question.url
                 question = available_answer.related_question.question
                 for r in total_per_label:
@@ -479,26 +484,22 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             sorted_quizz_stats[name] = quizz_stats[name]
         return sorted_quizz_stats
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        start_date, end_date = self.get_start_and_end_dates()
+        if not (self.is_author or self.is_staff):
+            raise PermissionDenied
 
-class QuizzContentStatistics(ContentStatisticsView):
-    template_name = "tutorialv2/stats/quizz_stats.html"
+        quizz_stats = self.build_quizz_stats(end_date, start_date)
+        context.update(
+            {
+                "quizz": quizz_stats,
+            }
+        )
+        return context
 
 
-class DeleteQuizz(DeleteView):
-    def get_start_and_end_dates(self):
-
-        end_date = self.parse_and_validate_date("end_date", date.today())
-        start_date = self.parse_and_validate_date("start_date", date.today() - timedelta(days=7))
-        return start_date, end_date
-
-    def parse_and_validate_date(self, date_field_name, default_date: date) -> date:
-        try:
-            date_to_parse = self.request.GET.get(date_field_name, None) or default_date.strftime("%Y-%m-%d")
-            parsed_date = datetime.strptime(str(date_to_parse), "%Y-%m-%d").date()
-        except (TypeError, ValueError):
-            parsed_date = default_date
-
-        return parsed_date
+class DeleteQuizz(DeleteView, QuizzMixin):
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any):
 
@@ -514,7 +515,7 @@ class DeleteQuizz(DeleteView):
             )
         else:
             related_question_ids = QuizzQuestion.objects.filter(url=quizz_name).values_list("id", flat=True)
-
+        QuizzAvailableAnswer.objects.filter(related_question_id__in=related_question_ids).delete()
         QuizzUserAnswer.objects.filter(
             related_question_id__in=Subquery(related_question_ids), date_answer__range=(start_date, end_date)
         ).delete()

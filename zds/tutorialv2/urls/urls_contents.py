@@ -57,9 +57,9 @@ from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, Ta
 from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
 from zds.tutorialv2.views.statistics import (
-    ContentQuizzStatistics,
     ContentStatisticsView,
     DeleteQuizz,
+    PostQuizzAnswerToStatistics,
     QuizzContentStatistics,
 )
 from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
@@ -271,7 +271,7 @@ urlpatterns = (
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
         # quizz
-        path("reponses/<int:pk>/<slug:slug>/", ContentQuizzStatistics.as_view(), name="answer-quizz"),
+        path("reponses/<int:pk>/<slug:slug>/", PostQuizzAnswerToStatistics.as_view(), name="answer-quizz"),
         path("stats_quizz/<int:pk>/<slug:slug>/", QuizzContentStatistics.as_view(), name="stats-quizz"),
         path("delete_quizz/", DeleteQuizz.as_view(), name="delete_quizz"),
     ]

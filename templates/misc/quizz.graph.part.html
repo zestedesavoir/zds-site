@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load emarkdown%}
 
-
+<section class="full-content-wrapper">
 <div id="{{ tab_name }}" class="tabcontent-stats">
     {% for quizz_name, questions in quizz.items %}
     <header class="header-stats-quiz">
@@ -31,3 +31,4 @@
     {% endfor %}
     {% endfor %}
 </div>
+</section>

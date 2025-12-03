@@ -46,7 +46,6 @@
                 <span class="tablinks" tabindex="0" id="tab-view-graph">{% trans "Pages vues" %}</span>
                 <span class="tablinks" tabindex="0" id="tab-visit-time-graph">{% trans "Temps moyen de lecture" %}</span>
                 <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs uniques" %}</span>
-
             </div>
             <!-- Tab content -->
             {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" y_label="Nombre de pages" %}
@@ -177,11 +176,11 @@
 {% block sidebar %}
     <aside class="sidebar summary mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-            <h3>{% trans "Les quizzs" %}</h3>
+            <h3>{% trans "Les quizz" %}</h3>
             <ul>
                 <li>
                     <a href="{% url "content:stats-quizz" content.pk content.slug%}" >
-                        {% trans "Statistiques" %}
+                        {% trans "Réponses aux quizz" %}
                     </a>
                 </li>
             </ul>
@@ -247,6 +246,12 @@
                             {% trans "Actualiser" %}
                         </button>
                     </form>
+                </li>
+            </ul>
+            <h3>Type de graphe</h3>
+            <ul>
+                <li>
+                    <button id="graph_type_toggle">-</button>
                 </li>
             </ul>
         </div>
