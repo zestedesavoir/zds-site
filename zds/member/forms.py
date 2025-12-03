@@ -783,17 +783,16 @@ class BlockedIPForm(forms.ModelForm):
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(
-            Field("is_network_address") if is_ipv6 else None,
             Field("reason"),
             ButtonHolder(
                 StrictButton("Bloquer cette adresse IP", type="submit"),
             ),
         )
+        if is_ipv6:
+            self.helper.layout.insert(0, Field("is_network_address"))
 
     def clean_is_network_address(self):
         # Un formulaire avec une case à cocher retourne
         # - "on" (valeur par défaut) si elle est cochée
         # - rien si elle n'est pas cochée
-        if self.is_ipv6 and self.cleaned_data.get("is_network_address"):
-            return True
-        return False
+        return self.is_ipv6 and self.cleaned_data.get("is_network_address")
