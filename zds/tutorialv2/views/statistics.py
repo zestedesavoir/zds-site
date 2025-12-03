@@ -61,13 +61,19 @@ class PostQuizzAnswerToStatistics(SingleOnlineContentFormViewMixin):
 
     def form_valid(self, form):
         url = form.cleaned_data["url"]
+        quizz_name = form.cleaned_data["quizz_name"]
         answers = {k: v for k, v in form.cleaned_data["result"].items()}
         resp_id = str(uuid.uuid4())
         for question, answers in answers.items():
             db_question = QuizzQuestion.objects.filter(question=question, url=url).first()
             if not db_question:
-                db_question = QuizzQuestion(question=question, url=url, question_type="qcm")
+                db_question = QuizzQuestion(
+                    question=question, url=url, question_type="qcm", human_readable_name=quizz_name
+                )
                 db_question.save()
+            elif db_question.human_readable_name != quizz_name:
+                db_question.human_readable_name = quizz_name
+                db_question.save(update_fields=["human_readable_name"])
             given_available_answers = form.cleaned_data["expected"][question]
             answers_labels = list(given_available_answers.keys())
             known_labels = QuizzAvailableAnswer.objects.filter(
@@ -438,8 +444,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzM
 class QuizzContentStatistics(SingleOnlineContentDetailViewMixin, QuizzMixin):
     template_name = "tutorialv2/stats/quizz_stats.html"
 
-    def build_quizz_stats(self, end_date, start_date):
+    def build_quizz_stats(self, end_date, start_date) -> tuple[dict, dict]:
         quizz_stats = {}
+        url_to_human_name_lookup = {}
         base_questions = list(
             QuizzUserAnswer.objects.filter(
                 date_answer__range=(start_date, end_date), related_content__pk=self.object.pk
@@ -469,6 +476,7 @@ class QuizzContentStatistics(SingleOnlineContentDetailViewMixin, QuizzMixin):
             ):
                 full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
                 name = available_answer.related_question.url
+                url_to_human_name_lookup[name] = available_answer.related_question.human_readable_name
                 question = available_answer.related_question.question
                 for r in total_per_label:
                     if (
@@ -482,7 +490,7 @@ class QuizzContentStatistics(SingleOnlineContentDetailViewMixin, QuizzMixin):
         sorted_quizz_stats = {}
         for name in sorted(quizz_stats.keys()):
             sorted_quizz_stats[name] = quizz_stats[name]
-        return sorted_quizz_stats
+        return sorted_quizz_stats, url_to_human_name_lookup
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -490,10 +498,11 @@ class QuizzContentStatistics(SingleOnlineContentDetailViewMixin, QuizzMixin):
         if not (self.is_author or self.is_staff):
             raise PermissionDenied
 
-        quizz_stats = self.build_quizz_stats(end_date, start_date)
+        quizz_stats, lookup = self.build_quizz_stats(end_date, start_date)
         context.update(
             {
                 "quizz": quizz_stats,
+                "url_to_human_name_lookup": lookup,
             }
         )
         return context

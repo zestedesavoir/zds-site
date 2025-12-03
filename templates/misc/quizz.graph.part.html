@@ -1,11 +1,12 @@
 {% load i18n %}
 {% load emarkdown%}
+{% load get_item %}
 
 <section class="full-content-wrapper">
 <div id="{{ tab_name }}" class="tabcontent-stats">
     {% for quizz_name, questions in quizz.items %}
     <header class="header-stats-quiz">
-        <h3 class="quizz_name">{{ quizz_name }}</h3>
+        <h3 class="quizz_name">{{ url_to_human_name_lookup|get_item:quizz_name }}</h3>
         <button class="delete-quizz-button" data-quizz="{{ quizz_name }}" ><i class="fas fa-trash-alt"></i></button>
     </header>
     {% for question, stats in questions.items %}

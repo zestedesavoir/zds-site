@@ -37,20 +37,6 @@
  * Note that the correction MAY be inside the last li due to the way custom-block plugin works, this is not a bug
  * */
 
-const lastListItems = document.querySelectorAll('.custom-block-quizz ul li:last-child')
-
-for (let i = 0; i < lastListItems.length; i++) {
-  // Create a new div element
-  const newDiv = document.createElement('div')
-  newDiv.classList.add('explanation_on')
-
-  // Set the text content of the div to match the text content of the last list item
-  newDiv.innerHTML = '<b>Explication : </b>' + lastListItems[i].textContent
-
-  // Replace the last list item with the new div element
-  lastListItems[i].parentNode.replaceChild(newDiv, lastListItems[i])
-}
-let index = 0
 
 function extractAnswer(inputDomElementList, answers) {
   let idli = 0
@@ -353,6 +339,7 @@ function sendQuizzStatistics(form, statistics) {
   xhttp.setRequestHeader('Content-Type', 'application/json')
   xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
+  statistics.quizz_name = form.parentElement.parentElement.previousElementSibling.firstElementChild.textContent.trim()
   xhttp.send(JSON.stringify(statistics))
 }
 

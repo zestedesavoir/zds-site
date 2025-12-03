@@ -41,6 +41,7 @@ class FormWithTitle(forms.Form):
 
 class QuizzStatsForm(forms.Form):
     url = forms.CharField(required=False)
+    quizz_name = forms.CharField(required=False)
 
     def __init__(self, *args, json_dict=None, **kwargs):
         super().__init__(data=json_dict, *args, **kwargs)

@@ -5,14 +5,6 @@
    ========================================================================== */
 
 
-$('.quizz_name').each(function() {
-  let quizzName = $(this).text()
-  quizzName = quizzName.replace('#', '')
-  const parts = quizzName.split('/')
-  const statsPart = parts[parts.length - 2] + '/' + parts[parts.length - 1]
-  $(this).text(statsPart)
-})
-
 
 $(document).ready(function() {
   // Add an event listener to the quizz delete button
