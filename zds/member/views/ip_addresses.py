@@ -50,9 +50,9 @@ def members_from_ip(request, ip_address):
             else:
                 blocked_ip = BlockedIP(
                     ip_address=ip_address,
-                    is_network_address=form.data["is_network_address"],
+                    is_network_address=form.cleaned_data["is_network_address"],
                     moderator=request.user,
-                    reason=form.data["reason"],
+                    reason=form.cleaned_data["reason"],
                 )
                 blocked_ip.save()
                 messages.success(request, "Cette adresse IP a été bloquée !")
