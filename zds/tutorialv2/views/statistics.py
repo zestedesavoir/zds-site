@@ -1,19 +1,25 @@
 import itertools
 import logging
 import urllib.parse
+import uuid
+from collections import Counter, OrderedDict
 from datetime import date, datetime, timedelta
-from typing import Any, List
+from json import dumps, loads
+from typing import Any
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Subquery
+from django.http import Http404, HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView
+from django.views.generic import DeleteView, FormView
 
-from zds.tutorialv2.forms import ContentCompareStatsURLForm
+from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
+from zds.tutorialv2.models.quizz import QuizzAvailableAnswer, QuizzQuestion, QuizzUserAnswer
 from zds.tutorialv2.models.versioned import VersionedContent
 from zds.tutorialv2.utils import NamedUrl
 
@@ -25,6 +31,47 @@ class StatisticsException(Exception):
 
     def __init__(self, logger, msg):
         super().__init__(logger, msg)
+
+
+class ContentQuizzStatistics(SingleOnlineContentDetailViewMixin):
+    form_class = QuizzStatsForm
+
+    def get_form_kwargs(self):
+        return {
+            "json_dict": loads(self.request.body.decode("utf-8")),
+        }
+
+    def form_valid(self, form):
+        url = form.cleaned_data["url"]
+        answers = {k: v for k, v in form.cleaned_data["result"].items()}
+        resp_id = str(uuid.uuid4())
+        for question, answers in answers.items():
+            db_question = QuizzQuestion.objects.filter(question=question, url=url).first()
+            if not db_question:
+                db_question = QuizzQuestion(question=question, url=url, question_type="qcm")
+                db_question.save()
+            given_available_answers = form.cleaned_data["expected"][question]
+            answers_labels = list(given_available_answers.keys())
+            known_labels = QuizzAvailableAnswer.objects.filter(
+                related_question=db_question, label__in=answers_labels
+            ).values_list("label", flat=True)
+
+            not_existing_answers = [label for label in answers_labels if label not in known_labels]
+
+            QuizzUserAnswer.objects.exclude(answer__in=answers_labels).filter(related_question=db_question).delete()
+            QuizzAvailableAnswer.objects.exclude(label__in=answers_labels).filter(related_question=db_question).delete()
+
+            for label in not_existing_answers:
+                db_answer = QuizzAvailableAnswer(
+                    related_question=db_question, label=label, is_good=given_available_answers[label]
+                )
+                db_answer.save()
+            for answer in answers["labels"]:
+                stat = QuizzUserAnswer(
+                    related_content=self.object, related_question=db_question, full_answer_id=resp_id, answer=answer
+                )
+                stat.save()
+        return StreamingHttpResponse(dumps({"status": "ok"}))
 
 
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
@@ -165,7 +212,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             else:
                 y.append(val[0].get(metric_name, 0))
 
-        return (x, y)
+        return x, y
 
     @staticmethod
     def get_ref_metrics(data):
@@ -180,26 +227,17 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return refs
 
     def get_start_and_end_dates(self):
-        end_date = self.request.GET.get("end_date", None)
         try:
-            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-        except TypeError:
+            end_date = self.request.GET.get("end_date", None) or date.today()
+            end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
             end_date = date.today()
-        except ValueError:
-            end_date = date.today()
-            messages.error(self.request, _("La date de fin fournie est invalide."))
 
-        start_date = self.request.GET.get("start_date", None)
         try:
-            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-        except TypeError:
+            start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
+            start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
             start_date = end_date - timedelta(days=7)
-        except ValueError:
-            start_date = end_date - timedelta(days=7)
-            messages.error(self.request, _("La date de début fournie est invalide."))
-
-        if start_date > end_date:
-            end_date, start_date = start_date, end_date
 
         return start_date, end_date
 
@@ -337,7 +375,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 result_report.update(export_reports)
             else:
                 result_report = reports
-
+        quizz_stats = self.build_quizz_stats(end_date, start_date)
         context.update(
             {
                 "display": display_mode,
@@ -347,6 +385,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 "referrers": referrers,
                 "type_referrers": type_referrers,
                 "keywords": keywords,
+                "quizz": quizz_stats,
             }
         )
         return context
@@ -393,3 +432,91 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     cumulative_stats[url][field_name] = grand_totals.get(field_name, 0) / grand_totals.get("total")
             else:
                 cumulative_stats[url][field_name] = grand_totals.get(field_name, 0)
+
+    def build_quizz_stats(self, end_date, start_date):
+        quizz_stats = {}
+        base_questions = list(
+            QuizzUserAnswer.objects.filter(
+                date_answer__range=(start_date, end_date), related_content__pk=self.object.pk
+            ).values_list("related_question", flat=True)
+        )
+        total_per_question = list(
+            QuizzUserAnswer.objects.values("related_question__pk", "full_answer_id")
+            .filter(related_question__pk__in=base_questions, date_answer__range=(start_date, end_date))
+            .annotate(nb=Count("full_answer_id"))
+        )
+        total_per_question = Counter([a["related_question__pk"] for a in total_per_question])
+        total_per_label = list(
+            QuizzUserAnswer.objects.values(
+                "related_question__pk", "related_question__question", "related_question__url", "answer"
+            )
+            .filter(related_question__in=base_questions, date_answer__range=(start_date, end_date))
+            .annotate(nb=Count("answer"))
+        )
+        for base_question in set(base_questions):
+            full_answers_total = {}
+            name = ""
+            question = ""
+            for available_answer in (
+                QuizzAvailableAnswer.objects.filter(related_question__pk=base_question)
+                .prefetch_related("related_question")
+                .all()
+            ):
+                full_answers_total[available_answer.label] = {"good": available_answer.good_answer, "nb": 0}
+                name = available_answer.related_question.url
+                question = available_answer.related_question.question
+                for r in total_per_label:
+                    if (
+                        r["related_question__pk"] == base_question
+                        and r["answer"].strip() == available_answer.label.strip()
+                    ):
+                        full_answers_total[available_answer.label]["nb"] = r["nb"]
+            if name not in quizz_stats:
+                quizz_stats[name] = OrderedDict()
+            quizz_stats[name][question] = {"total": total_per_question[base_question], "responses": full_answers_total}
+        sorted_quizz_stats = {}
+        for name in sorted(quizz_stats.keys()):
+            sorted_quizz_stats[name] = quizz_stats[name]
+        return sorted_quizz_stats
+
+
+class QuizzContentStatistics(ContentStatisticsView):
+    template_name = "tutorialv2/stats/quizz_stats.html"
+
+
+class DeleteQuizz(DeleteView):
+    def get_start_and_end_dates(self):
+
+        end_date = self.parse_and_validate_date("end_date", date.today())
+        start_date = self.parse_and_validate_date("start_date", date.today() - timedelta(days=7))
+        return start_date, end_date
+
+    def parse_and_validate_date(self, date_field_name, default_date: date) -> date:
+        try:
+            date_to_parse = self.request.GET.get(date_field_name, None) or default_date.strftime("%Y-%m-%d")
+            parsed_date = datetime.strptime(str(date_to_parse), "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            parsed_date = default_date
+
+        return parsed_date
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any):
+
+        start_date, end_date = self.get_start_and_end_dates()
+        data = loads(request.body)
+        # Extract the quizzName from the data
+        quizz_name = data.get("quizzName")
+        question = data.get("question")
+
+        if question:
+            related_question_ids = QuizzQuestion.objects.filter(url=quizz_name, question=question).values_list(
+                "id", flat=True
+            )
+        else:
+            related_question_ids = QuizzQuestion.objects.filter(url=quizz_name).values_list("id", flat=True)
+
+        QuizzUserAnswer.objects.filter(
+            related_question_id__in=Subquery(related_question_ids), date_answer__range=(start_date, end_date)
+        ).delete()
+
+        return StreamingHttpResponse(dumps({"status": "ok"}))

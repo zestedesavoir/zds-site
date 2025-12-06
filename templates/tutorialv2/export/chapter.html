@@ -1,3 +1,4 @@
+{% load i18n %}
 
 {# this template will be used to generate the HTML file for each container ! #}
 
@@ -24,7 +25,8 @@
         </a>
     </h2>
     {% if rendered_extract.text %}
-        <div class="extract-wrapper">
+        <div class="extract-wrapper quizz" data-quizz-validate="{% trans 'Valider le Quizz' %}"
+             data-heading-level="h3" data-answer-url="{% url 'content:answer-quizz' content.pk content.slug %}">
             {{ rendered_extract.text|safe }}
         </div>
     {% endif %}

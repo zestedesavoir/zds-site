@@ -1828,6 +1828,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
         opinion_not_picked.save()
 
+        opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion_not_picked.save()
+
         user_1_opinion_1 = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
         user_1_opinion_1.sha_picked = user_1_opinion_1.sha_public
         user_1_opinion_1.save()

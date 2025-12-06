@@ -56,7 +56,12 @@ from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, TagsListView
 from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
-from zds.tutorialv2.views.statistics import ContentStatisticsView
+from zds.tutorialv2.views.statistics import (
+    ContentQuizzStatistics,
+    ContentStatisticsView,
+    DeleteQuizz,
+    QuizzContentStatistics,
+)
 from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
 from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
@@ -265,5 +270,9 @@ urlpatterns = (
         # Label-based classification
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
+        # quizz
+        path("reponses/<int:pk>/<slug:slug>/", ContentQuizzStatistics.as_view(), name="answer-quizz"),
+        path("stats_quizz/<int:pk>/<slug:slug>/", QuizzContentStatistics.as_view(), name="stats-quizz"),
+        path("delete_quizz/", DeleteQuizz.as_view(), name="delete_quizz"),
     ]
 )
