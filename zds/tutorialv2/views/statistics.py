@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Subquery
-from django.http import Http404, HttpRequest, StreamingHttpResponse
+from django.http import HttpRequest, JsonResponse, StreamingHttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView, FormView
@@ -95,7 +95,7 @@ class PostQuizzAnswerToStatistics(SingleOnlineContentFormViewMixin):
                     related_content=self.object, related_question=db_question, full_answer_id=resp_id, answer=answer
                 )
                 stat.save()
-        return StreamingHttpResponse(dumps({"status": "ok"}))
+        return JsonResponse({"status": "ok"})
 
 
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzMixin):
@@ -529,4 +529,4 @@ class DeleteQuizz(DeleteView, QuizzMixin):
             related_question_id__in=Subquery(related_question_ids), date_answer__range=(start_date, end_date)
         ).delete()
 
-        return StreamingHttpResponse(dumps({"status": "ok"}))
+        return JsonResponse({"status": "ok"})
