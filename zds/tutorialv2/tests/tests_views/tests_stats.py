@@ -385,21 +385,15 @@ class DeleteQuizzTestCase(TestCase):
         self.view = DeleteQuizz()
         self.url = "/contenus/delete_quizz/"
 
-    def test_invalid_start_date_format(self):
+    def test_invalid_start_date_format_automatically_gets_back_to_default(self):
         # Edge case test for invalid start date format
         view = self.view
-        view.request = type("Request", (), {"GET": {"start_date": "invalid_date_format", "end_date": "2022-01-07"}})()
-
-        with self.assertRaises(Http404):
-            start_date, end_date = view.get_start_and_end_dates()
-
-    def test_invalid_end_date_format(self):
-        # Edge case test for invalid end date format
-        view = self.view
-        view.request = type("Request", (), {"GET": {"start_date": "2022-01-07", "end_date": "invalid_date_format"}})()
-
-        with self.assertRaises(Http404):
-            view.get_start_and_end_dates()
+        view.request = type(
+            "Request", (), {"GET": {"start_date": "invalid_date_format", "end_date": "invalid_date_format"}}
+        )()
+        start_date, end_date = view.get_start_and_end_dates()
+        self.assertEqual(end_date, datetime.date.today())
+        self.assertEqual(start_date, (end_date - datetime.timedelta(days=7)))
 
     def test_get_start_and_end_dates_no_dates(self):
         view = self.view
