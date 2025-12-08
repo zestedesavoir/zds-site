@@ -1,5 +1,5 @@
 /**
- * The full quizz is contained in a div or article that has class "quizz".
+ * The full quizz is contained in a div or article that has the "quizz" class.
  * Then one question is inside a zmarkdown "custom-block" of type "custom-block-quizz". Two possibilities :
  *
  * Without explanation for correction :
@@ -15,7 +15,7 @@
  *   </div>
  * </code>
  *
- * With an explanation inside another custom block most of time a custom-block-neutral
+ * With an explanation inside another custom block most of the time a custom-block-neutral
  *
  * <code>
  *   <div class="custom-block custom-block-quizz">
@@ -34,22 +34,24 @@
  *   </div>
  * </code>
  *
- * Note that the correction MAY be inside the last li due to the way custom-block plugin works, this is not a bug
+ * Note that the correction MAY be inside the last li due to the way the custom-block plugin works, this is not a bug
  * */
 
 
 function extractAnswer(inputDomElementList, answers) {
-  let idli = 0
+  let listItemId = 0
+  let wrapperIndex = 0
   inputDomElementList.forEach((rb) => {
     const ulWrapperElement = rb.parentElement.parentElement
     // we give the ui an id to find the element in a more effective way later when the users answer the questions
     if (!ulWrapperElement.getAttribute('id')) {
-      ulWrapperElement.setAttribute('id', 'id-' + (index++))
+      ulWrapperElement.setAttribute('id', 'id-' + wrapperIndex)
+      wrapperIndex++
     }
 
     rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
-    rb.setAttribute('id', ulWrapperElement.getAttribute('id') + '-' + idli)
-    idli++
+    rb.setAttribute('id', ulWrapperElement.getAttribute('id') + '-' + listItemId)
+    listItemId++
 
     const questionBlock = ulWrapperElement.parentElement.parentElement
     questionBlock.setAttribute('data-name', rb.getAttribute('name'))
@@ -77,9 +79,9 @@ function initializeCheckboxes(answers) {
 }
 
 function AnswersAsLabels() {
-  const checkboxli = document.querySelectorAll('.quizz ul li')
+  const liNodeWithCheckboxList = document.querySelectorAll('.quizz ul li')
 
-  checkboxli.forEach((li) => {
+  liNodeWithCheckboxList.forEach((li) => {
     const input = li.querySelector('input[type=checkbox]')
     if (!input) {
       return
@@ -110,23 +112,18 @@ function ExplanationMaker() {
 
 const initializePipeline = [initializeCheckboxes]
 
-function computeForm(formdata, answers) {
+function computeForm(formData, answers) {
   const badAnswers = []
   const allAnswerNames = []
-  for (const entry of formdata.entries()) {
+  for (const entry of formData.entries()) {
     const name = entry[0]
     const values = parseInt(entry[1], 10)
     allAnswerNames.push(name)
-    if (!answers[name]) {
-      continue
-    } else {
-      // for poc we assume we only deal with lists
-      if (!answers[name][values]) {
-        badAnswers.push({
-          name: name,
-          value: values
-        })
-      }
+    if (answers[name] && !answers[name][values]) {
+      badAnswers.push({
+        name: name,
+        value: values
+      })
     }
   }
   return [badAnswers, allAnswerNames]
@@ -149,21 +146,21 @@ function markBadAnswers(form, names, answers) {
 
     // question with more than one correct answer
     if (numChecked > 1) {
-      let AnsweredWell = true
+      let hasGivenRightAnswer = true
       answers[answer].forEach((value, index) => {
         const inputAnswer = document.querySelector(`#${answer} input[value="${index}"]`)
         if (value && !inputAnswer.checked) {
-          AnsweredWell = false
+          hasGivenRightAnswer = false
         }
       })
 
-      const divquizz = form.querySelector(`div[data-name="${answer}"]`)
-      if (!AnsweredWell) {
-        divquizz.classList.add('quizz-bad')
+      const answerWrapper = form.querySelector(`div[data-name="${answer}"]`)
+      if (!hasGivenRightAnswer) {
+        answerWrapper.classList.add('quizz-bad')
         const icon = iconMaker(false)
-        divquizz.querySelector('div.custom-block-body').appendChild(icon)
+        answerWrapper.querySelector('div.custom-block-body').appendChild(icon)
       } else {
-        divquizz.classList.add('quizz-good')
+        answerWrapper.classList.add('quizz-good')
       }
     }
   })
@@ -178,12 +175,12 @@ function markBadAnswers(form, names, answers) {
       }
     })
 
-    const divquizz = form.querySelector(`.custom-block[data-name=${name}]`)
-    if (!divquizz.classList.contains('quizz-good')) {
-      divquizz.classList.add('quizz-bad')
+    const answerWrapper = form.querySelector(`.custom-block[data-name=${name}]`)
+    if (!answerWrapper.classList.contains('quizz-good')) {
+      answerWrapper.classList.add('quizz-bad')
       // Create a new icon element
       const icon = iconMaker(false)
-      divquizz.querySelector('div.custom-block-body').appendChild(icon)
+      answerWrapper.querySelector('div.custom-block-body').appendChild(icon)
     }
   })
 
@@ -209,6 +206,39 @@ function getWantedHeading(questionNode, nodeName, attr) {
   return potentialHeading
 }
 
+function addFollowingNodesToFormUntilNextHeading(nodeToAddToForm, searchedTitle, wrapper) {
+  while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
+    const current = nodeToAddToForm
+    nodeToAddToForm = nodeToAddToForm.nextSibling
+    wrapper.appendChild(current.cloneNode(true))
+    current.parentNode.removeChild(current)
+  }
+}
+
+function flushAllQuestionsToTheForm(nodeToAddToForm, searchedTitle, form, QuizzQstNum, submit) {
+  let num = 0
+  while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
+    const current = nodeToAddToForm
+    if (current.nodeName === 'DIV' && current.className === 'custom-block custom-block-quizz') num++
+    nodeToAddToForm = nodeToAddToForm.nextSibling
+    form.appendChild(current.cloneNode(true))
+    current.parentNode.removeChild(current)
+    if (num === QuizzQstNum) {
+      form.appendChild(submit)
+      break
+    }
+  }
+  return nodeToAddToForm
+}
+
+function addElementBeforeFirstQuestionToWrapper(nodeToAddToForm, wrapper) {
+  while (nodeToAddToForm.nodeName !== 'DIV' && nodeToAddToForm.className !== 'custom-block custom-block-quizz') {
+    const current = nodeToAddToForm
+    nodeToAddToForm = nodeToAddToForm.nextSibling
+    wrapper.appendChild(current.cloneNode(true))
+    current.parentNode.removeChild(current)
+  }
+}
 
 function injectForms(quizz, answers) {
   const searchedTitle = quizz.getAttribute('data-heading-level') || 'h3'
@@ -223,7 +253,7 @@ function injectForms(quizz, answers) {
     const blockNode = document.getElementById(blockId)
 
     if (!blockNode) {
-      // if the node was treated and  therefore the clone has not been reinserted yet
+      // if the node was treated and therefore the clone has not been reinserted yet
       return
     }
     // this is the custom-block-quizz node
@@ -235,9 +265,10 @@ function injectForms(quizz, answers) {
       idBias++
     }
 
-
     if (heading && !headings[heading.getAttribute('id')]) {
-      // this is just for convenience, this add a "known" element that will always be there
+      // this is just for convenience, this adds a "known" element that will always be there and therefore
+      // targetable by querySelector anytime we cannot deterministically predict the id of the dom object we
+      // are looking for
       const wrapper = document.createElement('div')
 
       headings[heading.getAttribute('id')] = true
@@ -252,7 +283,8 @@ function injectForms(quizz, answers) {
       submit.classList.add('btn', 'btn-submit')
 
       const parts = quizz.previousElementSibling.firstElementChild.href.split('/')
-      const idButton = parts[parts.length - 4] + '/' + parts[parts.length - 3] + '/' + parts[parts.length - 2] + '/' + parts[parts.length - 1]
+      const nbPart = parts.length
+      const idButton = `${parts[nbPart - 4]}/${parts[nbPart - 3]}/${parts[nbPart - 2]}/${parts[nbPart - 1]}`
 
       submit.setAttribute('id', `my-button-${idButton}`)
 
@@ -267,49 +299,24 @@ function injectForms(quizz, answers) {
         nodeToAddToForm = heading.nextSibling
       }
 
-
-      // add any element before  the first question to the wrapper
-      while (nodeToAddToForm.nodeName !== 'DIV' && nodeToAddToForm.className !== 'custom-block custom-block-quizz') {
-        const current = nodeToAddToForm
-        nodeToAddToForm = nodeToAddToForm.nextSibling
-        wrapper.appendChild(current.cloneNode(true))
-        current.parentNode.removeChild(current)
-      }
+      addElementBeforeFirstQuestionToWrapper(nodeToAddToForm, wrapper)
 
       form.method = 'POST'
       form.setAttribute('action', quizz.getAttribute('data-answer-url'))
       form.setAttribute('id', `my-form-${idCounter}`)
       idCounter++
 
-
-      // add elements between 1st and last question to form
-      let num = 0
-      while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
-        const current = nodeToAddToForm
-        if (current.nodeName === 'DIV' && current.className === 'custom-block custom-block-quizz') num++
-        nodeToAddToForm = nodeToAddToForm.nextSibling
-        form.appendChild(current.cloneNode(true))
-        current.parentNode.removeChild(current)
-        if (num === QuizzQstNum) {
-          form.appendChild(submit)
-          break
-        }
-        ;
-      }
+      // add elements between the 1st and last question to form
+      nodeToAddToForm = flushAllQuestionsToTheForm(nodeToAddToForm, searchedTitle, form, QuizzQstNum, submit)
       wrapper.append(form)
 
-      // add elements after last question until next h3 to wrapper
-      while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
-        const current = nodeToAddToForm
-        nodeToAddToForm = nodeToAddToForm.nextSibling
-        wrapper.appendChild(current.cloneNode(true))
-        current.parentNode.removeChild(current)
-      }
+      // add elements after the last question until next h3 to wrapper
+      addFollowingNodesToFormUntilNextHeading(nodeToAddToForm, searchedTitle, wrapper)
 
       wrapper.appendChild(notAnswered)
       wrappers.push(wrapper)
     }
-    // avoid doubly
+    // prevent double insertion of heading
     if (heading.nodeName === searchedTitle.toUpperCase()) {
       quizz.removeChild(heading)
     }
@@ -332,12 +339,12 @@ document.querySelectorAll('div.quizz').forEach(div => {
 })
 
 function sendQuizzStatistics(form, statistics) {
-  const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
+  const csrfToken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
   const xhttp = new XMLHttpRequest()
   xhttp.open('POST', form.getAttribute('action'))
   xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
   xhttp.setRequestHeader('Content-Type', 'application/json')
-  xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
+  xhttp.setRequestHeader('X-CSRFToken', csrfToken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
   statistics.quizz_name = form.parentElement.parentElement.previousElementSibling.firstElementChild.textContent.trim()
   xhttp.send(JSON.stringify(statistics))
@@ -356,7 +363,7 @@ function displayResultAfterSubmitButton(form) {
 }
 
 // test if the quizz is totally answered or not
-function QuizzAnswered(form) {
+function isQuizzFullyFilled(form) {
   const questions = form.querySelectorAll('.custom-block-quizz')
   for (const question of questions) {
     const checkboxes = question.querySelectorAll('input[type="checkbox"]')
@@ -419,21 +426,19 @@ document.querySelectorAll('form.quizz').forEach(form => {
     const notAnswered = form.parentElement.querySelector('.notAnswered')
     const submitBtn = form.querySelector('.btn-submit')
 
-
     if (!document.querySelector('input[name=\'csrfmiddlewaretoken\']')) {
       if (!sessionStorage.getItem(submitBtn.id)) {
         // If the quiz has not been submitted before, store a flag in session storage to prevent multiple submissions
-        sessionStorage.setItem(`${submitBtn.id}`, true)
+        sessionStorage.setItem(`${submitBtn.id}`, 'true')
       } else {
         // If the quiz has already been submitted, disable the submit button
         submitBtn.setAttribute('disabled', true)
-        alert('Vous avez déjà répondu, Veuillez vous connecter')
         return
       }
     }
 
     // test if the whole quizz is answered
-    if (QuizzAnswered(form)) {
+    if (isQuizzFullyFilled(form)) {
       const formData = new FormData(form)
       const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
 
@@ -456,7 +461,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
         result: {}
       }
 
-      const CurrentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => getQuestionText(question))
+      const currentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => getQuestionText(question))
 
       Object.keys(answers).forEach(name => {
         const element = document.querySelector(`.custom-block[data-name="${name}"]`)
@@ -465,7 +470,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
 
         // make statistics of concerned form only
-        if (CurrentFormQuestions.includes(title)) {
+        if (currentFormQuestions.includes(title)) {
           statistics.result[title] = {
             evaluation: 'bad',
             labels: []
@@ -474,7 +479,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
           const availableResponses = element.querySelectorAll('input')
           for (let i = 0; i < availableResponses.length; i++) {
-            // wee need to get the question label for statistics
+            // we need to get the question label for statistics
             const liWrapper = availableResponses[i].parentElement
             const questionLabel = getAnswerText(liWrapper)
 
@@ -482,7 +487,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
           }
           // now determine answers and their labels
           element.querySelectorAll('input:checked').forEach(node => {
-            // remove eventual glued corretion
+            // remove eventual glued correction
             const label = getAnswerText(node.parentElement)
 
             statistics.result[title].labels.push(label.trim())
