@@ -1,6 +1,8 @@
 /* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */
 (function($) {
   'use strict'
+  const shiftLineOnEnableBlockTypes = new Set(['blocInformation', 'blocQuestion', 'blocWarning',
+    'blocError', 'blocSecret', 'blocNeutral', 'blocquizz'])
   const $saveButton = $('.inline-save-button')
   if (localStorage.getItem('editor_choice') !== 'new') {
     return
@@ -169,7 +171,7 @@
     start = text.slice(0, startPoint.ch)
     end = text.slice(startPoint.ch)
     let offset = 0
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral' || type === 'blocquizz') {
+    if (shiftLineOnEnableBlockTypes.has(type)) {
       unShiftLines(cm, startPoint.line, endPoint.line)
       startPoint.ch = 0
     } else if (type === 'checklist') {
@@ -228,7 +230,7 @@
 
   function enableBlockZmd(cm, type, start, end, startPoint, endPoint) {
     let i, text
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral' || type === 'blocquizz') {
+    if (shiftLineOnEnableBlockTypes.has(type)) {
       // blocs
       for (i = startPoint.line; i <= endPoint.line; i++) {
         text = start + cm.getLine(i)
