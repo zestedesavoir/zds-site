@@ -1,0 +1,115 @@
+{% extends "tutorialv2/base.html" %}
+{% load i18n %}
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Liens de partage" %}</li>
+{% endblock %}
+
+{% block content_out %}
+<div class="content-wrapper shareable-link-page">
+    <header>
+        <h1>{% blocktrans %} Liens de partage pour « {{ content }} » {% endblocktrans %}</h1>
+    </header>
+    <section>
+    <p>{% trans "Diffusez votre contenu en partageant un simple lien accessible sans incription sur le site." %}</p>
+
+    <p>{% trans "Les liens de partages offrent les fonctionnalités suivantes :" %}</p>
+
+    {% blocktrans %}
+    <ul>
+        <li>partage de la dernière bêta ou du dernier brouillon ;</li>
+        <li>validité temporaire ou permanente ;</li>
+        <li>désactivation et réactivation à volonté.</li>
+    </ul>
+    {% endblocktrans %}
+
+    <p class="new-link-button btn-holder">
+        <button href="#create-shareable-link" class="open-modal btn-submit">
+            {% trans "Nouveau lien de partage" %}
+        </button>
+
+        <form
+            action="{% url 'content:create-shareable-link' content.pk %}"
+            method="post"
+            id="create-shareable-link"
+            class="modal modal-flex">
+            {% csrf_token %}
+            {{ create_form.as_p }}
+            <button type="submit" class="btn-submit">{% trans "Créer" %}</button>
+        </form>
+    </p>
+
+
+    <h2>{% trans "Liens actifs" %}</h2>
+
+    <p>
+        {% blocktrans %}
+        Les personnes disposant d'un lien actif peuvent l'utiliser pour lire le contenu.
+        Il est possible de désactiver un lien temporairement pour en interdire son usage, et le réactiver plus tard.
+        {% endblocktrans %}
+    </p>
+
+    {% if not active_links_and_forms %}
+
+        <p>{% trans "<em>Vous n'avez pas de liens de partage actifs.</em>" %}</p>
+
+    {% else %}
+
+        <ul class="list_of_links">
+            {% for link, edit_form in active_links_and_forms reversed %}
+                {% include 'tutorialv2/view/list_shareable_links.part.html' with link=link edit_form=edit_form content=content section="active" %}
+            {% endfor %}
+        </ul>
+
+    {% endif %}
+
+
+    <h2>{% trans "Liens expirés" %}</h2>
+
+    <p>
+        {% blocktrans %}
+        Un lien de partage expiré ne permet pas de lire le contenu.
+        Si un lien est expiré, vous pouvez modifier sa date d'expiration pour qu'il fonctionne de nouveau.
+        {% endblocktrans %}
+    </p>
+
+    {% if not expired_links_and_forms %}
+
+        <p>{% trans "<em>Vous n'avez pas de liens de partage expirés.</em>" %}</p>
+
+    {% else %}
+
+        <ul class="list_of_links">
+            {% for link, edit_form in expired_links_and_forms reversed %}
+                {% include 'tutorialv2/view/list_shareable_links.part.html' with link=link edit_form=edit_form content=content section="expired" %}
+            {% endfor %}
+        </ul>
+
+    {% endif %}
+
+    <h2>{% trans "Liens inactifs" %}</h2>
+
+    <p>
+        {% blocktrans %}
+        Un lien de partage inactif ne permet pas de lire le contenu.
+        Vous pouvez le réactiver quand vous le souhaitez pour autoriser de nouveau son usage.
+        {% endblocktrans %}
+    </p>
+
+    {% if not inactive_links_and_forms %}
+
+        <p>{% trans "<em>Vous n'avez pas de liens de partage inactifs.</em>" %}</p>
+
+    {% else %}
+
+        <ul class="list_of_links">
+            {% for link, edit_form in inactive_links_and_forms reversed %}
+                {% include 'tutorialv2/view/list_shareable_links.part.html' with link=link edit_form=edit_form content=content section="inactive" %}
+            {% endfor %}
+        </ul>
+
+    {% endif %}
+    </section>
+</div>
+{% endblock %}

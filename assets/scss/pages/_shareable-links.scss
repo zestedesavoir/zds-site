@@ -1,0 +1,117 @@
+.main .content-wrapper.shareable-link-page {
+    h2  {
+        color: $accent-700;
+        border: 0;
+    }
+
+    .new-link-button {
+        button {
+            float: none;
+        }
+    }
+
+    .list_of_links {
+        list-style: none;
+
+        .shareable-link-frame {
+            border: 1px solid black;
+            padding: $length-10;
+            margin-bottom: $length-20;
+            background: $true-white;
+            border: solid $length-1 $grey-200;
+            border-bottom: solid $length-2 $grey-200;
+
+            header {
+                display: flex;
+                flex-wrap: wrap;
+                min-height: $length-24;
+
+                .shareable-link-description {
+                    flex-grow: 100;
+                    display: inline-block;
+                    margin: 0 0 $length-6 0;
+                    padding: 0;
+                }
+
+                .shareable-link-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+
+                    .btn-holder {
+                        min-height: 0;
+                        height: $length-24;
+                        margin: 0 0 $length-6 $length-20;
+
+
+                        .btn-grey, .btn-cancel, .btn-submit {
+                            padding: 0 $length-6;
+                            line-height: normal;
+                            height: $length-24;
+                        }
+
+                    }
+
+                    .activation_status {
+                        display: flex;
+                        width: min-content;
+
+                        .btn-grey, .btn-submit, input [type="hidden"], input{
+                            padding: 0 $length-6;
+                            line-height: normal;
+                            height: $length-24;
+                        }
+
+                        .status_display {
+                            display: inline-block;
+                            margin: auto;
+                            padding: 0;
+                            margin: 0 $length-6 $length-6 0;
+                        }
+
+                        .status_active {
+                            color:green;
+                            vertical-align: middle;
+                        }
+
+                        .status_active::before {
+                              content: "✓";
+                              margin-right: $length-4;
+                        }
+
+                        .status_inactive {
+                            color:gray;
+                            vertical-align: middle;
+                        }
+
+                        .status_inactive::before {
+                            content: "✕";
+                            margin-right: $length-4;
+                        }
+                    }
+                 }
+            }
+
+            section {
+                .shareable-link-url {
+                    margin: $length-4 0;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+
+                .shareable-link-info {
+                    display: flex;
+                    flex-wrap: wrap;
+
+                    .shareable-link-info-line {
+                        margin: 0 $length-20 0 0;
+
+                        &.shareable-link-has-expired {
+                            color: $red-700;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

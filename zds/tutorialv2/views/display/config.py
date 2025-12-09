@@ -192,6 +192,9 @@ class DraftActionsState:
     def show_contributors_management(self) -> bool:
         return self.enabled and self.is_allowed
 
+    def show_shareable_link_management(self) -> bool:
+        return self.enabled and self.is_allowed
+
     def show_ready_to_publish(self) -> bool:
         return self.enabled and self.is_allowed and self.requires_validation
 

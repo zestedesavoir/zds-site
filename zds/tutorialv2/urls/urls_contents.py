@@ -37,16 +37,19 @@ from zds.tutorialv2.views.contributors import (
     ContentOfContributors,
     RemoveContributorFromContent,
 )
-from zds.tutorialv2.views.display import (
+from zds.tutorialv2.views.display.container import (
     ContainerBetaView,
     ContainerDraftView,
+    ContainerValidationView,
     ContainerVersionView,
+)
+from zds.tutorialv2.views.display.content import (
     ContentBetaView,
     ContentDraftView,
+    ContentValidationView,
     ContentVersionView,
 )
-from zds.tutorialv2.views.display.container import ContainerValidationView
-from zds.tutorialv2.views.display.content import ContentValidationView
+from zds.tutorialv2.views.display.shared_content import ContainerSharedView, ContentSharedView
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.help import ChangeHelp, ContentsWithHelps
@@ -56,6 +59,14 @@ from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, TagsListView
 from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
+from zds.tutorialv2.views.shareable_links import (
+    CreateShareableLinkView,
+    DeactivateShareableLinkView,
+    DeleteShareableLinkView,
+    EditShareableLinkView,
+    ListShareableLinksView,
+    ReactivateShareableLinkView,
+)
 from zds.tutorialv2.views.statistics import ContentStatisticsView
 from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
 from zds.tutorialv2.views.tags import EditTags
@@ -66,6 +77,26 @@ from zds.tutorialv2.views.warntypo import WarnTypoView
 feeds = [
     path("flux/rss/", RedirectView.as_view(pattern_name="publication:feed-rss", permanent=True), name="feed-rss"),
     path("flux/atom/", RedirectView.as_view(pattern_name="publication:feed-atom", permanent=True), name="feed-atom"),
+]
+
+shareable_links = [
+    path("partage/gerer/<int:pk>/", ListShareableLinksView.as_view(), name="list-shareable-links"),
+    path("partage/creer/<int:pk>/", CreateShareableLinkView.as_view(), name="create-shareable-link"),
+    path("partage/modifier/<uuid:id>/", EditShareableLinkView.as_view(), name="edit-shareable-link"),
+    path("partage/desactiver/<uuid:id>/", DeactivateShareableLinkView.as_view(), name="deactivate-shareable-link"),
+    path("partage/reactiver/<uuid:id>/", ReactivateShareableLinkView.as_view(), name="reactivate-shareable-link"),
+    path("partage/supprimer/<uuid:id>/", DeleteShareableLinkView.as_view(), name="delete-shareable-link"),
+    path(
+        "partage/<uuid:id>/<slug:parent_container_slug>/<slug:container_slug>/",
+        ContainerSharedView.as_view(),
+        name="shareable-link-container",
+    ),
+    path(
+        "partage/<uuid:id>/<slug:container_slug>/",
+        ContainerSharedView.as_view(),
+        name="shareable-link-container",
+    ),
+    path("partage/<uuid:id>/", ContentSharedView.as_view(), name="shareable-link-view"),
 ]
 
 
@@ -121,6 +152,7 @@ def get_version_pages():
 
 urlpatterns = (
     feeds
+    + shareable_links
     + get_version_pages()
     + get_beta_pages()
     + get_validation_pages()
