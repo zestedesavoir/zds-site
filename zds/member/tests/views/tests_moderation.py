@@ -638,3 +638,27 @@ class IpListingsTests(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse(members_from_ip, args=["0.0.0.0"]))
         self.assertTemplateUsed(response, "member/admin/members_from_ip.html")
+
+    def test_ban_ipv4(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse(members_from_ip, args=["155.128.92.75"]),
+            {"reason": "Foobar"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_ban_ipv6(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse(members_from_ip, args=["2001:8f8:1425:60a0:9852:7981:3721:93b4"]),
+            {"reason": "Foobar"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_ban_ipv6_network(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse(members_from_ip, args=["2001:8f8:1425:60a0:9852:7981:3721:93b8"]),
+            {"reason": "Foobar", "is_network_address": "on"},
+        )
+        self.assertEqual(response.status_code, 200)

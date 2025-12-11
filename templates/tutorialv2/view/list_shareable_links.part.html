@@ -1,0 +1,96 @@
+{% load i18n %}
+
+<li class="shareable-link-frame">
+    <header>
+        <h3 class="shareable-link-description">{{ link.description }}</h3>
+
+        <div class="shareable-link-actions">
+            {% if section == "active" or section == "expired" %}
+                <div class="activation_status">
+                    <p class="status_display"><span class="status_active">Actif</span></p>
+                    <form action="{% url 'content:deactivate-shareable-link' link.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-grey">{% trans "Désactiver" %}</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="activation_status">
+                    <p class="status_display"><span class="status_inactive">Inactif</span></p>
+                    <form action="{% url 'content:reactivate-shareable-link' link.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-submit">{% trans "Réactiver" %}</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <div class="btn-holder">
+                <button href="#edit-shareable-link-{{ link.id }}" class="open-modal btn-grey">
+                    {% trans "Modifier" %}
+                </button>
+
+                <form
+                    action="{% url 'content:edit-shareable-link' link.id %}"
+                    method="post"
+                    id="edit-shareable-link-{{ link.id }}"
+                    class="modal modal-flex">
+                    {% csrf_token %}
+                    {{ edit_form.as_p }}
+                    <button type="submit" class="btn-submit">{% trans "Modifier" %}</button>
+                </form>
+            </div>
+
+            <div class="btn-holder">
+                <button href="#delete-shareable-link-{{ link.id }}" class="open-modal btn-cancel">
+                    {% trans "Supprimer" %}
+                </button>
+
+                <form
+                    action="{% url 'content:delete-shareable-link' link.id %}"
+                    method="post"
+                    id="delete-shareable-link-{{ link.id }}"
+                    class="modal modal-flex">
+                    {% csrf_token %}
+                    <p>
+                    {% blocktrans %}
+                        <strong>Attention, ce lien sera supprimé définitivement.</strong>
+                           Vous ne pourrez pas le récupérer.
+                           Si vous souhaitez réutiliser ce lien plus tard, désactivez-le.
+                    {% endblocktrans %}
+                    </p>
+                    <button type="submit" class="btn-submit">{% trans "Supprimer" %}</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="shareable-link-url" ><a href="{{ link.full_url }}">{{ link.full_url }}</a></div>
+        <div class="shareable-link-info">
+            <p class="shareable-link-info-line">
+                {% if link.type == "DRAFT" %}
+                    {% trans "Lien vers <em>le dernier brouillon</em>" %}
+                {% elif link.type == "BETA" %}
+                    {% trans "Lien vers <em>la dernière bêta</em>" %}
+                {% else %}
+                    {% trans "Lien de <em>type inconnu</em>" %}
+                {% endif %}
+            </p>
+                {% if link.valid_indefinitely %}
+                    <p class="shareable-link-info-line">{% trans "Sans date d'expiration" %}</p>
+                {% elif link.expired %}
+                    <p class="shareable-link-info-line shareable-link-has-expired">
+                        {% blocktrans with date=link.expiration|date:"DATE_FORMAT" %}
+                            A expiré le {{ date }}
+                        {% endblocktrans %}
+                    </p>
+                {% else %}
+                    <p class="shareable-link-info-line">
+                        {% blocktrans with date=link.expiration|date:"DATE_FORMAT" %}
+                            Expire le {{ date }}
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+            </p>
+        </div>
+    </section>
+</li>
