@@ -130,7 +130,12 @@
     },
 
     tearDown() {
-      this._tearingDown = false
+      // Cuts the loop
+      this._tearingDown = true
+
+      // Restores header background that was previously copied to the canvas element
+      this._parent.style.background = this._canvas.style.background
+
       this._canvas.remove()
     }
   }
