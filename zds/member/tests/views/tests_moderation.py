@@ -3,7 +3,6 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -12,6 +11,7 @@ from zds.member.models import Ban, KarmaNote, Profile
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.member.views.ip_addresses import members_from_ip
 from zds.notification.models import Notification
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class TestsModeration(TestCase):

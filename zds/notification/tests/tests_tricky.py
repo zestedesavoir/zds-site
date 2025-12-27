@@ -2,7 +2,6 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.core import mail
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -19,6 +18,7 @@ from zds.notification.models import (
     PingSubscription,
     TopicAnswerSubscription,
 )
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2 import signals
 from zds.tutorialv2.publication_utils import notify_update, publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents

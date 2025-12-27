@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.member.models import Profile
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.notification.models import TopicAnswerSubscription
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class MemberTests(TestCase):

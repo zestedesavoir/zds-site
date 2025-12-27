@@ -4,13 +4,13 @@ from random import randint
 from unittest import mock
 
 from django.conf import settings
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import PublishedContent, Validation
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin

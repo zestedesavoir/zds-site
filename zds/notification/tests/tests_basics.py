@@ -6,7 +6,6 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.db import IntegrityError
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.forum.models import Topic
@@ -30,6 +29,7 @@ from zds.notification.models import (
     PrivateTopicAnswerSubscription,
     TopicAnswerSubscription,
 )
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2 import signals
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import notify_update, publish_content

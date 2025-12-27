@@ -5,7 +5,6 @@ from json import loads
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -16,6 +15,7 @@ from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import ContentReactionAnswerSubscription, Notification
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import (
     ContentReaction,
     ContentRead,

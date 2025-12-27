@@ -2,13 +2,13 @@ from datetime import datetime, timedelta
 from urllib.parse import quote
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
 
 from zds.member.forms import LoginForm
 from zds.member.models import Ban, BlockedIP, Profile
 from zds.member.tests.factories import NonAsciiProfileFactory, ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class LoginTests(TestCase):

@@ -4,7 +4,6 @@ from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -12,6 +11,7 @@ from zds import json_handler
 from zds.forum.tests.factories import Post, PostFactory, TagFactory, Topic, TopicFactory, create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.search.utils import SearchIndexManager
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import FakeChapter, PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (

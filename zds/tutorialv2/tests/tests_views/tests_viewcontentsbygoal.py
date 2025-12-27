@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase
 from django.urls import reverse
 
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.tests.factories import GoalFactory, PublishedContentFactory
 

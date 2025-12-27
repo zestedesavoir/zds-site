@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core import mail
 from django.core.mail.backends.base import BaseEmailBackend
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from oauth2_provider.models import AccessToken, Application
@@ -20,6 +20,7 @@ from zds.member.models import Ban, KarmaNote, NewEmailProvider, TokenRegister
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import BetaContentFactory, PublishableContentFactory, PublishedContentFactory

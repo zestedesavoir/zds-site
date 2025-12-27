@@ -3,13 +3,13 @@ import tempfile
 from zipfile import ZipFile
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 from PIL import Image as ImagePIL
 
 from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class GalleryListViewTest(TestCase):

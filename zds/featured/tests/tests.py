@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -10,6 +9,7 @@ from zds.featured.tests.factories import FeaturedResourceFactory
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.publication_utils import unpublish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishedContentFactory

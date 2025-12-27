@@ -1,11 +1,11 @@
 from unittest.mock import patch
 
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
 
 from zds.forum.tests.factories import TagFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory

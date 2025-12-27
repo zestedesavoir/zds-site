@@ -1,10 +1,9 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.shareable_links import ShareableLink
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.tutorialv2.views.shareable_links import CreateShareableLinkView
 
 
 class CreateShareableLinkTests(TestCase):
