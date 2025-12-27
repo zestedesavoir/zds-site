@@ -2,6 +2,7 @@
 (function() {
   function LetItSnow(element, isValentine = false) {
     this.isValentine = isValentine
+    this._tearingDown = false
 
     this._parent = element
 
@@ -73,7 +74,9 @@
       this.update()
       this.draw()
 
-      requestAnimationFrame(this.loop.bind(this))
+      if (!this._tearingDown) {
+        requestAnimationFrame(this.loop.bind(this))
+      }
     },
 
     update: function() {
@@ -124,6 +127,11 @@
       }
 
       this._ctx.fill()
+    },
+
+    tearDown() {
+      this._tearingDown = false
+      this._canvas.remove()
     }
   }
 
@@ -132,9 +140,24 @@
     const isValentine = document.body.classList.contains('vc-valentine-snow') || false
 
     if (isSnow || isValentine) {
-      setTimeout(function() {
-        window.snow = new LetItSnow(document.querySelector('.header-container > header'), isValentine)
-      }, 1000) // to be sure to have the DOM completely ready
+      const motionReduced = window.matchMedia('(prefers-reduced-motion: reduce)') || false
+      const snowContainer = document.querySelector('.header-container > header')
+
+      // Only enable snow if user does not ask for reduced motion
+      if (!motionReduced.matches) {
+        setTimeout(function() {
+          window.snow = new LetItSnow(snowContainer, isValentine)
+        }, 1000) // to be sure to have the DOM completely ready
+      }
+
+      // If reduced motion preference chances, updates accordingly.
+      motionReduced.addEventListener('change', () => {
+        if (motionReduced.matches) {
+          window.snow.tearDown()
+        } else {
+          window.snow = new LetItSnow(snowContainer, isValentine)
+        }
+      })
     }
   })
 })()
