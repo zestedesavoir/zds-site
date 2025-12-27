@@ -76,8 +76,12 @@ class LastTopicsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context.update({"topic_read": TopicRead.objects.list_read_topic_pk(self.request.user, context["topics"])})
-
+        context.update(
+            {
+                "topic_read": TopicRead.objects.list_read_topic_pk(self.request.user, context["topics"]),
+                "current_url": reverse("forum:last-subjects"),
+            }
+        )
         return context
 
 

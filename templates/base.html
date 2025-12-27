@@ -127,7 +127,7 @@
     {% endwith %}
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.literal_name }}" href="{% url "search:opensearch" %}">
-
+    {% include "very_top_banner_style.html" %}
     {% block head_extra %}{% endblock %}
 </head>
 
