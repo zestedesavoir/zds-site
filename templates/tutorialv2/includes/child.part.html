@@ -147,7 +147,6 @@
                     </p>
                     {% if not child.is_chapter %}
                         {% captureas url_create_container %}{% url "content:create-container" content.pk content.slug child.slug %}{% endcaptureas %}
-                        {% captureas url_create_extract %}{% url "content:create-extract" content.pk content.slug child.slug %}{% endcaptureas %}
                         {% blocktrans %}
                         <ul>
                             <li>
@@ -155,7 +154,7 @@
                                 pour subdiviser cette partie en plusieurs pages ;
                             </li>
                             <li>
-                                <a href="{{ url_create_extract }}">Ajouter une section</a>
+                                <a href="{{ child.get_add_extract_url }}">Ajouter une section</a>
                                 pour que cette partie soit affichée sur une unique page.
                             </li>
                         </ul>
