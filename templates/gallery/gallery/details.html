@@ -60,7 +60,7 @@
                                 <table>
                                     <thead>
                                         <th>{% trans "Auteur" %}</th>
-                                        <th width="300px">{% trans "Droits" %}</th>
+                                        <th width="300">{% trans "Droits" %}</th>
                                         <th>{% trans "Suppression" %}</th>
                                     </thead>
                                     <tbody>
@@ -127,7 +127,7 @@
                 <!-- Delete images -->
                 <a class="btn btn-cancel open-modal" href="#form-delete-images">{% trans "Supprimer la sélection" %}</a>
                 <!-- Confirmation modal -->
-                <form id="form-delete-images" name="form" method="post" action="{% url "gallery:image-delete" gallery.pk %}" class="modal modal-flex">
+                <form id="form-delete-images" name="form-delete-images" method="post" action="{% url "gallery:image-delete" gallery.pk %}" class="modal modal-flex">
                     <input type="hidden" name="gallery" value="{{ gallery.pk }}">
                     {% csrf_token %}
                     <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
