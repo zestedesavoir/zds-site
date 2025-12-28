@@ -1,5 +1,6 @@
 from http.client import responses
 
+from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.test.client import MULTIPART_CONTENT, Client
 from tidylib import tidy_document
@@ -9,7 +10,12 @@ class ZDSResponseWrapper:
     def __init__(self, response, path):
         self._inner = response
         self.path = path
-        if response.headers.get("Content-Type").startswith("text/html"):
+        # when we are on ajax query, mainly
+        if isinstance(response, StreamingHttpResponse):
+            self.html_document = None
+            self.valid = False
+            return
+        if response.status_code < 300 and response.headers.get("Content-Type").startswith("text/html"):
             self.html_document, self.errors = tidy_document(
                 response.content.decode(),
                 options={
@@ -64,9 +70,9 @@ class HtmlValidationClient(Client, HTMLValidationMixin):
         self.assert_valid_if_html(response)
         return response
 
-    def get(self, path, data=None, secure=False, *, headers=None, query_params=None, **extra):
+    def get(self, path, data=None, follow=False, secure=False, *, headers=None, query_params=None, **extra):
         response = ZDSResponseWrapper(
-            super().get(path, data, secure, headers=headers, query_params=query_params, **extra), path=path
+            super().get(path, data, follow, secure, headers=headers, query_params=query_params, **extra), path=path
         )
         self.assert_valid_if_html(response)
         return response
