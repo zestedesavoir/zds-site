@@ -83,7 +83,7 @@ class ContainerForm(FormWithTitle):
             Field("title"),
             Field("introduction", css_class="md-editor preview-source"),
             ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+                StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn btn-grey preview-btn"),
             ),
             HTML(
                 '{% if form.introduction.value %}{% include "misc/preview.part.html" \
@@ -91,7 +91,7 @@ class ContainerForm(FormWithTitle):
             ),
             Field("conclusion", css_class="md-editor preview-source"),
             ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+                StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn btn-grey preview-btn"),
             ),
             HTML(
                 '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
