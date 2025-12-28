@@ -445,6 +445,11 @@ class Container:
 
         return reverse("content:delete", args=args)
 
+    def get_add_extract_url(self, root_content):
+        if self.parent == root_content:
+            return reverse("content:create-extract", args=[root_content.pk, root_content.slug, self.slug])
+        return reverse("content:create-extract", args=[root_content.pk, root_content.slug, self.parent.slug, self.slug])
+
     def get_introduction(self):
         """
         :return: the introduction from the file in ``self.introduction``

@@ -89,11 +89,7 @@
             {% endfor %}
             {% if display_config.draft_actions.enable_edit and child.can_add_extract %}
                 <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% if child.parent == content %}
-                                {% url "content:create-extract" content.pk content.slug child.slug %}
-                            {%  else %}
-                                {% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}
-                            {%  endif %}">
+                    <a class="btn btn-grey" href="{{ child.get_add_extract_url }}">
                         {% trans "Ajouter une section" %}
                     </a>
                 </li>
