@@ -65,11 +65,13 @@
             {% endif %}
             <table class="stat-table fullwidth">
                 <thead>
-                    <th>{% trans "Partie" %}</th>
-                    <th>{% trans "Vues" %}</th>
-                    <th>{% trans "Temps moyen sur la page" %}</th>
-                    <th>{% trans "Visiteurs uniques" %}</th>
-                    {% if display == 'global' and cumulative_stats|length > 1 %}<th></th>{% endif %}
+                    <tr>
+                        <th>{% trans "Partie" %}</th>
+                        <th>{% trans "Vues" %}</th>
+                        <th>{% trans "Temps moyen sur la page" %}</th>
+                        <th>{% trans "Visiteurs uniques" %}</th>
+                        {% if display == 'global' and cumulative_stats|length > 1 %}<th></th>{% endif %}
+                    </tr>
                 </thead>
                 <tbody>
                     {% for url, view in cumulative_stats.items %}
@@ -108,8 +110,10 @@
                 <h2>{% trans "Types de reférent vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                         <thead>
-                            <th>{% trans "Type" %}</th>
-                            <th>{% trans "Visites" %}</th>
+                            <tr>
+                                <th>{% trans "Type" %}</th>
+                                <th>{% trans "Visites" %}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         {% for category, visits in type_referrers.items %}
@@ -125,8 +129,10 @@
                 <h2>{% trans "Sites entrants vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                     <thead>
-                        <th>{% trans "Site" %}</th>
-                        <th>{% trans "Visites" %}</th>
+                        <tr>
+                            <th>{% trans "Site" %}</th>
+                            <th>{% trans "Visites" %}</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% for referrer, visits in referrers.items %}
@@ -142,8 +148,10 @@
                 <h2>{% trans "Mots-clés vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                         <thead>
-                            <th>{% trans "Mot-clés" %}</th>
-                            <th>{% trans "Visites" %}</th>
+                            <tr>
+                                <th>{% trans "Mot-clés" %}</th>
+                                <th>{% trans "Visites" %}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         {% for keyword, visits in keywords.items %}

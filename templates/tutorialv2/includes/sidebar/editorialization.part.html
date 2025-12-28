@@ -51,8 +51,10 @@
                     <form action="{% url "content:remove-suggestion" content.pk  %}" method="post" class="modal modal-large" id="manage-suggestion" data-modal-close="Fermer">
                         <table class="fullwidth">
                             <thead>
-                                <th>{% trans "Contenus suggérés" %}</th>
-                                <th width="15%">{% trans "Actions" %}</th>
+                                <tr>
+                                    <th>{% trans "Contenus suggérés" %}</th>
+                                    <th style="width: 15%">{% trans "Actions" %}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {% for content_suggestion in content_suggestions %}

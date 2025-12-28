@@ -59,12 +59,14 @@
 
 {% block content_ext %}
     <table>
-        <tr>
-            <th>{% trans "Légende" %}</th>
-            <td class="diff_add">{% trans "ajout" %}</td>
-            <td class="diff_chg">{% trans "modification" %}</td>
-            <td class="diff_sub">{% trans "suppression" %}</td>
-        </tr>
+        <tbody>
+            <tr>
+                <th>{% trans "Légende" %}</th>
+                <td class="diff_add">{% trans "ajout" %}</td>
+                <td class="diff_chg">{% trans "modification" %}</td>
+                <td class="diff_sub">{% trans "suppression" %}</td>
+            </tr>
+        </tbody>
     </table>
 
     <h2>{% trans "Fichiers modifiés" %}</h2>
