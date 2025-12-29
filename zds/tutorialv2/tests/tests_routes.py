@@ -1,6 +1,6 @@
-from django.test import TestCase
 from django.urls import reverse
 
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents

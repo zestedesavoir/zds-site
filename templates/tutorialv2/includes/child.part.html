@@ -8,7 +8,9 @@
 <div class="content-header-container">
     <h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
     {% if not child.is_validable %}
-        class="not-ready"
+        class="not-ready title-with-buttons"
+    {% else %}
+        class="title-with-buttons"
     {% endif %}>
         <a href="{{ base_url }}{{ child.get_url_path }}">{{ child.title }}</a>
     </h2>

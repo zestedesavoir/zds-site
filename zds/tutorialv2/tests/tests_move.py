@@ -2,12 +2,12 @@ from os.path import dirname, isdir, isfile, join
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents

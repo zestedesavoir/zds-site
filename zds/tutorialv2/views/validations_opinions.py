@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -244,10 +244,10 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                         self.object.save()
         except ValueError:
             logger.exception("Could not %s the opinion %s", form.cleaned_data["operation"], str(self.object))
-            return HttpResponse(json.dumps({"result": "FAIL", "reason": str(_("Mauvaise opération"))}), status=400)
+            return JsonResponse({"result": "FAIL", "reason": str(_("Mauvaise opération"))}, status=400)
 
         if not form.cleaned_data["redirect"]:
-            return HttpResponse(json.dumps({"result": "OK"}))
+            return JsonResponse({"result": "OK"})
         else:
             self.success_url = reverse("opinion:list")
             messages.success(self.request, _("Le billet a bien été modéré."))
@@ -277,7 +277,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
         if operation.operation == "PICK":
             operation.content.sha_picked = None
             operation.content.save()
-        return HttpResponse(json.dumps({"result": "OK"}))
+        return JsonResponse({"result": "OK"})
 
 
 class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):

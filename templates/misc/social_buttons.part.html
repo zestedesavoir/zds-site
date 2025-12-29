@@ -1,10 +1,13 @@
 {% load i18n %}
+{% load captureas %}
+{% load empty_elements %}
 
 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="{% trans "Partager" %}">
     <h3>{% trans "Partager" %}</h3>
+    {% captureas social_link %}{{ app.site.url }}{{ link }}{% endcaptureas %}
     <ul>
         <li>
-            <a href="https://x.com/share?url={{ app.site.url }}{{ link }}&amp;text={{ text }}"
+            <a href="https://x.com/share{% querystring ""|empty_dict url=social_link text=text %}"
                class="ico-after X blue"
                rel="nofollow"
             >
@@ -12,7 +15,8 @@
             </a>
         </li>
         <li>
-            <a href="https://www.facebook.com/sharer.php?u={{ app.site.url }}{{ link }}&amp;t={{ text }}"
+
+            <a href="https://www.facebook.com/sharer.php{% querystring ""|empty_dict u=social_link t=text %}"
                class="ico-after facebook blue"
                rel="nofollow"
             >
@@ -37,7 +41,7 @@
             </form>
         </li>
         <li>
-            <a href="http://sharetodiaspora.github.io/?url={{ app.site.url }}{{ link }}&amp;title={{ text }}"
+            <a href="http://sharetodiaspora.github.io/{% querystring ""|empty_dict url=social_link title=text %}"
                class="ico-after diaspora blue"
                rel="nofollow"
             >
@@ -45,7 +49,7 @@
             </a>
         </li>
         <li>
-            <a href="mailto:?subject={{ text }}&amp;body={{ app.site.url }}{{ link }}"
+            <a href="mailto:{% querystring ""|empty_dict body=social_link subject=text %}"
                class="ico-after email blue"
                rel="nofollow"
             >
