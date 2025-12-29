@@ -135,11 +135,62 @@
         }
     }
 
-    section > h2 {
+    section > h2,
+    .content-header-container {
         display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
 
+        h2,
         span {
             flex: 2;
+            margin: 0;
+            min-width: 200px;
+        }
+
+        .actions-title {
+
+            position: absolute;
+            margin-top: $length-24;
+
+
+            @include mobile {
+                flex-direction: column;
+            }
+            ul {
+              display: flex;
+              list-style: none;
+              margin: $length-8;
+              .btn {
+                height: $length-32;
+
+                margin: $length-2;
+
+                background-color: $grey-100;
+                color: $grey-600;
+
+                font-size: $font-size-9;
+                line-height: 2;
+
+                z-index: 1;
+
+                transition: color .1s ease-in-out,
+                            background-color .1s ease-in-out;
+
+                &.ico-after:after {
+                    margin-top: $length-8;
+                }
+
+                &:hover,
+                &:focus {
+                    color: $grey-800;
+                    background-color: $grey-200;
+                    text-decoration: none;
+                }
+            }
+            }
+
         }
 
         .btn {
@@ -319,7 +370,8 @@
             p,
             figure,
             blockquote,
-            .title-block {
+            .title-block,
+            .content-header-container {
                 margin-left: $length-10;
                 margin-right: $length-10;
             }
