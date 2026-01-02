@@ -8,7 +8,7 @@
 
 {% block title %}
     {% blocktrans with title=content.title %}
-        Historique de "{{ title }}"
+        Historique de &quot;{{ title }}&quot;
     {% endblocktrans %}
 {% endblock %}
 
@@ -27,7 +27,7 @@
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         {% blocktrans with title=content.title %}
-            Historique de "{{ title }}"
+            Historique de &quot;{{ title }}&quot;
         {% endblocktrans %}
     </h1>
 
@@ -53,9 +53,9 @@
     <table class="fullwidth commits-list">
         <thead>
             <tr>
-                <th style="width: 10%">{% trans "État" %}</th>
+                <th class="w-10">{% trans "État" %}</th>
                 <th colspan="2">{% trans "Comparer" %}</th>
-                <th style="width: 18%">{% trans "Date" %}</th>
+                <th class="w-20">{% trans "Date" %}</th>
                 <th>{% trans "Version" %}</th>
                 <th>{% trans "Diff." %}</th>
                 <th>{% trans "Auteur" %}</th>

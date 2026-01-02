@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, ButtonHolder, Field, Hidden, Layout
@@ -47,7 +49,7 @@ class WarnTypoForm(forms.Form):
         self.helper.form_id = "warn-typo-modal"
         self.helper.layout = Layout(
             Field("target"),
-            Field("text"),
+            Field("text", css_id="div_warn_text"),
             HTML(self.get_link_for_pm(content, targeted)),
             Hidden("pk", "{{ content.pk }}"),
             Hidden("version", version),
@@ -61,10 +63,10 @@ class WarnTypoForm(forms.Form):
         else:
             pm_title = _("J'ai trouvé une faute dans le chapitre « {} ».").format(targeted.title)
         recipients = filter_reachable(content.authors.all())
-        usernames = "&".join([f"username={recipient.username}" for recipient in recipients])
+        usernames = "&amp;".join([f"username={recipient.username}" for recipient in recipients])
         plural = _("aux auteurs") if len(recipients) > 1 else _("à l'auteur")
-        msg = _('<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
-            reverse("mp:create"), pm_title, usernames, plural
+        msg = _('<p>Pas assez de place ? <a href="{}?title={}&amp;{}">Envoyez un MP {}</a> !').format(
+            reverse("mp:create"), quote_plus(pm_title), usernames, plural
         )
         return msg
 

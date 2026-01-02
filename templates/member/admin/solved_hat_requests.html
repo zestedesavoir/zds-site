@@ -39,11 +39,13 @@
     {% if requests %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Casquette demandée" %}</th>
-                <th>{% trans "Utilisateur" %}</th>
-                <th>{% trans "Décision" %}</th>
-                <th class="wide">{% trans "Modérateur" %}</th>
-                <th class="wide">{% trans "Date de résolution" %}</th>
+                <tr>
+                    <th>{% trans "Casquette demandée" %}</th>
+                    <th>{% trans "Utilisateur" %}</th>
+                    <th>{% trans "Décision" %}</th>
+                    <th class="wide">{% trans "Modérateur" %}</th>
+                    <th class="wide">{% trans "Date de résolution" %}</th>
+                </tr>
             </thead>
             <tbody>
                 {% for request in requests %}

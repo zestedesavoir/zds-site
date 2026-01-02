@@ -31,8 +31,10 @@
     {% if hats %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Casquette" %}</th>
-                <th class="wide">{% trans "Membres" %}</th>
+                <tr>
+                    <th>{% trans "Casquette" %}</th>
+                    <th class="wide">{% trans "Membres" %}</th>
+                </tr>
             </thead>
             <tbody>
                 {% for hat in hats %}

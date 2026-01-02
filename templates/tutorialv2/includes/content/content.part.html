@@ -71,7 +71,6 @@
 
 {% if display_config.draft_actions.enable_edit %}
     {% if content.can_add_container and not content.can_add_extract %}
-        <div class="content-header-container">
         <h2 class="title-with-buttons">
             {% url "content:create-container" content.pk content.slug as create_container_url %}
             <a class="force-blue" href="{{create_container_url}}">

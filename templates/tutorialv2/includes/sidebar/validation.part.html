@@ -48,7 +48,7 @@
 
             {% if display_config.validation_actions.show_validation_admin %}
                 <li>
-                    <a  href="{% url "mp:create" %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
+                    <a  href="{% url "mp:create" %}{% querystring username=content.authors.all %}"
                         class="ico-after cite blue"
                     >
                         {% trans "Envoyer un MP" %}

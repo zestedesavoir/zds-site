@@ -445,13 +445,15 @@ class Container:
 
         return reverse("content:delete", args=args)
 
-    def get_add_extract_url(self):
+    @property
+    def add_extract_url(self):
         root_content = self.top_container()
-        if self.parent == root_content:
+        if self.parent.is_top_container:
             return reverse("content:create-extract", args=[root_content.pk, root_content.slug, self.slug])
         return reverse("content:create-extract", args=[root_content.pk, root_content.slug, self.parent.slug, self.slug])
 
-    def get_add_container_url(self):
+    @property
+    def add_container_url(self):
         root_content = self.top_container()
         if self.parent == root_content:
             return reverse("content:create-container", args=[root_content.pk, root_content.slug, self.slug])

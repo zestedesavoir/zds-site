@@ -38,11 +38,13 @@
     {% if providers %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Fournisseur" %}</th>
-                <th class="wide">{% trans "Utilisation" %}</th>
-                <th class="wide">{% trans "Compte concerné" %}</th>
-                <th class="wide">{% trans "Date d’utilisation" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <tr>
+                    <th>{% trans "Fournisseur" %}</th>
+                    <th class="wide">{% trans "Utilisation" %}</th>
+                    <th class="wide">{% trans "Compte concerné" %}</th>
+                    <th class="wide">{% trans "Date d’utilisation" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
             </thead>
             <tbody>
                 {% for provider in providers %}

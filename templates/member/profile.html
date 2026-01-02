@@ -894,10 +894,12 @@
                     <h2 itemprop="name">{% trans 'Historique de modération' %}</h2>
                     <table class="fullwidth">
                         <thead>
-                            <th>{% trans "Action" %}</th>
-                            <th>{% trans "Explication" %}</th>
-                            <th class="wide">{% trans "Modérateur" %}</th>
-                            <th class="wide">{% trans "Date" %}</th>
+                            <tr>
+                                <th>{% trans "Action" %}</th>
+                                <th>{% trans "Explication" %}</th>
+                                <th class="wide">{% trans "Modérateur" %}</th>
+                                <th class="wide">{% trans "Date" %}</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for action in actions %}

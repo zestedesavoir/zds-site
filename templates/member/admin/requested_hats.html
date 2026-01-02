@@ -34,9 +34,11 @@
     {% if requests %}
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Casquette demandée" %}</th>
-                <th>{% trans "Utilisateur" %}</th>
-                <th>{% trans "Date" %}</th>
+                <tr>
+                    <th>{% trans "Casquette demandée" %}</th>
+                    <th>{% trans "Utilisateur" %}</th>
+                    <th>{% trans "Date" %}</th>
+                </tr>
             </thead>
             <tbody>
                 {% for request in requests %}

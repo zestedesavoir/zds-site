@@ -35,36 +35,36 @@
                 </tr>
             </thead>
             <tbody>
-                {% for alert in alerts %}
-                    <tr>
-                        <td class="wide">{{ alert.get_type }}</td>
-                        <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
-                        <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
-                        <td>
-                            {% if alert.scope == 'CONTENT' and alert.content.in_public %}
-                                <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
-                            {% elif alert.scope == 'CONTENT' %}
-                                <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
-                                {{ alert.text }}
-                            {% elif alert.scope == 'PROFILE' %}
-                                <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
-                            {% else %}
-                                {# This is an alert about a comment on something (any kind of content or forum post) #}
-                                <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if alert.scope == 'CONTENT' or alert.scope == 'PROFILE' %}
-                                –
-                            {% else %}
-                                {% url "member-detail" alert.comment.author.username as url_member_detail %}
-                                {% blocktrans with author_username=alert.comment.author.username timing=alert.comment.pubdate|format_date %}
-                                    <a href="{{ url_member_detail }}">{{ author_username }}</a>, posté le {{ timing }}
-                                {% endblocktrans %}
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
+            {% for alert in alerts %}
+                <tr>
+                    <td class="wide">{{ alert.get_type }}</td>
+                    <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
+                    <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
+                    <td>
+                        {% if alert.scope == 'CONTENT' and alert.content.in_public %}
+                            <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
+                        {% elif alert.scope == 'CONTENT' %}
+                            <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
+                            {{ alert.text }}
+                        {% elif alert.scope == 'PROFILE' %}
+                            <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
+                        {% else %}
+                            {# This is an alert about a comment on something (any kind of content or forum post) #}
+                            <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if alert.scope == 'CONTENT' or alert.scope == 'PROFILE' %}
+                            –
+                        {% else %}
+                            {% url "member-detail" alert.comment.author.username as url_member_detail %}
+                            {% blocktrans with author_username=alert.comment.author.username timing=alert.comment.pubdate|format_date %}
+                                <a href="{{ url_member_detail }}">{{ author_username }}</a>, posté le {{ timing }}
+                            {% endblocktrans %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% else %}
@@ -76,49 +76,51 @@
     {% if solved %}
         <table class="fullwidth">
             <thead>
-                <th class="wide">{% trans "Type" %}</th>
-                <th>{% trans "Auteur" %}</th>
-                <th class="wide">{% trans "Date de résolution" %}</th>
-                <th>{% trans "Contenu signalé" %}</th>
-                <th>{% trans "Résolu par" %}</th>
+                <tr>
+                    <th class="wide">{% trans "Type" %}</th>
+                    <th>{% trans "Auteur" %}</th>
+                    <th class="wide">{% trans "Date de résolution" %}</th>
+                    <th>{% trans "Contenu signalé" %}</th>
+                    <th>{% trans "Résolu par" %}</th>
+                </tr>
             </thead>
             <tbody>
-                {% for alert in solved %}
-                    <tr>
-                        <td class="wide">{{ alert.get_type }}</td>
-                        <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
-                        <td class="wide">{{ alert.solved_date|format_date|capfirst }}</td>
-                        <td>
-                            {% if alert.scope == 'CONTENT' and alert.content.in_public %}
-                                <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
-                            {% elif alert.scope == 'CONTENT' %}
-                                <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
-                                {{ alert.text }}
-                            {% elif alert.scope == 'PROFILE' %}
-                                <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
+            {% for alert in solved %}
+                <tr>
+                    <td class="wide">{{ alert.get_type }}</td>
+                    <td><a href="{% url 'member-detail' alert.author.username %}">{{ alert.author.username }}</a></td>
+                    <td class="wide">{{ alert.solved_date|format_date|capfirst }}</td>
+                    <td>
+                        {% if alert.scope == 'CONTENT' and alert.content.in_public %}
+                            <a href="{{ alert.content.get_absolute_url_online }}">{{ alert.text }}</a>
+                        {% elif alert.scope == 'CONTENT' %}
+                            <em>{% trans 'Sur le contenu : ' %} {{ alert.content.title }}</em> <br/>
+                            {{ alert.text }}
+                        {% elif alert.scope == 'PROFILE' %}
+                            <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
+                        {% else %}
+                            {# This is an alert about a comment on something (any kind of content or forum post) #}
+
+                            {% url "member-detail" alert.comment.author.username as url_member_detail %}
+
+                            {% if alert.is_on_comment_on_unpublished_content %}
+                                <em>{{ alert.text }}</em>
                             {% else %}
-                                {# This is an alert about a comment on something (any kind of content or forum post) #}
-
-                                {% url "member-detail" alert.comment.author.username as url_member_detail %}
-
-                                {% if alert.is_on_comment_on_unpublished_content %}
-                                    <em>{{ alert.text }}</em>
-                                {% else %}
-                                    <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
-                                {% endif %}
-                                par <a href="{{ url_member_detail }}">{{ alert.comment.author.username  }}</a>
+                                <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
                             {% endif %}
-                        </td>
-                        <td>
-                            {% url "member-detail" alert.moderator.username as url_member_detail %}
-                            <a href="{{ url_member_detail }}">{{ alert.moderator.username }}</a>
-                            {% if alert.resolve_reason %}
-                                :
-                                <em>{{ alert.resolve_reason }}</em>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
+                            par <a href="{{ url_member_detail }}">{{ alert.comment.author.username }}</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% url "member-detail" alert.moderator.username as url_member_detail %}
+                        <a href="{{ url_member_detail }}">{{ alert.moderator.username }}</a>
+                        {% if alert.resolve_reason %}
+                            :
+                            <em>{{ alert.resolve_reason }}</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% else %}

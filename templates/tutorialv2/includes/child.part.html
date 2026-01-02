@@ -96,7 +96,7 @@
             {% endfor %}
             {% if display_config.draft_actions.enable_edit and child.can_add_extract %}
                 <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{{ child.get_add_extract_url }}">
+                    <a class="btn btn-grey" href="{{ child.add_extract_url }}">
                         {% trans "Ajouter une section" %}
                     </a>
                 </li>
@@ -154,14 +154,14 @@
                     </p>
                     {% if not child.is_chapter %}
                         {% captureas url_create_container %}{% url "content:create-container" content.pk content.slug child.slug %}{% endcaptureas %}
-                        {% blocktrans %}
+                        {% blocktrans with add_extract=child.add_extract_url add_container=url_create_container %}
                         <ul>
                             <li>
-                                <a href="{{ url_create_container }}">Ajouter un chapitre</a>
+                                <a href="{{ add_container }}">Ajouter un chapitre</a>
                                 pour subdiviser cette partie en plusieurs pages ;
                             </li>
                             <li>
-                                <a href="{{ child.get_add_extract_url }}">Ajouter une section</a>
+                                <a href="{{ add_extract }}">Ajouter une section</a>
                                 pour que cette partie soit affichée sur une unique page.
                             </li>
                         </ul>

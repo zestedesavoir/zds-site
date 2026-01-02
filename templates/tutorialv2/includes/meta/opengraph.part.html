@@ -9,5 +9,5 @@
 
 <meta property="og:article:section" content="Tutoriels">
 {% for catofsubcat in content.subcategory.all %}
-    <meta property="og:article:tag" content="{{ catofsubcat.title }}">
+    <meta property="og:article:tag" content="{{ catofsubcat.title|escape }}">
 {% endfor %}

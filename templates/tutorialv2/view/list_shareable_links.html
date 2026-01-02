@@ -24,7 +24,7 @@
     </ul>
     {% endblocktrans %}
 
-    <p class="new-link-button btn-holder">
+    <div class="new-link-button btn-holder">
         <button href="#create-shareable-link" class="open-modal btn-submit">
             {% trans "Nouveau lien de partage" %}
         </button>
@@ -38,7 +38,7 @@
             {{ create_form.as_p }}
             <button type="submit" class="btn-submit">{% trans "Créer" %}</button>
         </form>
-    </p>
+    </div>
 
 
     <h2>{% trans "Liens actifs" %}</h2>

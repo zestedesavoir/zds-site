@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load set %}
 {% load displayable_authors %}
+{% load trim %}
 {% if public_content %}
     {% set public_content.content as content %}
     {% set True as online %}
@@ -26,8 +27,7 @@
         {{ content.get_absolute_url_beta }}
     {% else %}
         {{ content.get_absolute_url }}
-    {% endif %}
-{% endcaptureas %}
+    {% endif %}{% endcaptureas %}
 
 {% captureas content_title %}
     {% if public_content and online %}
@@ -67,7 +67,7 @@
 
 <article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">
 
-    <a href="{{ link }}" tabindex="-1" class="content-illu {{ content.type|lower }}-illu">
+    <a href="{{ link|trim }}" tabindex="-1" class="content-illu {{ content.type|lower }}-illu">
         {% if content.image %}
             <img src="{{ content.image.physical.content_thumb.url }}" alt="Logo de {{ content_title }}">
         {% endif %}
@@ -76,14 +76,14 @@
    <div class="content-info">
         <header>
             <h3 class="content-title" itemprop="itemListElement">
-                <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
+                <a href="{{ link|trim }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
                     {{ content_title }}
                 </a>
             </h3>
 
             <p class="content-description" {% if not show_description or not content_subtitle %}aria-hidden="true"{% endif %}>
                 {% if content_subtitle and show_description %}
-                    <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
+                    <a href="{{ link|trim }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
                         {{ content_subtitle }}
                     </a>
                 {% endif %}
@@ -124,12 +124,14 @@
 
             {% if online and show_reactions %}
                 {% with note_count=content.get_note_count %}
-                    <a class="content-reactions" href="
+                    {% captureas note_link %}
                         {% if content.last_note %}
-                            {{ content.last_read_note.get_absolute_url }}
-                        {% else %}
-                            {{ link }}#comments
-                        {% endif %}"
+                                {{ content.last_read_note.get_absolute_url }}
+                            {% else %}
+                                {{ link|trim }}#comments
+                            {% endif %}
+                    {% endcaptureas %}
+                    <a class="content-reactions" href="{{ note_link|trim }}"
                         title="{% if note_count == 0 %}{% trans "Aucune réaction" %}{% else %}{{ note_count }} {% trans "réaction" %}{{ note_count|pluralize }}{% endif %}"
                     >
                         <span>{{ note_count }}</span>

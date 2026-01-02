@@ -2,15 +2,15 @@
 {% load joinby %}
 
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
-<meta name="DC.publisher" lang="fr" content="{{ app.site.literal_name }}" />
+<meta name="DC.publisher" lang="fr" content="{{ app.site.literal_name|escape }}" />
 {% for author in db_content|displayable_authors:is_online %}
 <meta name="DC.creator" content="{{ author.username }}" />
 {% endfor %}
 <meta name="DC.type" content="text" />
-<meta name="DC.title" content="{{ online_content.title }}" />
-<meta name="DC.abstract" content="{{ online_content.title }}{% if online_content.meta_description %} – {{ online_content.meta_description }}{% endif %}" />
+<meta name="DC.title" content="{{ online_content.title|escape }}" />
+<meta name="DC.abstract" content="{{ online_content.title|escape }}{% if online_content.meta_description %} – {{ online_content.meta_description|escape }}{% endif %}" />
 <meta name="DC.subject" lang="fr" content="{% joinby offline_content.subcategory.all %}{% if offline_content.tags.all %} – {% joinby offline_content.tags.all separator=' ; ' final_separator=' ; ' %}{% endif %}" />
-{% if online_content.meta_description %}<meta name="DC.description" lang="fr" content="{{ online_content.meta_description }}" />{% endif %}
+{% if online_content.meta_description %}<meta name="DC.description" lang="fr" content="{{ online_content.meta_description|escape }}" />{% endif %}
 <meta name="DC.date" content="{% if online_content.last_publication_date %}{{ online_content.last_publication_date|date:'Y/m/d' }}{% else %}{{ online_content.update_date|date:'Y/m/d' }}{% endif %}" />
 <meta name="DC.format" content="text/html" />
 {% if online_content.source %}<meta name="DC.source" content="{{ online_content.source }}" />{% endif %}

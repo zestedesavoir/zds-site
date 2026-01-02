@@ -2,7 +2,8 @@
 
 {% for message in messages %}
     <div class="alert-box {{ message.tags }}">
-        <span>{{ message.text }}</span>
+        {# message.text contains ul, do not use span #}
+        <div>{{ message.text }}</div>
         <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l’alerte" %}</a>
     </div>
 {% endfor %}

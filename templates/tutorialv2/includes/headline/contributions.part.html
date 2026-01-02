@@ -3,7 +3,7 @@
 
 {% with count_contributions=contributions|length %}
     {% if count_contributions > 0 %}
-        <p>
+        <div>
             {% trans "Ce contenu a bénéficié des apports de" %}
             <a href="#view-contributions" class="open-modal">{{ count_contributions }} {% trans "contributeur" %}{{ count_contributions|pluralize }}</a>
 
@@ -16,6 +16,6 @@
                     </ul>
                 </div>
             </div>
-        </p>
+        </div>
     {% endif %}
 {% endwith %}

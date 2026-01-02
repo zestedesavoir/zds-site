@@ -30,12 +30,14 @@
     <div class="table-wrapper">
         <table class="fullwidth">
             <thead>
-                <th>{% trans "Session" %}</th>
-                <th>{% trans "Appareil" %}</th>
-                <th>{% trans "Adresse IP" %}</th>
-                <th>{% trans "Géolocalisation" %}</th>
-                <th>{% trans "Dernière utilisation" %}</th>
-                <th>{% trans "Actions" %}</th>
+                <tr>
+                    <th>{% trans "Session" %}</th>
+                    <th>{% trans "Appareil" %}</th>
+                    <th>{% trans "Adresse IP" %}</th>
+                    <th>{% trans "Géolocalisation" %}</th>
+                    <th>{% trans "Dernière utilisation" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
             </thead>
             <tbody>
                 {% for session in sessions %}
