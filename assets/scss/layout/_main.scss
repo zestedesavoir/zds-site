@@ -42,21 +42,27 @@
                 @include sprite-height($articles);
             }
         }
+
         &.ico-opinions:after {
             @include sprite-position($opinions);
         }
+
         &.ico-articles:after {
             @include sprite-position($articles);
         }
+
         &.ico-tutorials:after {
             @include sprite-position($tutorials);
         }
+
         &.ico-news:after {
             @include sprite-position($star-heading-white);
         }
+
         &.ico-forum:after {
             @include sprite-position($forum-heading);
         }
+
         &.ico-tags:after {
             @include sprite-position($tags);
         }
@@ -78,27 +84,27 @@
     }
 
     .simple-edit-button {
-       text-align: right;
+        text-align: right;
 
-      .btn {
-        display: inline-block;
-        float: none;
-      }
+        .btn {
+            display: inline-block;
+            float: none;
+        }
     }
 
     li.simple-create-button {
         list-style-type: '';
 
         .btn {
-            display:inline-block;
+            display: inline-block;
 
-            float:none;
+            float: none;
             vertical-align: middle;
 
             margin-top: $length-8;
             margin-left: -$length-18;
 
-            padding:0 $length-12 0 $length-8;
+            padding: 0 $length-12 0 $length-8;
 
             height: $length-32;
 
@@ -158,7 +164,7 @@
     margin-top: 0;
 }
 
-.pagination-bottom-clear{
+.pagination-bottom-clear {
     clear: both;
 }
 
@@ -176,6 +182,7 @@
         .content-container {
             width: 100%;
         }
+
         .sidebar {
             display: none;
         }
@@ -241,10 +248,12 @@
                 width: 49.5%;
                 margin: 0 0 0 1%;
             }
+
             .content-col-3 {
                 width: 32%;
                 margin: 0 0 0 2%;
             }
+
             .content-col-2,
             .content-col-3 {
                 float: left;
@@ -277,6 +286,7 @@
     .full-content-wrapper .tutorial-list article {
         width: 46%;
         float: left;
+
         &.extend {
             width: 100%;
         }
@@ -334,5 +344,31 @@
     .content-col-2:not(:first-child),
     .content-col-3:not(:first-child) {
         margin-top: $length-48;
+    }
+}
+
+table tbody tr td, table thead tr th {
+    &.w-5 {
+        width: 5%;
+    }
+
+    &.w-10 {
+        width: 10%;
+    }
+
+    &.w-15 {
+        width: 15%;
+    }
+
+    &.w-20 {
+        width: 20%;
+    }
+
+    &.w-50 {
+        width: 50%;
+    }
+
+    &.w-300px {
+        width: 300px;
     }
 }
