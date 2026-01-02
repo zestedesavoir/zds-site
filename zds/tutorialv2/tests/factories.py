@@ -289,6 +289,7 @@ class HelpWritingFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence("titre de l'image {}".format)
     slug = factory.LazyAttribute(lambda o: f"{old_slugify(o.title)}")
     tablelabel = factory.LazyAttribute(lambda n: "Besoin de " + n.title)
+    image = factory.django.ImageField(color="blue")
 
     @classmethod
     def _generate(cls, create, attrs):
