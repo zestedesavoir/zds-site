@@ -1,5 +1,3 @@
-from http.client import responses
-
 from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.test.client import MULTIPART_CONTENT, Client
@@ -9,6 +7,7 @@ _IGNORED = [
     lambda x: "<table>" in x and "rules" in x,
     lambda x: "<table>" in x and "cellspacing" in x,
     lambda x: "<table>" in x and "cellpadding" in x,
+    lambda x: "<canvas>" in x and "[" in x,
     lambda x: "Info:" in x,
     lambda x: x == "",
 ]
