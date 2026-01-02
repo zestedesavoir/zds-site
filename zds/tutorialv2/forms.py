@@ -73,7 +73,7 @@ class ContainerForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="edit_content_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -117,7 +117,7 @@ class ContentForm(ContainerForm):
         )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="create_content_id_%s", **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
@@ -145,7 +145,7 @@ class ExtractForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="extract_form_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -173,7 +173,7 @@ class ImportForm(forms.Form):
             Field("images"),
             Submit("import-tuto", _("Importer le .tuto")),
         )
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="import_form_id_%s", **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -209,7 +209,7 @@ class ImportContentForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="import_content_form_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -264,7 +264,7 @@ class ImportNewContentForm(ImportContentForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="import_new_content_id_%s", **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
@@ -282,7 +282,12 @@ class ImportNewContentForm(ImportContentForm):
 
 
 class BetaForm(forms.Form):
-    version = forms.CharField(widget=forms.HiddenInput, required=True)
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "beta_version"}), required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, auto_id="put_beta_id_%s", **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(Field("version"))
 
 
 # Notes
@@ -307,7 +312,7 @@ class NoteForm(forms.Form):
 
         last_note = kwargs.pop("last_note", 0)
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id=kwargs.pop("auto_id", "add_note_id_%s"), **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("content:add-reaction") + f"?pk={content.pk}"
         self.helper.form_method = "post"
@@ -369,7 +374,7 @@ class NoteForm(forms.Form):
 
 class NoteEditForm(NoteForm):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="edit_note_id_%s", **kwargs)
 
         content = kwargs["content"]
         reaction = kwargs["reaction"]
@@ -391,7 +396,7 @@ class AskValidationForm(forms.Form):
         ),
     )
 
-    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "ask_validation_version"}), required=True)
 
     previous_page_url = ""
 
@@ -404,7 +409,7 @@ class AskValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="ask_validation_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = get_content_version_url(content, content.current_version)
@@ -466,7 +471,14 @@ class AcceptValidationForm(forms.Form):
         label="",
         required=True,
         error_messages={"required": _("Vous devez fournir un commentaire aux validateurs.")},
-        widget=forms.Textarea(attrs={"placeholder": _("Commentaire de publication."), "rows": "2", "minlength": "3"}),
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": _("Commentaire de publication."),
+                "rows": "2",
+                "minlength": "3",
+                "id": "accept_validation_text",
+            }
+        ),
         validators=[MinLengthValidator(3, _("Votre commentaire doit faire au moins 3 caractères."))],
     )
 
@@ -483,7 +495,7 @@ class AcceptValidationForm(forms.Form):
         """
         self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="accept_validation_id_%s", **kwargs)
 
         # if content is already published, it's probably a minor change, so do not check `is_major`
         self.fields["is_major"].initial = not validation.content.sha_public
@@ -495,7 +507,9 @@ class AcceptValidationForm(forms.Form):
         self.helper.form_id = "valid-publish"
 
         self.helper.layout = Layout(
-            Field("text"), Field("is_major"), StrictButton(_("Publier"), type="submit", css_class="btn-submit")
+            Field("text", attrs=dict(id="div_accept_validation_text")),
+            Field("is_major"),
+            StrictButton(_("Publier"), type="submit", css_class="btn-submit"),
         )
 
 
@@ -509,7 +523,7 @@ class CancelValidationForm(forms.Form):
     )
 
     def __init__(self, validation, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="cancel_validation_id_%s", **kwargs)
 
         self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
@@ -559,7 +573,7 @@ class RejectValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="reject_validation_id_%s", **kwargs)
 
         self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
@@ -592,7 +606,7 @@ class RejectValidationForm(forms.Form):
 
 
 class RevokeValidationForm(forms.Form):
-    version = forms.CharField(widget=forms.HiddenInput())
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "rev_version"}), required=True)
 
     text = forms.CharField(
         label="",
@@ -603,7 +617,7 @@ class RevokeValidationForm(forms.Form):
     )
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="revoke_validation_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -614,9 +628,7 @@ class RevokeValidationForm(forms.Form):
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "unpublish"
 
-        self.helper.layout = Layout(
-            Field("text"), Field("version"), StrictButton(_("Dépublier"), type="submit", css_class="btn-submit")
-        )
+        self.helper.layout = Layout(Field("text"))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -640,7 +652,7 @@ class JsFiddleActivationForm(forms.Form):
     js_support = forms.BooleanField(label="À cocher pour activer JSFiddle.", required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="js_activation_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("content:activate-jsfiddle")
         self.helper.form_method = "post"
@@ -678,7 +690,7 @@ class MoveElementForm(forms.Form):
     MOVE_BEFORE = "before"
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="move_element_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("content:move-element")
         self.helper.form_method = "post"
@@ -697,7 +709,7 @@ class PublicationForm(forms.Form):
     """
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="publication_form_id_%s", **kwargs)
 
         self.previous_page_url = content.get_absolute_url()
 
@@ -751,7 +763,7 @@ class PublicationForm(forms.Form):
 
 
 class UnpublicationForm(forms.Form):
-    version = forms.CharField(widget=forms.HiddenInput())
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "unpublish_version"}))
 
     text = forms.CharField(
         label="",
@@ -762,7 +774,7 @@ class UnpublicationForm(forms.Form):
     )
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="unpublication_form_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -776,16 +788,14 @@ class UnpublicationForm(forms.Form):
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "unpublish"
 
-        self.helper.layout = Layout(
-            Field("text"), Field("version"), StrictButton(_("Dépublier"), type="submit", css_class="btn-submit")
-        )
+        self.helper.layout = Layout(Field("text"))
 
 
 class PickOpinionForm(forms.Form):
-    version = forms.CharField(widget=forms.HiddenInput())
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "pick_version"}))
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="pick_opinion_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -811,7 +821,7 @@ class DoNotPickOpinionForm(forms.Form):
     redirect = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="donotpick_opinion_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -845,18 +855,22 @@ class DoNotPickOpinionForm(forms.Form):
 
 
 class UnpickOpinionForm(forms.Form):
-    version = forms.CharField(widget=forms.HiddenInput())
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "unpick_version"}))
 
     text = forms.CharField(
         label="",
         required=True,
         widget=forms.Textarea(
-            attrs={"placeholder": _("Pourquoi retirer ce billet de la liste des billets choisis ?"), "rows": "6"}
+            attrs={
+                "placeholder": _("Pourquoi retirer ce billet de la liste des billets choisis ?"),
+                "rows": "6",
+                "id": "unpick_text",
+            }
         ),
     )
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="unpick_opinion_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -873,10 +887,10 @@ class UnpickOpinionForm(forms.Form):
 
 
 class PromoteOpinionToArticleForm(forms.Form):
-    version = forms.CharField(widget=forms.HiddenInput())
+    version = forms.CharField(widget=forms.HiddenInput(attrs={"id": "promote_version"}))
 
     def __init__(self, content, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="promote_opinion_id_%s", **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -902,7 +916,7 @@ class ContentCompareStatsURLForm(forms.Form):
     urls = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), required=True)
 
     def __init__(self, urls, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="compare_stats_url_form_id_%s", **kwargs)
         self.fields["urls"].choices = urls
 
         self.helper = FormHelper()

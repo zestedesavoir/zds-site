@@ -37,7 +37,7 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
     )
 
     def __init__(self, username, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id="private_topic_id_%s", **kwargs)
 
         self.fields["participants"].widget.attrs.update(
             {
@@ -105,7 +105,7 @@ class PrivatePostForm(forms.Form):
     )
 
     def __init__(self, topic, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id=f"new_mp_{topic.pk}_post_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("mp:answer", args=[topic.pk, topic.slug()])
         self.helper.form_method = "post"

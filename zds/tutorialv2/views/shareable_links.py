@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.forms.widgets import Select
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -19,6 +20,7 @@ from zds.tutorialv2.models.shareable_links import ShareableLink
 class ListShareableLinksView(LoginRequiredMixin, SingleContentDetailViewMixin, TemplateView):
     template_name = "tutorialv2/view/list_shareable_links.html"
     authorized_for_staff = False
+    form_index = 0
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -26,7 +28,7 @@ class ListShareableLinksView(LoginRequiredMixin, SingleContentDetailViewMixin, T
         context["active_links_and_forms"] = self.get_active_links_and_forms(content)
         context["expired_links_and_forms"] = self.get_expired_links_and_forms(content)
         context["inactive_links_and_forms"] = self.get_inactive_links_and_forms(content)
-        context["create_form"] = ShareableLinkForm()
+        context["create_form"] = ShareableLinkForm(index=self.form_index)
         return context
 
     def get_active_links_and_forms(self, content):
@@ -38,9 +40,11 @@ class ListShareableLinksView(LoginRequiredMixin, SingleContentDetailViewMixin, T
     def get_inactive_links_and_forms(self, content):
         return self.get_links_and_forms(ShareableLink.objects.inactive_and_for_content(content))
 
-    @staticmethod
-    def get_links_and_forms(links):
-        edit_forms = [ShareableLinkForm(initial=initial) for initial in links.values()]
+    def get_links_and_forms(self, links):
+        edit_forms = [
+            ShareableLinkForm(initial=initial, index=i + self.form_index) for i, initial in enumerate(links.values())
+        ]
+        self.form_index += len(links)
         return list(zip(links, edit_forms))
 
 
@@ -52,6 +56,12 @@ class ShareableLinkForm(forms.Form):
         required=False,
     )
     type = forms.ChoiceField(choices=SHAREABLE_LINK_TYPES)
+
+    def __init__(self, *args, index=0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["description"].widget.attrs.update({"id": f"id_description_{index}"})
+        self.fields["expiration"].widget.attrs.update({"id": f"id_expiration_{index}"})
+        self.fields["type"].widget.attrs.update({"id": f"id_type_{index}"})
 
 
 class PermissionMixin:
