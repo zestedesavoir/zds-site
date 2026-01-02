@@ -8,6 +8,7 @@ from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.mp.models import PrivatePost, PrivateTopic, PrivateTopicRead, mark_read
 from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
 from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.utils.models import Hat
 
 
@@ -596,19 +597,12 @@ class EditPostViewTest(TestCase):
         # 403 because resend the same view without the preview parameter
 
 
-class LeaveViewTest(TestCase):
+class LeaveViewTest(TestCase, TestWithBotsMixin):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
         self.profile3 = ProfileFactory()
-
-        self.anonymous_account = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"])
-        self.bot_group = Group()
-        self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
-        self.bot_group.save()
-        self.anonymous_account.groups.add(self.bot_group)
-        self.anonymous_account.save()
-
+        self.create_bots()
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
         self.post1 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile1.user, position_in_topic=1)
@@ -668,16 +662,12 @@ class LeaveViewTest(TestCase):
         self.assertNotEqual(self.profile2.user, PrivateTopic.objects.get(pk=self.topic1.pk).author)
 
 
-class AddParticipantViewTest(TestCase):
+class AddParticipantViewTest(TestCase, TestWithBotsMixin):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        self.anonymous_account = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"])
-        self.bot_group = Group()
-        self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
-        self.bot_group.save()
-        self.anonymous_account.groups.add(self.bot_group)
-        self.anonymous_account.save()
+        self.create_bots()
+
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
         self.post1 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile1.user, position_in_topic=1)
@@ -705,12 +695,12 @@ class AddParticipantViewTest(TestCase):
 
         self.client.post(
             reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
-            {"username": self.anonymous_account.username},
+            {"username": self.anonymous.username},
         )
 
         # TODO (Arnaud-D): this test actually succeeds because of a Http404.
         #  NotReachableError is not raised.
-        self.assertFalse(self.anonymous_account in self.topic1.participants.all())
+        self.assertFalse(self.anonymous in self.topic1.participants.all())
 
     def test_fail_add_participant_who_no_exist(self):
         response = self.client.post(

@@ -16,6 +16,7 @@ from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, User
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import ContentReactionAnswerSubscription, Notification
 from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.tutorialv2.models.database import (
     ContentReaction,
     ContentRead,
@@ -47,26 +48,15 @@ overridden_zds_app["content"]["extra_content_generation_policy"] = "NOTHING"
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(SEARCH_ENABLED=False)
-class PublishedContentTests(TutorialTestMixin, TestCase):
+class PublishedContentTests(TutorialTestMixin, TestCase, TestWithBotsMixin):
     def setUp(self):
+        self.create_bots()
         self.overridden_zds_app = overridden_zds_app
         overridden_zds_app["content"]["default_licence_pk"] = LicenceFactory().pk
 
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory().user
-        overridden_zds_app["member"]["bot_account"] = self.mas.username
-
-        bot = Group(name=overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
-        self.external.groups.add(bot)
-        self.external.save()
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.anonymous.groups.add(bot)
-        self.anonymous.save()
-
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app["forum"]["beta_forum_id"],
             category=ForumCategoryFactory(position=1),

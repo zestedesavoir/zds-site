@@ -12,21 +12,16 @@ from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, User
 from zds.member.views.ip_addresses import members_from_ip
 from zds.notification.models import Notification
 from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 
 
-class TestsModeration(TestCase):
+class TestsModeration(TestCase, TestWithBotsMixin):
     def setUp(self):
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory()
-        settings.ZDS_APP["member"]["bot_account"] = self.mas.user.username
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.create_bots()
         self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.staff = StaffProfileFactory().user
-
-        self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
-        self.bot.save()
 
     def test_ls_followed_by_unls(self):
         """

@@ -12,6 +12,7 @@ from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.notification.models import Notification
 from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.tutorialv2.models.database import PickListOperation, PublicationEvent, PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import ExtractFactory, PublishableContentFactory, PublishedContentFactory
@@ -20,23 +21,11 @@ from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()
-class PublishedContentTests(TutorialTestMixin, TestCase):
+class PublishedContentTests(TutorialTestMixin, TestCase, TestWithBotsMixin):
     def setUp(self):
-        bot = ProfileFactory().user
-        self.overridden_zds_app["member"]["bot_account"] = bot.username
-        self.bot_group = Group()
-        self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
-        self.bot_group.save()
-        self.bot_group.user_set.add(bot)
-        self.bot_group.save()
         self.licence = LicenceFactory()
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.anonymous.groups.add(self.bot_group)
-        self.anonymous.save()
-        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
-        self.external.groups.add(self.bot_group)
-        self.external.save()
-
+        self.create_bots()
+        # we need profile to generate good html
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user

@@ -4,6 +4,7 @@ from django.urls import reverse
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
@@ -57,16 +58,14 @@ class EventListPermissionTests(TutorialTestMixin, TestCase):
 
 
 @override_for_contents()
-class EventListTests(TutorialTestMixin, TestCase):
+class EventListTests(TutorialTestMixin, TestCase, TestWithBotsMixin):
     def setUp(self):
+        self.create_bots()
         # Create users
         self.author = ProfileFactory().user
         self.coauthor = ProfileFactory().user
         self.contributor = ProfileFactory().user
         self.staff = StaffProfileFactory().user
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
-        self.bot = UserFactory(username=settings.ZDS_APP["member"]["bot_account"], password="anything")
         self.role = ContentContributionRoleFactory()
 
     def test_events_involving_unregistered_users(self):
