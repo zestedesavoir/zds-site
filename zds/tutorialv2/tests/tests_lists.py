@@ -54,9 +54,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=self.overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=self.overridden_zds_app["member"]["external_account"], password="anything")
 
     def test_public_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
