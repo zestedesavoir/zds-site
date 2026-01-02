@@ -29,7 +29,7 @@
     {% for contact_group in groups %}
         <h3>{{ contact_group.name }}</h3>
         {% if contact_group.description %}
-            <p>{{ contact_group.description|emarkdown }}</p>
+            {{ contact_group.description|emarkdown }}
         {% endif %}
         {% if contact_group.email %}
             <p>

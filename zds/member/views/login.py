@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
@@ -32,7 +34,7 @@ class LoginView(BlockedIPMixin, LoginView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["next"] = self.get_success_url()
+        kwargs["next"] = quote_plus(self.get_success_url())
         return kwargs
 
     def get_success_url(self):

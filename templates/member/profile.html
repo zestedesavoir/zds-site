@@ -682,12 +682,14 @@
                                 <h3>{% trans 'Karma' %}</h3>
                             </div>
 
-                            <span class="tail">
-                                <p>{% trans "Valeur actuelle" %} : {{ profile.karma }}</p>
-                            </span>
-                            <a href="#karmatiser-modal" class="tail open-modal">
-                                <p>{% trans "Ajouter une remarque" %}</p>
-                            </a>
+                            <p class="tail">
+                                {% trans "Valeur actuelle" %} : {{ profile.karma }}
+                            </p>
+                            <p>
+                                <a href="#karmatiser-modal" class="tail open-modal">
+                                    {% trans "Ajouter une remarque" %}
+                                </a>
+                            </p>
                             {% crispy karmaform %}
                         </div>
                         {% endif %}

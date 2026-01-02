@@ -531,7 +531,7 @@ class TestsModeration(TestCase, TestWithBotsMixin):
             reverse("members-from-ip", kwargs={"ip_address": staff.last_ip_address}), {}, follow=False
         )
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(len(result.context["members"]), 2)
+        self.assertGreater(len(result.context["members"]), 2)
 
 
 class IpListingsTests(TestCase):

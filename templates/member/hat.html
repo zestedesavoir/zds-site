@@ -35,7 +35,7 @@
 
 {% block content %}
     {% if groupcontact.description %}
-        <p>{{ groupcontact.description|emarkdown }}</p>
+        {{ groupcontact.description|emarkdown }}
     {% endif %}
     {% if groupcontact.email %}
         <p>

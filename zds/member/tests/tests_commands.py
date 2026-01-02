@@ -26,4 +26,5 @@ class TestUnregisterCommand(TestCase, TestWithBotsMixin):
 
         call_silent_command(user.user.username)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
-        self.assertEqual(User.objects.filter().count(), 2)  # anonymous and external
+        # all bot accounts
+        self.assertEqual(User.objects.filter().count(), 3)
