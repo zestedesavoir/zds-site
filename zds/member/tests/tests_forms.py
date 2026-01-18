@@ -238,6 +238,11 @@ class MiniProfileFormTest(TestCase):
         form = MiniProfileForm(data=data)
         self.assertFalse(form.is_valid())
 
+    def test_missing_non_required_fields_miniprofile_form(self):
+        data = {}
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
 
 class ProfileFormTest(TestCase):
     """
