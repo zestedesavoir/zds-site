@@ -277,27 +277,9 @@ class ProfileForm(MiniProfileForm):
         # to get initial value form checkbox show email
         initial = kwargs.get("initial", {})
         self.fields["options"].initial = ""
-
-        if "show_sign" in initial and initial["show_sign"]:
-            self.fields["options"].initial += "show_sign"
-
-        if "is_hover_enabled" in initial and initial["is_hover_enabled"]:
-            self.fields["options"].initial += "is_hover_enabled"
-
-        if "allow_temp_visual_changes" in initial and initial["allow_temp_visual_changes"]:
-            self.fields["options"].initial += "allow_temp_visual_changes"
-
-        if "show_markdown_help" in initial and initial["show_markdown_help"]:
-            self.fields["options"].initial += "show_markdown_help"
-
-        if "email_for_answer" in initial and initial["email_for_answer"]:
-            self.fields["options"].initial += "email_for_answer"
-
-        if "email_for_new_mp" in initial and initial["email_for_new_mp"]:
-            self.fields["options"].initial += "email_for_new_mp"
-
-        if "hide_forum_activity" in initial and initial["hide_forum_activity"]:
-            self.fields["options"].initial += "hide_forum_activity"
+        for option in [m[0] for m in self.multi_choices]:
+            if option in initial and initial[option]:
+                self.fields["options"].initial += option
 
         layout = Layout(
             IncludeEasyMDE(),
