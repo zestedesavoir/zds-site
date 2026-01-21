@@ -75,7 +75,7 @@
     >
         {% if topic.solved_by == topic.author %}
             {% trans "Le problème exposé dans ce sujet a été résolu." %}
-        {% else %}
+        {% elif topic.is_solved %}
             {% url "member-detail" topic.solved_by.username as url_member_detail %}
             {% blocktrans with username=topic.solved_by.username %}
                 <a href="{{ url_member_detail }}">{{ username }}</a> a marqué ce sujet comme résolu.
