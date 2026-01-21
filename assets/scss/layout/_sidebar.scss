@@ -409,7 +409,7 @@
                 &:focus {
                     & + .last-answer {
                         left: calc(100% + #{$length-1}); // Fix #5020 : prevents tooltip flickering
-
+                        display: inline;
                         visibility: visible;
                         opacity: 1;
 
