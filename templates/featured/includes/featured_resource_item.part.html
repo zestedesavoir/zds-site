@@ -3,11 +3,26 @@
 {% load french_typography %}
 
 <article class="featured-resource-item">
-    <a href="{{ featured_resource.url }}">
-        <img src="{{ featured_resource.image_url|remove_url_scheme }}" alt="Illustration {{ featured_resource.title }}" class="featured-resource-illu">
+    {% if featured_resource %}
+        <a href="{{ featured_resource.url }}">
+            <img src="{{ featured_resource.image_url|remove_url_scheme }}"
+                 alt="Illustration {{ featured_resource.title }}" class="featured-resource-illu">
+
+        </a>
         <div class="featured-resource-meta">
             <h2>{{ featured_resource.title|french_typography }}</h2>
-            <p class="featured-resource-description">{{ featured_resource.type|french_typography }} {% if featured_resource.authors %} {% trans "par" %} <i>{{ featured_resource.authors }}</i>{% endif %}</p>
+            <p class="featured-resource-description">{{ featured_resource.type|french_typography }}
+                {% if featured_resource.authors %} {% trans "par" %}
+                    <i>{{ featured_resource.authors }}</i>{% endif %}</p>
         </div>
-    </a>
+    {% else %}
+        <a href="#">
+            <span class="featured-resource-illu" >{% trans 'Illustration contenu non trouvée' %}</span>
+        </a>
+        <div class="featured-resource-meta">
+            <h2>{% trans 'Contenu non trouvé' %}</h2>
+            <p class="featured-resource-description"></p>
+        </div>
+    {% endif %}
+
 </article>
