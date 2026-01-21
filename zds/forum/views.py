@@ -723,7 +723,9 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.perform_useful(self.object)
 
         if is_ajax(request):
-            return JsonResponse(self.object.is_useful)
+            # we want a basic boolean, so we accept the safe=False. But if later we wrap it in an object
+            # we will have to change the js script
+            return JsonResponse(self.object.is_useful, safe=False)
 
         return redirect(self.object.get_absolute_url())
 
