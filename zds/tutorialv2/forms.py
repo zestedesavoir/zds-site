@@ -73,7 +73,7 @@ class ContainerForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, auto_id="edit_content_id_%s", **kwargs)
+        super().__init__(*args, auto_id=kwargs.pop("auto_id", "edit_content_id_%s"), **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -117,7 +117,7 @@ class ContentForm(ContainerForm):
         )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, auto_id="create_content_id_%s", **kwargs)
+        super().__init__(*args, auto_id=kwargs.pop("auto_id", "create_content_id_%s"), **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
@@ -145,7 +145,7 @@ class ExtractForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, auto_id="extract_form_id_%s", **kwargs)
+        super().__init__(*args, auto_id=kwargs.pop("auto_id", "extract_form_id_%s"), **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -173,7 +173,7 @@ class ImportForm(forms.Form):
             Field("images"),
             Submit("import-tuto", _("Importer le .tuto")),
         )
-        super().__init__(*args, auto_id="import_form_id_%s", **kwargs)
+        super().__init__(*args, auto_id=kwargs.pop("auto_id", "import_form_id_%s"), **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
