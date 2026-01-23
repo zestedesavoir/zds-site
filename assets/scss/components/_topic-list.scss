@@ -202,6 +202,9 @@
         .topic-members {
             margin: 0;
             color: $grey-600;
+            .topic-author {
+                font-style: italic;
+            }
         }
 
         &.has-image a {
@@ -328,6 +331,9 @@
             .topic-members {
                 .topic-members-long-date {
                     display: none;
+                }
+                .topic-author {
+                    font-style: italic;
                 }
             }
 
