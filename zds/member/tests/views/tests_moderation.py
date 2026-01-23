@@ -580,9 +580,9 @@ class IpListingsTests(TestCase):
     def test_different_ipv4(self) -> None:
         self.client.force_login(self.staff)
         response = self.client.get(reverse(members_from_ip, args=[self.user_ipv4_different_ip.last_ip_address]))
-        self.assertContains(response.html_document, self.user_ipv4_different_ip.user.username)
-        self.assertContains(response.html_document, self.user_ipv4_different_ip.last_ip_address)
-        self.assertNotContains(response.html_document, self.user_ipv6_same_ip_1.user.username)
+        self.assertContains(response, self.user_ipv4_different_ip.user.username)
+        self.assertContains(response, self.user_ipv4_different_ip.last_ip_address)
+        self.assertNotContains(response, self.user_ipv6_same_ip_1.user.username)
 
     def test_same_ipv6_and_same_ipv6_network(self) -> None:
         self.client.force_login(self.staff)

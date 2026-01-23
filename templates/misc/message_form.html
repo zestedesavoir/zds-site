@@ -13,7 +13,7 @@
     <div class="alert-box info alert-box-not-closable">
         {% trans "Connectez-vous pour pouvoir poster un message." %}
         <br>
-        <a href="{% url "member-login" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
+        <a href="{% url "member-login" %}{% querystring next=request.path %}" class="alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
     <div class="alert-box not-member alert-box-not-closable">
         <h4 class="alert-box-title">Pas encore membre ?</h4>

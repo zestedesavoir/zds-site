@@ -261,7 +261,7 @@ class LoginTests(TestCase):
         initial URL"""
         tutorial_list_url = reverse("publication:list") + "?type=tutorial"
         full_login_url = self.login_url + "?next=" + tutorial_list_url
-        full_login_url_quoted = self.login_url + "?next=" + quote(tutorial_list_url)
+        full_login_url_quoted = self.login_url + "?next=" + quote_plus(tutorial_list_url)
 
         # Let's go on a URL which contains a GET parameter
         tutorial_list_page = self.client.get(tutorial_list_url)
@@ -269,7 +269,7 @@ class LoginTests(TestCase):
         self.assertContains(tutorial_list_page, 'href="' + full_login_url_quoted)
 
         # Now, go to this login page
-        login_page = self.client.get(full_login_url_quoted)
+        login_page = self.client.get(full_login_url)
         # The form sends data to a URL containing the GET parameter
         self.assertEqual(login_page.context["form"].helper.form_action, full_login_url_quoted)
         # There is still a link to the login page (this link doesn't contain a
