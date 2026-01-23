@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from urllib.parse import quote
+from urllib.parse import quote, quote_plus
 
 from django.conf import settings
 from django.urls import reverse
@@ -48,7 +48,7 @@ class LoginTests(TestCase):
 
     def test_form_action_redirect(self):
         """The form shall have the 'next' parameter in the action url of the form."""
-        next_fragment = "?next=" + reverse("member-detail", args=[self.correct_username])
+        next_fragment = "?next=" + quote_plus(reverse("member-detail", args=[self.correct_username]))
         full_url = self.login_url + next_fragment
         result = self.client.get(full_url, follow=False)
         self.assertContains(result, f'action="{full_url}"')
@@ -271,7 +271,7 @@ class LoginTests(TestCase):
         # Now, go to this login page
         login_page = self.client.get(full_login_url_quoted)
         # The form sends data to a URL containing the GET parameter
-        self.assertEqual(login_page.context["form"].helper.form_action, full_login_url)
+        self.assertEqual(login_page.context["form"].helper.form_action, full_login_url_quoted)
         # There is still a link to the login page (this link doesn't contain a
         # recursion of ?next= parameters)
         self.assertContains(login_page, 'href="' + full_login_url_quoted)
