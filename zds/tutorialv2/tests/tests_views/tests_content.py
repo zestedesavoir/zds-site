@@ -1281,11 +1281,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             },
         )
         self.assertEqual(200, answer.status_code)
-        msgs = answer.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
+        self.assertLastMessageLevel(answer, messages.ERROR)
 
     def test_import_image_with_archive(self):
         """ensure that import archive work, and link are changed"""
@@ -2339,12 +2335,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
+        self.assertLastMessageLevel(result, messages.ERROR)
 
         # login with normal user
         self.client.logout()
@@ -2374,12 +2365,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
+        self.assertLastMessageLevel(result, messages.SUCCESS)
 
         # check PM :
         sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
@@ -2394,12 +2380,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
+        self.assertLastMessageLevel(result, messages.SUCCESS)
 
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
         self.chapter1.parent.parent = versioned
         # check PM :
         sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
@@ -2459,12 +2441,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
+        self.assertLastMessageLevel(result, messages.SUCCESS)
 
         # check PM :
         sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
@@ -2484,12 +2461,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
+        self.assertLastMessageLevel(result, messages.SUCCESS)
 
         # check PM :
         sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
@@ -2526,12 +2498,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
+        self.assertLastMessageLevel(result, messages.ERROR)
 
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         chapter_version = tuto.load_version().children[0]
@@ -2591,12 +2558,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
+        self.assertLastMessageLevel(result, messages.ERROR)
 
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         extract = versioned.children[0].children[0]
@@ -2969,12 +2931,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.get(reverse("content:create-extract", args=[tuto.pk, tuto.slug]), follow=True)
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)  # get an error message
+        self.assertLastMessageLevel(result, messages.ERROR)
 
         # create a container while there is already an extract:
         versioned = tuto.load_version()
@@ -2996,12 +2953,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
+        self.assertLastMessageLevel(result, messages.ERROR)
 
     def test_gallery_not_deleted_if_linked_to_content(self):
         """Ensure that a gallery cannot be deleted if linked to a content"""

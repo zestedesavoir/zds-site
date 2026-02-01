@@ -28,6 +28,11 @@ class override_for_contents(override_settings):
 class TutorialTestMixin:
     overridden_zds_app = overridden_zds_app
 
+    def assertLastMessageLevel(self, req_result, level):
+        msgs = req_result.context["messages"]
+        self.assertNotEqual(len(msgs), 0)
+        self.assertEqual(list(msgs)[-1].level, level)
+
     def clean_media_dir(self):
         shutil.rmtree(self.overridden_zds_app["content"]["repo_private_path"], ignore_errors=True)
         shutil.rmtree(self.overridden_zds_app["content"]["repo_public_path"], ignore_errors=True)
