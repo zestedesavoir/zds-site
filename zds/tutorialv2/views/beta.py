@@ -93,8 +93,9 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             msg_post = render_to_string(
                 "tutorialv2/messages/beta_desactivate.md", {"content": beta_version, "type": _type}
             )
-            send_post(self.request, topic, self.request.user, msg_post)
-            lock_topic(topic)
+            if topic:
+                send_post(self.request, topic, self.request.user, msg_post)
+                lock_topic(topic)
             signals.beta_management.send(
                 sender=self.__class__,
                 content=self.object,
