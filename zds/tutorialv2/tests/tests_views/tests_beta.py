@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.forum.models import Post, Topic, TopicRead
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.tests.factories import ProfileFactory, UserFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.database import PublishableContent
@@ -33,6 +33,7 @@ class BetaTests(TutorialTestMixin, TestCase):
 
         self.user_author = ProfileFactory().user
         self.user_guest = ProfileFactory().user
+        self.staff_user = StaffProfileFactory().user
 
         self.external = UserFactory(username=self.overridden_zds_app["member"]["external_account"], password="anything")
         self.external.groups.add(bot_group)
@@ -47,6 +48,7 @@ class BetaTests(TutorialTestMixin, TestCase):
             category=ForumCategoryFactory(position=1),
             position_in_category=1,
         )  # ensure that the forum, for the beta versions, is created
+        self.other_forum = ForumFactory(category=ForumCategoryFactory(position=1), position_in_category=1)
 
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
@@ -282,6 +284,38 @@ class BetaTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:set-beta", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}),
             {"version": self.tuto.sha_draft},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+    def test_success_deactivate_beta_when_topic_has_been_moved(self):
+        """Check that the beta of a content can be deactivated even if the beta topic has been moved"""
+
+        self.client.force_login(self.user_author)
+
+        # Creates a content
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.save()
+
+        # Activates beta
+        result = self.client.post(
+            reverse("content:set-beta", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
+            {"version": tuto.sha_draft},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+        tuto.refresh_from_db()
+
+        # Moves topic to a different forum
+        beta_topic = tuto.beta_topic
+        beta_topic.forum = self.other_forum
+        beta_topic.save()
+
+        # Check that a staff member car still deactivate the beta
+        self.client.force_login(self.staff_user)
+        result = self.client.post(
+            reverse("content:inactive-beta", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
+            {"version": tuto.sha_beta},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
