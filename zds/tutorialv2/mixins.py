@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, FormView, View
 
-from zds.forum.models import Topic
 from zds.tutorialv2.models.database import ContentRead, PublishableContent, PublishedContent
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.utils import mark_read
@@ -47,6 +46,7 @@ class SingleContentViewMixin:
     sha = None
     must_be_author = True
     authorized_for_staff = True
+    authorized_for_all = False  # used for shareable links
     is_staff = False
     is_author = False
     must_redirect = False
@@ -96,7 +96,7 @@ class SingleContentViewMixin:
         is_beta = self.object.is_beta(self.sha)
         is_public = self.object.is_public(self.sha) and self.public_is_prioritary
 
-        if not is_beta and not is_public and not self.is_author:
+        if not is_beta and not is_public and not self.is_author and not self.authorized_for_all:
             if not self.is_staff or (not self.authorized_for_staff and self.must_be_author):
                 raise PermissionDenied
 

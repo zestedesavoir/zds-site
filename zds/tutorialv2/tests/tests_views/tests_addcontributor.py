@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib import messages
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
@@ -196,4 +197,12 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
             response, escape(ContributionForm.declared_fields["contribution_role"].error_messages["invalid_choice"])
         )
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
+
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_too_long_comment(self, contributors_management):
+        form_data = {"username": self.contributor, "contribution_role": self.role.pk, "comment": "a" * 1024}
+        response = self.client.post(self.form_url, form_data, follow=True)
+        self.assertLastMessageLevel(response, messages.ERROR)
+        self.assertQuerySetEqual(ContentContribution.objects.all(), [])
         self.check_signal(contributors_management, emitted=False)

@@ -44,6 +44,7 @@ class ContributionForm(forms.Form):
     comment = forms.CharField(
         label=_("Commentaire"),
         required=False,
+        max_length=ContentContribution._meta.get_field("comment").max_length,
         widget=forms.Textarea(attrs={"placeholder": _("Commentaire sur ce contributeur."), "rows": "3"}),
     )
 
