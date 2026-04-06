@@ -7,7 +7,7 @@ on:
     - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
-  NODE_VERSION: "18" # needs to be also updated in .nvmrc
+  NODE_VERSION: "24" # needs to be also updated in .nvmrc
   PYTHON_VERSION: "3.11"
   PIP_VERSION: "25.1.1" # needs to be also updated in scripts/define_variable.sh
   MARIADB_VERSION: "10.11.11"
