@@ -1,11 +1,15 @@
 (function() {
   'use strict'
 
-  $('.topic-message').on('click', '[data-copy-permalink]', function(e) {
-    e.stopPropagation()
-    e.preventDefault()
-    navigator.clipboard.writeText($(this).attr('data-copy-permalink'))
-    const dropdown = e.target.closest('.dropdown')
-    dropdown.removeAttribute('open')
+  document.querySelectorAll('.topic-message').forEach(function(topicMessage) {
+    topicMessage.addEventListener('click', function(e) {
+      const target = e.target.closest('[data-copy-permalink]')
+      if (!target) return
+      e.stopPropagation()
+      e.preventDefault()
+      navigator.clipboard.writeText(target.getAttribute('data-copy-permalink'))
+      const dropdown = target.closest('.dropdown')
+      dropdown.removeAttribute('open')
+    })
   })
-})(jQuery)
+})()
