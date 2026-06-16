@@ -234,9 +234,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         # reject validation:
         quote = "\n".join(["> " + line for line in form.cleaned_data["text"].split("\n")])
         validation.status = "CANCEL"
-        validation.comment_authors = _("\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}").format(
-            quote
-        )
+        validation.comment_authors = _("\n\nL’édition a été **annulée** pour la raison suivante :\n\n{}").format(quote)
         validation.date_validation = datetime.now()
         validation.save()
 

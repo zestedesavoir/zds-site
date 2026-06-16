@@ -383,7 +383,7 @@
                             {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count waiting_opinions_count="OPINION"|waiting_count %}
                                 <li class="staff-only">
                                     <a href="{% url "validation:list" %}">
-                                        {% trans "Validation" %}
+                                        {% trans "Édition" %}
 
                                         {% captureas tutorials_chunk %}
                                             {{ waiting_tutorials_count }} tutoriel{{ waiting_tutorials_count|pluralize:"s" }}

@@ -79,7 +79,7 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         # Create entities for the test
         self.author = ProfileFactory().user
         self.contributor = ProfileFactory().user
-        self.role = ContentContributionRoleFactory(title="Validateur")
+        self.role = ContentContributionRoleFactory(title="Éditeur·ice")
         self.content = PublishableContentFactory(author_list=[self.author])
         settings.ZDS_APP["member"]["bot_account"] = ProfileFactory().user.username
 

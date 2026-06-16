@@ -121,7 +121,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_public_access(self):
         """Test that everybody have access to a content after its publication"""
 
-        text_validation = "Valide moi ce truc, please !"
+        text_validation = "Édite-moi ce truc, please !"
         text_publication = "Aussi tôt dit, aussi tôt fait !"
 
         # 1. Article:
@@ -1198,7 +1198,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertNotEqual(tuto.slug, old_slug)
 
         # ask validation
-        text_validation = "Valide moi ce truc, please !"
+        text_validation = "Édite-moi ce truc, please !"
         text_publication = "Aussi tôt dit, aussi tôt fait !"
         self.assertEqual(Validation.objects.count(), 0)
 
@@ -1481,8 +1481,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_beta_article_closed_when_published(self):
         """Test that the beta of an article is locked when the content is published"""
 
-        text_validation = "Valide moi ce truc !"
-        text_publication = "Validation faite !"
+        text_validation = "Édite-moi ce truc !"
+        text_publication = "Édition faite !"
 
         article = PublishableContentFactory(type="ARTICLE")
         article.authors.add(self.user_author)
@@ -1887,8 +1887,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_author_update(self):
         """Check that the author list of a content is updated when this content is updated."""
 
-        text_validation = "Valide moi ce truc, please !"
-        text_publication = "Validation faite !"
+        text_validation = "Édite-moi ce truc, please !"
+        text_publication = "Édition faite !"
 
         tutorial = PublishedContentFactory(
             type="TUTORIAL", author_list=[self.user_author, self.user_guest, self.user_staff]

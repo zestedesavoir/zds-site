@@ -431,7 +431,7 @@ def load_contents(cli, size, fake, _type, *_, **__):
         )
     else:
         cli.stdout.write(
-            " - {:g} en validation (dont {:g} réservés)".format(
+            " - {:g} en cours d’édition (dont {:g} réservés)".format(
                 nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
                 nb_contents * percent_contents_with_validator,
             )
@@ -626,11 +626,11 @@ class Command(BaseCommand):
         ZDSResource("post", "forum message", load_posts, tuple()),
         ZDSResource("gallery", "image gallery for each member", load_gallery, tuple()),
         ZDSResource(
-            "article", "article-typed publications, in draft, in validation and published", load_contents, ("ARTICLE",)
+            "article", "article-typed publications, in draft, in edition and published", load_contents, ("ARTICLE",)
         ),
         ZDSResource(
             "tutorial",
-            "tutorial-typed publications, in draft, in validation and published",
+            "tutorial-typed publications, in draft, in edition and published",
             load_contents,
             ("TUTORIAL",),
         ),

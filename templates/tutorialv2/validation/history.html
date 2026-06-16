@@ -6,13 +6,13 @@
 
 
 {% block title %}
-    {% trans "Historique de validation" %}
+    {% trans "Historique d’édition" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "validation:list" %}">{% trans "Validation" %}</a></li>
+    <li><a href="{% url "validation:list" %}">{% trans "Édition" %}</a></li>
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
     <li>{% trans "Historique" %}</li>
 {% endblock %}
@@ -28,7 +28,7 @@
     </h1>
 
     <h2 class="subtitle">
-        {% trans "Historique de validation" %}
+        {% trans "Historique d’édition" %}
     </h2>
 {% endblock %}
 
@@ -51,7 +51,7 @@
                             {% if validation.comment_authors %}
                                 <br>
                                 <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
-                                    {% trans "Message laissé à la validation" %}
+                                    {% trans "Message laissé à l’édition" %}
                                 </a>
                                 <div class="modal modal-flex" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
@@ -72,7 +72,7 @@
         </table>
     {% else %}
         <p>
-            {% trans "Ce contenu n’a jamais été soumis en validation" %}.
+            {% trans "Ce contenu n’a jamais été soumis pour édition" %}.
         </p>
     {% endif %}
 {% endblock %}

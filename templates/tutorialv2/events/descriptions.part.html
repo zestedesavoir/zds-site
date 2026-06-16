@@ -39,9 +39,9 @@
 {% elif event.type == "validation_management" %}
     {% url "content:view-version" pk=event.content.pk slug=event.content.slug version=event.version as version_href %}
     {% if event.action == "request" %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a demandé la validation d'une <a href="{{ version_href }}">version du contenu</a>.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a demandé l’édition d'une <a href="{{ version_href }}">version du contenu</a>.
     {% elif event.action == "cancel" %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la demande de validation du contenu.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la demande d’édition du contenu.
     {% elif event.action == "accept" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a accepté le contenu pour publication.
     {% elif event.action == "reject" %}
@@ -49,11 +49,11 @@
     {% elif event.action == "revoke" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a dépublié le contenu.
     {% elif event.action == "reserve" %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a réservé le contenu pour validation.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a réservé le contenu pour édition.
     {% elif event.action == "unreserve" %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la réservation du contenu pour validation.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la réservation du contenu pour édition.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de validation de type « {{ event.action }} ».
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action d’édition de type « {{ event.action }} ».
     {% endif %}
 
 
