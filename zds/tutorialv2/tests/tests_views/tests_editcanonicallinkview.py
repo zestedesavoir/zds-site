@@ -6,11 +6,11 @@ from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.views.canonical import EditCanonicalLinkForm, EditCanonicalLinkView
-from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.tutorialv2.publication_utils import publish_content
+
 
 @override_for_contents()
 class PermissionTests(TutorialTestMixin, TestCase):
