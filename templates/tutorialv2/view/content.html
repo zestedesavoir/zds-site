@@ -13,7 +13,7 @@
 
 {% if display_config.online_config.show_dcmi_card %}
     {% block DCMI_cards %}
-        {% include "tutorialv2/includes/meta/dcmi_cards.part.html" with db_content=db_content content=content is_online=db_content.public_version %}
+        {% include "tutorialv2/includes/meta/dcmi_cards.part.html" with db_content=db_content online_content=public_object offline_content=content is_online=db_content.public_version %}
     {% endblock %}
 {% endif %}
 
