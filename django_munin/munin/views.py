@@ -13,12 +13,10 @@ User = get_user_model()
 Session = import_module(settings.SESSION_ENGINE).CustomSession
 
 
-@muninview(
-    config="""graph_title Total Users
+@muninview(config="""graph_title Total Users
 graph_vlabel users
 graph_args --lower-limit 0
-graph_scale no"""
-)
+graph_scale no""")
 def total_users(request):
     return [
         ("users", User.objects.all().count()),
@@ -27,37 +25,29 @@ def total_users(request):
     ]
 
 
-@muninview(
-    config="""graph_title Active Users
+@muninview(config="""graph_title Active Users
 graph_vlabel users
-graph_info Number of users logged in during the last hour"""
-)
+graph_info Number of users logged in during the last hour""")
 def active_users(request):
     hour_ago = datetime.now() - timedelta(hours=1)
     return [("users", User.objects.filter(last_login__gt=hour_ago).count())]
 
 
-@muninview(
-    config="""graph_title Total Sessions
-graph_vlabel sessions"""
-)
+@muninview(config="""graph_title Total Sessions
+graph_vlabel sessions""")
 def total_sessions(request):
     return [("sessions", Session.objects.all().count())]
 
 
-@muninview(
-    config="""graph_title Active Sessions
-graph_vlabel sessions"""
-)
+@muninview(config="""graph_title Active Sessions
+graph_vlabel sessions""")
 def active_sessions(request):
     return [("sessions", Session.objects.filter(expire_date__gt=datetime.now()).count())]
 
 
-@muninview(
-    config="""graph_title DB performance
+@muninview(config="""graph_title DB performance
 graph_vlabel milliseconds
-graph_info performance of simple insert/select/delete operations"""
-)
+graph_info performance of simple insert/select/delete operations""")
 def db_performance(request):
     start = time.time()
     t = Test.objects.create(name="inserting at %f" % start)

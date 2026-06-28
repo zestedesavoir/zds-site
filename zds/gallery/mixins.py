@@ -277,7 +277,7 @@ class ImageCreateMixin(ImageMixin):
                 continue
 
             basename = os.path.basename(i)
-            (name, ext) = os.path.splitext(basename)
+            name, ext = os.path.splitext(basename)
 
             if file_info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
                 error_files.append(
