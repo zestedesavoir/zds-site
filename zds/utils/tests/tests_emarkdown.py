@@ -67,44 +67,36 @@ class EMarkdownTest(TestCase):
         self.assertEqual("#### Titre 1\n\n" "##### Titre **2**\n\n" "###### Titre 3\n\n" "&gt; test", tr)
 
     def test_special_shift_heading(self):
-        sharp_in_code = dedent(
-            """
+        sharp_in_code = dedent("""
         # title
         ```
         # comment
         ```
         # another title
-        """
-        )
-        result_sharp_in_code = dedent(
-            """
+        """)
+        result_sharp_in_code = dedent("""
         ## title
         ```
         # comment
         ```
         ## another title
-        """
-        )
+        """)
         self.assertEqual(shift_heading(sharp_in_code, 1), result_sharp_in_code)
 
-        sharp_in_code_with_antiquotes = dedent(
-            """
+        sharp_in_code_with_antiquotes = dedent("""
         # title
         ~~~
         ```
         # comment
         ~~~
         # another title
-        """
-        )
-        result_sharp_in_code_with_antiquotes = dedent(
-            """
+        """)
+        result_sharp_in_code_with_antiquotes = dedent("""
         ## title
         ~~~
         ```
         # comment
         ~~~
         ## another title
-        """
-        )
+        """)
         self.assertEqual(shift_heading(sharp_in_code_with_antiquotes, 1), result_sharp_in_code_with_antiquotes)

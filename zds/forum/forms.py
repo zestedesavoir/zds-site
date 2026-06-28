@@ -59,14 +59,10 @@ class TopicForm(forms.Form, FieldValidatorMixin):
             Field("title"),
             Field("subtitle", autocomplete="off"),
             Field("tags"),
-            HTML(
-                """<div id="topic-suggest" style="display:none;"  url="{}">
+            HTML("""<div id="topic-suggest" style="display:none;"  url="{}">
   <label>{}</label>
   <div id="topic-result-container" data-neither="{}"></div>
-</div>""".format(
-                    reverse("search:similar"), _("Sujets similaires au vôtre :"), _("Aucun résultat")
-                )
-            ),
+</div>""".format(reverse("search:similar"), _("Sujets similaires au vôtre :"), _("Aucun résultat"))),
             CommonLayoutEditor(),
         )
 

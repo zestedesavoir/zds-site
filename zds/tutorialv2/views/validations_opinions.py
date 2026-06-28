@@ -554,10 +554,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
 
         messages.success(
             self.request,
-            _(
-                """Le billet a bien été copié sous forme d’article
-                                            et est en attente de validation."""
-            ),
+            _("""Le billet a bien été copié sous forme d’article
+                                            et est en attente de validation."""),
         )
 
         return super().form_valid(form)
