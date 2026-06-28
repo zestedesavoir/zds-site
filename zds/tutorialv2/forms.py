@@ -85,18 +85,14 @@ class ContainerForm(FormWithTitle):
             ButtonHolder(
                 StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
             ),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-            with text=form.introduction.value %}{% endif %}'
-            ),
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
+            with text=form.introduction.value %}{% endif %}'),
             Field("conclusion", css_class="md-editor preview-source"),
             ButtonHolder(
                 StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
             ),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-            with text=form.conclusion.value %}{% endif %}'
-            ),
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
+            with text=form.conclusion.value %}{% endif %}'),
             Field("msg_commit"),
             Field("last_hash"),
             ButtonHolder(
@@ -427,13 +423,9 @@ class AskValidationForm(forms.Form):
         )
 
         self.no_license = not content.licence
-        no_license_msg = HTML(
-            _(
-                """<p><strong>Vous n'avez pas choisi de licence pour votre publication.
+        no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
                                    Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
-                                   avant de demander la validation.</strong></p>"""
-            )
-        )
+                                   avant de demander la validation.</strong></p>"""))
 
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
@@ -719,13 +711,9 @@ class PublicationForm(forms.Form):
         )
 
         self.no_license = not content.licence
-        no_license_msg = HTML(
-            _(
-                """<p><strong>Vous n'avez pas choisi de licence pour votre publication.
+        no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
                                    Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
-                                   avant de publier.</strong></p>"""
-            )
-        )
+                                   avant de publier.</strong></p>"""))
 
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
@@ -888,11 +876,9 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_id = "convert-opinion"
 
         self.helper.layout = Layout(
-            HTML(
-                """<p>Avez-vous la certitude de vouloir proposer ce billet comme article ?
+            HTML("""<p>Avez-vous la certitude de vouloir proposer ce billet comme article ?
                     Cela copiera le billet pour en faire un article,
-                    puis créera une demande de validation pour ce dernier.</p>"""
-            ),
+                    puis créera une demande de validation pour ce dernier.</p>"""),
             Field("version"),
             StrictButton(_("Valider"), type="submit", css_class="btn-submit"),
         )
