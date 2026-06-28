@@ -37,7 +37,7 @@ Pré-requis
   Ces instructions expliquent comment installer XCode, Homebrew, Python, pip, et
   les utilitaires GNU, sur macOS. Si vous avez déjà :
 
-  - une installation fonctionnelle de Homebrew et de Python 3.11+ ;
+  - une installation fonctionnelle de Homebrew et de Python 3.12+ ;
   - configuré votre terminal pour utiliser les utilitaires GNU à la place de
     ceux de BSD (avec `linuxify <https://github.com/darksonic37/linuxify#install>`_,
     par exemple) ;
@@ -83,7 +83,7 @@ Pour vérifier, exécutez la commande suivante :
 
   python --version
 
-Si vous obtenez une version inférieure à Python 3.11 (et notamment si vous voyez
+Si vous obtenez une version inférieure à Python 3.12 (et notamment si vous voyez
 ``Python 2.7``), il vous faudra installer une version récente de Python avec
 Homebrew. Sinon, vous pouvez utiliser la version intégrée avec macOS de Python,
 mais vous devrez installer ``pip``.
@@ -121,7 +121,7 @@ Vous devriez obtenir un numéro de version de pip et de Python, comme cela :
 .. sourcecode:: bash
 
   $ pip --version  # ou une des autres commandes
-  pip 22.3.1 from /opt/homebrew/lib/python3.11/site-packages/pip (python 3.11)
+  pip 22.3.1 from /opt/homebrew/lib/python3.12/site-packages/pip (python 3.12)
 
 Si ces commandes retournent toutes une erreur, et non un numéro de version,
 vous devez installer ``pip``. `Les instructions d’installation sont sur le site
