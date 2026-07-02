@@ -423,6 +423,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
 
         context["content"] = self.versioned_object
         context["is_obsolete"] = self.object.is_obsolete
+        context["obsolescence_description"] = self.object.obsolescence_description
         context["public_object"] = self.public_content_object
         context["can_edit"] = self.request.user in self.object.authors.all()
         context["is_staff"] = self.is_staff

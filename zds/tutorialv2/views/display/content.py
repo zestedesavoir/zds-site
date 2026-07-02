@@ -45,6 +45,7 @@ from zds.tutorialv2.views.display.config import (
 from zds.tutorialv2.views.goals import EditGoalsForm
 from zds.tutorialv2.views.labels import EditLabelsForm
 from zds.tutorialv2.views.licence import EditContentLicenseForm
+from zds.tutorialv2.views.obsolescence import EditObsolescenceForm
 from zds.tutorialv2.views.suggestions import SearchSuggestionForm
 from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.views.thumbnail import EditThumbnailForm
@@ -101,6 +102,7 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_warn_typo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
         context["form_edit_tags"] = EditTagsForm(self.versioned_object, self.object)
         context["form_edit_canonical_link"] = EditCanonicalLinkForm(self.object)
+        context["form_edit_obsolescence"] = EditObsolescenceForm(self.object, next_url=self.get_base_url())
         context["form_edit_goals"] = EditGoalsForm(self.object)
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
