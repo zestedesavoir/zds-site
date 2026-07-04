@@ -32,15 +32,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
+          pip-version: "${{ env.PIP_VERSION }}"
+          pip-install: -r requirements-ci.txt
+          cache: pip
+          cache-dependency-path: 'requirements*.txt'
 
       - name: Execute pre-commit
-        uses: pre-commit/action@v3.0.1
+        run: pre-commit run --show-diff-on-failure --color=always --all-files
 
   # Build the documentation and upload it as an artifact.
   build-doc:
@@ -52,39 +56,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ env.PYTHON_VERSION }}"
-
-      - name: Upgrade pip
-        run: pip install pip==${{ env.PIP_VERSION }}
-
-      - name: Retrieve pip cache directory
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+        uses: actions/checkout@v7
 
       - name: Install Cairo
         run: sudo apt-get update && sudo apt-get install libcairo2-dev
 
-      - name: Install python dependencies
-        run: pip install -r requirements-dev.txt
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: "${{ env.PYTHON_VERSION }}"
+          pip-version: "${{ env.PIP_VERSION }}"
+          pip-install: -r requirements-ci.txt
+          cache: pip
+          cache-dependency-path: 'requirements*.txt'
 
       - name: Build documentation
         run: make generate-doc
 
       - name: Upload documentation as a page artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: doc/build/html
 
@@ -98,25 +88,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "${{ env.NODE_VERSION }}"
-
-      - name: Retrieve yarn cache directory
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache Node modules
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: 'yarn'
+          cache-dependency-path: '**/package.json'
 
       - name: Install front-end
         run: make install-front
@@ -128,7 +107,7 @@ jobs:
         run: make build-front
 
       - name: Upload font-end assets for subsequent tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: assets
           path: dist
@@ -163,7 +142,7 @@ jobs:
         run: sudo service mysql stop
 
       - name: Set up MariaDB ${{ env.MARIADB_VERSION }}
-        uses: getong/mariadb-action@v1.1
+        uses: getong/mariadb-action@v1.11
         with:
           character set server: "utf8mb4"
           collation server: "utf8mb4_unicode_ci"
@@ -178,52 +157,32 @@ jobs:
           typesense-api-key: xyz
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download previously built assets
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: assets
           path: dist
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ env.PYTHON_VERSION }}"
-
-      - name: Upgrade pip
-        run: pip install pip==${{ env.PIP_VERSION }}
-
-      - name: Retrieve pip cache directory
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Cache Node modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: "${{ env.NODE_VERSION }}"
-
       - name: Install Cairo
         run: sudo apt-get update && sudo apt-get install libcairo2-dev
 
-      - name: Install Python dependencies
-        run: pip install -r requirements-ci.txt
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: "${{ env.PYTHON_VERSION }}"
+          pip-version: "${{ env.PIP_VERSION }}"
+          pip-install: -r requirements-ci.txt
+          cache: pip
+          cache-dependency-path: 'requirements*.txt'
+
+      - name: Set up NodeJS ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: "${{ env.NODE_VERSION }}"
+          cache: 'yarn'
+          cache-dependency-path: '**/package.json'
 
       - name: Check that no migration is missing
         run: python manage.py makemigrations --check --dry-run
@@ -256,7 +215,7 @@ jobs:
 
     steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -287,4 +246,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
