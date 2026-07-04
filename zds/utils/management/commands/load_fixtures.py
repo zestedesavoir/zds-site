@@ -656,7 +656,7 @@ class Command(BaseCommand):
             type=str,
             help="Size level: low (x1), medium (x2) or high (x3). Default: low.",
         )
-        all_vs_one_per_one_switch = parser.add_mutually_exclusive_group()
+        all_vs_one_per_one_switch = parser.add_mutually_exclusive_group(required=True)
         all_vs_one_per_one_switch.add_argument(
             "--all", dest="modules", action="store_const", const=self.__class__.zds_resource_config
         )
