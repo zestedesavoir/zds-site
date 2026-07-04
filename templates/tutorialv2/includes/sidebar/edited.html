@@ -1,0 +1,8 @@
+{% load i18n %}
+
+<h3>{% trans "Édité par l’association Zeste de Savoir" %}</h3>
+<ul>
+    {% if app.site.editor.issn %}
+        <li class="inactive"><span class="ico-after pin disabled">Numéro ISSN : {{ app.site.editor.issn }}</span></li>
+    {% endif %}
+</ul>
