@@ -19,9 +19,7 @@ from zds.utils.models import CategorySubCategory, Licence, SubCategory, Tag
 @override_for_contents()
 class CommandsTestCase(TutorialTestMixin, TestCase):
     def test_load_fixtures(self):
-        args = []
-        opts = {"modules": FixtureCommand.zds_resource_config}
-        call_command("load_fixtures", *args, **opts)
+        call_command("load_fixtures", "--all")
 
         self.assertTrue(User.objects.count() > 0)
         self.assertTrue(Permission.objects.count() > 0)
