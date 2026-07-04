@@ -35,8 +35,8 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView
 
 
-class ListGallery(LoginRequiredMixin, ZdSPagingListView):
-    """Display the gallery list with all their images"""
+class ListGalleriesView(LoginRequiredMixin, ZdSPagingListView):
+    """Display the list of galleries."""
 
     object = UserGallery
     template_name = "gallery/gallery/list.html"
