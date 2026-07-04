@@ -41,7 +41,7 @@ class ListGalleriesView(LoginRequiredMixin, ZdSPagingListView):
     object = UserGallery
     template_name = "gallery/gallery/list.html"
     context_object_name = "galleries"
-    paginate_by = settings.ZDS_APP["gallery"]["gallery_per_page"]
+    paginate_by = settings.ZDS_APP["gallery"]["galleries_per_page"]
 
     def get_queryset(self):
         return Gallery.objects.galleries_of_user(self.request.user).order_by("pk")
