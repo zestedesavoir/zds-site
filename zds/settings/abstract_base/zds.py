@@ -85,6 +85,13 @@ ZDS_APP = {
             "email_ca": "ca-zeste-de-savoir@googlegroups.com",
             "forum_ca_pk": 25,
             "subscribe_link": zds_config.get("association_subscribe_link", DEFAULT_ASSO_LINK),
+            "address": "5 rue de l’Exemple, 12345 Pétaouschnock",
+            "president": "Jean-Michel Président",
+        },
+        "editor": {
+            "issn": "1234-5678",
+            "publisher": "Claude Directeur",
+            "editor_in_chief": "Huguette Responsable",
         },
         "licenses": {
             "logo": {
