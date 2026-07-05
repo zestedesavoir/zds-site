@@ -330,7 +330,7 @@ class ValidationActions:
         return self.enabled and self.is_staff and self.requires_validation
 
     def show_validation_link(self) -> bool:
-        return self.enabled and self.is_author_or_staff and self.in_validation
+        return self.enabled and self.is_author_or_staff and self.in_validation and not self.is_validation_page
 
     def show_comparison_with_validation(self) -> bool:
         return self.enabled and self.is_author_or_staff and self.in_validation and not self.version_is_validation
@@ -525,7 +525,7 @@ class ConfigForValidationView(ViewConfig):
         self.beta_actions.enabled = False
         self.administration_actions.enabled = False
         self.validation_actions.enabled = True
-        self.validation_actions.show_validation_link = False
+        self.validation_actions.is_validation_page = True
         self.online_config.enabled = False
         self.info_config.show_warn_typo = True
         self.validation_actions.is_validation_page = True
