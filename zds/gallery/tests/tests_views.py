@@ -30,7 +30,7 @@ class GalleryListViewTest(TestCase):
 
         self.assertEqual(1, len(response.context["galleries"]))
         self.assertEqual(
-            UserGallery.objects.filter(user=profile.user).first().gallery, response.context["galleries"].first()
+            UserGallery.objects.filter(user=profile.user).first().gallery, response.context["galleries"][0]
         )
 
 
