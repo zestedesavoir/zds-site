@@ -22,8 +22,12 @@
       alternativeChoice = 'old'
     }
 
-    const link = "javascript:localStorage.setItem('editor_choice', '" + alternativeChoice + "');document.location.reload(true);"
-    const box = $('<div class="markdown-help">' + message + ' <a href="' + link + '">' + linkMessage + '</a></div>')
+    const box = $('<div class="markdown-help">' + message + ' <a href="#" class="editor-toggle" data-choice="' + alternativeChoice + '">' + linkMessage + '</a></div>')
     box.insertBefore(this)
+    box.find('.editor-toggle').on('click', function(e) {
+      e.preventDefault()
+      localStorage.setItem('editor_choice', $(this).data('choice'))
+      document.location.reload(true)
+    })
   })
 })(jQuery)
