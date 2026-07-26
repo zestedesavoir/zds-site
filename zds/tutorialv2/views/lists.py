@@ -197,12 +197,7 @@ class ViewPublications(TemplateView):
         if self.kwargs.get("slug_category", False):
             self.level = 3
             self.max_last_contents = settings.ZDS_APP["content"]["max_last_publications_level_3"]
-        if (
-            "category" in self.request.GET
-            or "subcategory" in self.request.GET
-            or "type" in self.request.GET
-            or "tag" in self.request.GET
-        ):
+        if "category" in self.request.GET or "subcategory" in self.request.GET or "tag" in self.request.GET:
             self.level = 4
             self.max_last_contents = 50
 
