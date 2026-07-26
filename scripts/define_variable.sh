@@ -4,10 +4,6 @@ if [[ $ZDS_VENV == "" ]]; then
     ZDS_VENV="zdsenv"
 fi
 
-if [[ $ZDS_VENV_VERSION == "" ]]; then
-    ZDS_VENV_VERSION="20.24.5"
-fi
-
 if [[ $ZDS_PIP_VERSION == "" ]]; then
     ZDS_PIP_VERSION="25.1.1" # needs to be also updated in .github/workflows/ci.yml
 fi
