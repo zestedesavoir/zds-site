@@ -103,7 +103,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzM
     form_class = ContentCompareStatsURLForm
     urls = []
     matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
-    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomo_url"], matomo_token_auth)
+    matomo_api_url = f"{settings.ZDS_APP['site']['matomo_url']}/index.php"
     matomo_site_id = settings.ZDS_APP["site"]["matomo_site_id"]
     logger = logging.getLogger(__name__)
 
@@ -212,6 +212,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzM
             param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
 
             request_params = {
+                "token_auth": self.matomo_token_auth,
                 "method": method,
                 "idSite": self.matomo_site_id,
                 "date": date_ranges,

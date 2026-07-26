@@ -267,19 +267,13 @@ class UpdateMember(UpdateView):
         return response
 
     def update_profile(self, profile, form):
+        for field in ["biography", "site", "avatar_url", "sign", "licence"]:
+            if field in form.data:
+                profile.__setattr__(field, form.cleaned_data.get(field, ""))
+
         cleaned_data_options = form.cleaned_data.get("options")
-        profile.biography = form.data["biography"]
-        profile.site = form.data["site"]
-        profile.show_sign = "show_sign" in cleaned_data_options
-        profile.is_hover_enabled = "is_hover_enabled" in cleaned_data_options
-        profile.allow_temp_visual_changes = "allow_temp_visual_changes" in cleaned_data_options
-        profile.show_markdown_help = "show_markdown_help" in cleaned_data_options
-        profile.email_for_answer = "email_for_answer" in cleaned_data_options
-        profile.email_for_new_mp = "email_for_new_mp" in cleaned_data_options
-        profile.hide_forum_activity = "hide_forum_activity" in cleaned_data_options
-        profile.avatar_url = form.data["avatar_url"]
-        profile.sign = form.data["sign"]
-        profile.licence = form.cleaned_data["licence"]
+        for option in [m[0] for m in self.form_class.multi_choices]:
+            profile.__setattr__(option, option in cleaned_data_options)
 
     def get_success_url(self):
         return reverse("update-member")
