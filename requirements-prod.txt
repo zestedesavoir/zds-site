@@ -2,5 +2,5 @@
 
 gunicorn==26.0.0
 mysqlclient==2.2.8
-sentry-sdk==2.63.0
+sentry-sdk==2.66.1
 ujson==5.13.0
