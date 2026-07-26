@@ -1,3 +1,5 @@
+import warnings
+
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -6,8 +8,24 @@ from django.utils.translation import gettext_lazy as _
 from zds.forum.models import Post
 from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.urls import sitemaps as zds_sitemaps
 from zds.utils.models import CommentEdit
 from zds.utils.templatetags.emarkdown import render_markdown
+
+
+class SitemapsTests(TestCase):
+    def test_sitemaps(self):
+        urls_to_test = [reverse("django.contrib.sitemaps.views.sitemap", args=[key]) for key in zds_sitemaps]
+        urls_to_test.append(reverse("sitemap"))
+
+        for url in urls_to_test:
+            with self.subTest(msg=url):
+                # In case of missing ordering, a UnorderedObjectListWarning is
+                # raised in the logs, make sure there aren't such warnings:
+                with warnings.catch_warnings(record=True) as w:
+                    result = self.client.get(url)
+                self.assertEqual(result.status_code, 200)
+                self.assertEqual(len(w), 0)
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
