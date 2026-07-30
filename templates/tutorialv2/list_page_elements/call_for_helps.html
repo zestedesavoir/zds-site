@@ -10,11 +10,11 @@
             </div>
 
             <div class="body">
-                <p>{% trans "Aidez à peaufiner le fond et la forme des contenus presque terminés." %}</p>
+                <p>{% trans "Aidez à peaufiner le fond et la forme des publications presque terminées." %}</p>
             </div>
 
             <a href="{{ beta_forum.get_absolute_url }}" class="tail">
-                <p>{% trans "Consulter les contenus en bêta" %}</p>
+                <p>{% trans "Consulter les publications en bêta" %}</p>
             </a>
         </div>
 
@@ -24,15 +24,11 @@
             </div>
 
             <div class="body">
-                <p>{% trans "Vous avez un savoir à partager ? Vous vous sentez pédagogue ? Commencez donc l’écriture d’un contenu !" %}</p>
+                <p>{% trans "Vous avez un savoir à partager ? Vous vous sentez pédagogue ? Commencez donc l’écriture d’une publication !" %}</p>
             </div>
 
             <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="tail">
-                <p>{% trans 'Écrire un tutoriel' %}</p>
-            </a>
-
-            <a href="{% url "content:create-content" created_content_type='ARTICLE' %}" class="tail">
-                <p>{% trans 'Écrire un article' %}</p>
+                <p>{% trans 'Commencer à rédiger' %}</p>
             </a>
         </div>
 
