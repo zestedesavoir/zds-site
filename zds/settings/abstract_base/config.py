@@ -10,15 +10,12 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 
-default_config_path = str(Path.cwd() / "config.toml")
-config_path = os.environ.get("ZDS_CONFIG", default_config_path)
+config = {}
 
-try:
+if config_path := os.environ.get("ZDS_CONFIG"):
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
     print(f"Using the config file at {config_path!r}")
-except OSError:
-    config = {}
 
 django_setting = os.environ.get("DJANGO_SETTINGS_MODULE")
 
