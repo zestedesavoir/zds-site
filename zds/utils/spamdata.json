@@ -1,0 +1,42 @@
+[
+    {
+        "biography": "I love sharing knowledge about technology and programming.",
+        "can_read": true
+    },
+    {
+        "biography": "Buy cheap products now! Limited offer, click here!",
+        "can_read": false
+    },
+    {
+        "biography": "Software engineer passionate about AI and machine learning.",
+        "can_read": true
+    },
+    {
+        "biography": "Earn free money from home with this simple trick!",
+        "can_read": false
+    },
+    {
+        "biography": "Python developer with experience in web scraping and automation.",
+        "can_read": true
+    },
+    {
+        "biography": "Work from home and make thousands instantly! Sign up now!",
+        "can_read": false
+    },
+    {
+        "biography": "Cybersecurity enthusiast, sharing tips on how to stay safe online.",
+        "can_read": true
+    },
+    {
+        "biography": "Lose weight fast with this miracle product! Order now!",
+        "can_read": false
+    },
+    {
+        "biography": "Data scientist with a passion for open-source projects.",
+        "can_read": true
+    },
+    {
+        "biography": "Get rich quick with this secret investment strategy!",
+        "can_read": false
+    }
+]
