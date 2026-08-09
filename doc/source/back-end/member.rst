@@ -60,7 +60,7 @@ Le clic sur "Me désinscrire" entraîne alors une série d'action (qui sont **ir
 
       -  si le tutoriel/article a été écrit par plusieurs personnes : le membre est retiré de la liste des auteurs ;
       -  si le tutoriel/article est *publié*, il passe sur le compte “external”. Une demande expresse sera nécessaire au retrait complet de ces contenus ;
-      -  si le tutoriel/article n’est pas publié (brouillon, bêta, validation), il est supprimé, ainsi que la galerie qui lui est associée.
+      -  si le tutoriel/article n’est pas publié (brouillon, bêta, édition), il est supprimé, ainsi que la galerie qui lui est associée.
 
 .. _galeries: ../gallery/gallery.html
 .. _articles: ../article/article.html
@@ -121,7 +121,7 @@ Cette interface permet :
 1. D'ajouter/supprimer un membre dans un/des groupe(s)
 2. De (dés)activer un compte
 
-Le premier point permet notamment de passer un membre dans le groupe staff ou développeur. Si d'autres groupes venaient à voir le jour (validateur par exemple), alors il sera possible ici aussi de le changer.
+Le premier point permet notamment de passer un membre dans le groupe staff ou développeur. Si d'autres groupes venaient à voir le jour (éditeur par exemple), alors il sera possible ici aussi de le changer.
 Le second point concerne simplement l'activation du compte (normalement faite par le membre à l'inscription).
 
 Elle est gérée par le formulaire `PromoteMemberForm` présent dans le fichier `zds/member/forms.py`.

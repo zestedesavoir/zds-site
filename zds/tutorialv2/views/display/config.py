@@ -278,7 +278,7 @@ class OnlineState:
 
 class ValidationActions:
     messages = {
-        "validation_is_same": _("La version en validation est identique à cette version."),
+        "validation_is_same": _("La version en cours d’édition est identique à cette version."),
     }
 
     def __init__(self, user, content: PublishableContent, versioned_content: VersionedContent):

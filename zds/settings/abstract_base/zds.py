@@ -251,7 +251,7 @@ ZDS_APP = {
             "opinion": (_("Billet"), ["opinion"]),
         },
         "search_validated_content": {
-            "validated": (_("Contenus validés"), ["validated"]),
+            "validated": (_("Contenus édités"), ["validated"]),
             "no_validated": (_("Contenus libres"), ["no_validated"]),
         },
         "boosts": {

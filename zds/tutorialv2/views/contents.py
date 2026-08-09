@@ -471,7 +471,7 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
                         validation.content.validation_private_message = send_mp(
                             bot,
                             [validation.validator],
-                            _("Demande de validation annulée").format(),
+                            _("Demande d’édition annulée").format(),
                             self.object.title,
                             msg,
                             send_by_mail=False,

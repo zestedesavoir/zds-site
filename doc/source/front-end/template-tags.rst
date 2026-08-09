@@ -290,7 +290,7 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 ``waiting_count``
 -----------------
 
-Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
+Récupère le nombre de tutoriels ou d'articles dans la zone d’édition n'ayant pas été réservés par un éditeur.
 
 .. sourcecode:: html+django
 

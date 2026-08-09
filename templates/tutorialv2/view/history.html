@@ -72,7 +72,7 @@
                             <ul class="unstyled-list">
                                 {% if content.sha_validation == commit.hexsha %}
                                     {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
-                                    <li><a href="{{ url_validation }}">{% trans "Validation" %}</a></li>
+                                    <li><a href="{{ url_validation }}">{% trans "Édition" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_beta == commit.hexsha %}
                                     {% url "content:beta-view" pk=content.pk slug=content.slug as url_beta %}

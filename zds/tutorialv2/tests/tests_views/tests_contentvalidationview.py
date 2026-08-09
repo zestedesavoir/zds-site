@@ -67,4 +67,4 @@ class FunctionalTests(TutorialTestMixin, TestCase):
         """Test that the validation page shows the validation actions."""
         self.client.force_login(self.author)
         response = self.client.get(self.target_url)
-        self.assertContains(response, "<h3>Validation</h3>")
+        self.assertContains(response, "<h3>Édition</h3>")

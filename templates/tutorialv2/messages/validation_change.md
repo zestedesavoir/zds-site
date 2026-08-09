@@ -10,7 +10,7 @@
 Ça pulpe {{ validator }} ?
 
 Je suis là pour t’informer que le contenu « [{{ title }}]({{ url }}) » que tu
-as réservé a fait l'objet d'une mise à jour puis d'une mise en validation. La
+as réservé a fait l'objet d'une mise à jour puis d'une demande d’édition. La
 version dont tu t'occupes — avec douceur, j'en suis certaine —, apparaît donc comme
 obsolète.
 

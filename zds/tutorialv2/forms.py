@@ -252,7 +252,7 @@ class ImportNewContentForm(ImportContentForm):
     subcategory = forms.ModelMultipleChoiceField(
         label=_(
             "Sous catégories de votre contenu. Si aucune catégorie ne convient "
-            "n'hésitez pas à en demander une nouvelle lors de la validation !"
+            "n'hésitez pas à en demander une nouvelle lors de l’édition !"
         ),
         queryset=SubCategory.objects.order_by("title").all(),
         required=True,
@@ -420,7 +420,7 @@ class AskValidationForm(forms.Form):
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
                                     Vous devez <a href="{}">choisir une catégorie</a>
-                                    avant de demander la validation.</strong></p>""".format(
+                                    avant de demander l’édition.</strong></p>""".format(
                     reverse("content:edit-categories", kwargs={"pk": content.pk}),
                 )
             )
@@ -431,7 +431,7 @@ class AskValidationForm(forms.Form):
             _(
                 """<p><strong>Vous n'avez pas choisi de licence pour votre publication.
                                    Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
-                                   avant de demander la validation.</strong></p>"""
+                                   avant de demander l’édition.</strong></p>"""
             )
         )
 
@@ -446,7 +446,7 @@ class AskValidationForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
-        base_error_msg = "La validation n'a pas été demandée. "
+        base_error_msg = "L’édition n'a pas été demandée. "
 
         if self.no_subcategories:
             error = [_(base_error_msg + "Vous devez choisir au moins une catégorie pour votre publication.")]
@@ -465,7 +465,7 @@ class AcceptValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        error_messages={"required": _("Vous devez fournir un commentaire aux validateurs.")},
+        error_messages={"required": _("Vous devez fournir un commentaire aux éditeur·ices.")},
         widget=forms.Textarea(attrs={"placeholder": _("Commentaire de publication."), "rows": "2", "minlength": "3"}),
         validators=[MinLengthValidator(3, _("Votre commentaire doit faire au moins 3 caractères."))],
     )
@@ -504,7 +504,7 @@ class CancelValidationForm(forms.Form):
         label="",
         required=True,
         widget=forms.Textarea(
-            attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4", "id": "cancel_text"}
+            attrs={"placeholder": _("Pourquoi annuler l’édition ?"), "rows": "4", "id": "cancel_text"}
         ),
     )
 
@@ -520,7 +520,7 @@ class CancelValidationForm(forms.Form):
         self.helper.form_id = "cancel-validation"
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>"),
+            HTML("<p>Êtes-vous certain de vouloir annuler l’édition de ce contenu ?</p>"),
             Field("text"),
             ButtonHolder(StrictButton(_("Confirmer"), type="submit", css_class="btn-submit")),
         )
@@ -891,7 +891,7 @@ class PromoteOpinionToArticleForm(forms.Form):
             HTML(
                 """<p>Avez-vous la certitude de vouloir proposer ce billet comme article ?
                     Cela copiera le billet pour en faire un article,
-                    puis créera une demande de validation pour ce dernier.</p>"""
+                    puis créera une demande d’édition pour ce dernier.</p>"""
             ),
             Field("version"),
             StrictButton(_("Valider"), type="submit", css_class="btn-submit"),
