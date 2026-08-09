@@ -142,6 +142,11 @@
                                 </li>
                             {% endif %}
 
+                            <li>
+                                <a data-copy-permalink="{{ request.build_absolute_uri }}#p{{ message.pk }}" class="ico-after import">
+                                    <span>{% trans "Copier le permalien" %}</span>
+                                </a>
+                            </li>
                             {% if not is_mp %}
                                 <li>
                                     <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
