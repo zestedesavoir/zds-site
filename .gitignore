@@ -14,6 +14,7 @@ base.db
 /zds/_version.py
 /geodata
 /errors/css
+/antispam-data
 
 /tutoriels-private-test
 /tutoriels-public-test

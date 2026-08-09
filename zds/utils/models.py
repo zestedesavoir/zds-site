@@ -579,6 +579,15 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.author.username}"
 
+    def is_spam(self, field_name=None):
+        """
+        Check if the Comment is marked as spam.
+        :param field_name: Optional field name (not used for comments).
+        :return: True if the comment is hidden and the editor is not the author, False otherwise.
+        """
+        # FIXME: à migrer dans la config antispam/spam_fields.py ?
+        return not self.is_visible and self.editor != self.author
+
 
 class CommentEdit(models.Model):
     """Archive for editing a comment."""
