@@ -647,6 +647,7 @@ class Container:
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: perform the commit in repository if ``True``
         :param generate_slug: indicates that is must generate slug
+        :param quizz: if is ``True`` marks the extract as quizz
         :return: commit sha
         :rtype: str
         """
