@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -22,6 +22,7 @@ from zds.member.commons import (
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import MiniProfileForm
 from zds.member.models import KarmaNote, Profile
+from zds.utils.misc import is_ajax
 
 
 @login_required
@@ -70,6 +71,10 @@ def settings_mini_profile(request, user_name):
     # Extra information about the current user
     profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
+        if "preview" in request.POST and is_ajax(request):
+            content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
+            return StreamingHttpResponse(content)
+
         form = MiniProfileForm(request.POST)
         data = {"form": form, "profile": profile}
         if form.is_valid():
