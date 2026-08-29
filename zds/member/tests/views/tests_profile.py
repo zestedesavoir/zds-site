@@ -151,20 +151,28 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_success_preview_biography(self):
-        member = ProfileFactory()
-        self.client.force_login(member.user)
+        user_to_modify = ProfileFactory().user
 
-        response = self.client.post(
-            reverse("update-member"),
-            {
-                "text": "It is **my** life",
-                "preview": "",
-            },
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
+        tests = [
+            (user_to_modify, reverse("update-member"), "as the member"),
+            (self.staff, reverse("member-settings-mini-profile", args=[user_to_modify.username]), "as staff"),
+        ]
 
-        result_string = "".join(a.decode() for a in response.streaming_content)
-        self.assertIn("<strong>my</strong>", result_string, "We need the biography to be properly formatted")
+        for acting_user, url, subtest in tests:
+            with self.subTest(subtest):
+                self.client.force_login(acting_user)
+
+                response = self.client.post(
+                    url,
+                    {
+                        "text": "It is **my** life",
+                        "preview": "",
+                    },
+                    HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                )
+
+                result_string = "".join(a.decode() for a in response.streaming_content)
+                self.assertIn("<strong>my</strong>", result_string, "We need the biography to be properly formatted")
 
     def test_members_are_contactable(self):
         """
