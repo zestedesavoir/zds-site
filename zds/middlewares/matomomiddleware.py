@@ -11,7 +11,7 @@ from zds.member.utils import get_client_ip
 from zds.utils.misc import is_ajax
 
 matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
-matomo_api_url = "{}/matomo.php?token_auth={}".format(settings.ZDS_APP["site"]["matomo_url"], matomo_token_auth)
+matomo_api_url = f"{settings.ZDS_APP['site']['matomo_url']}/matomo.php"
 matomo_site_id = settings.ZDS_APP["site"]["matomo_site_id"]
 matomo_api_version = 1
 logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ def _background_process(queue: Queue):
     data = queue.get(block=True)
     while data:
         params = {
+            "token_auth": matomo_token_auth,
             "idsite": matomo_site_id,
             "action_name": data["r_path"],
             "rec": 1,
@@ -43,9 +44,9 @@ def _background_process(queue: Queue):
         try:
             if data["address_ip"] != "0.0.0.0":
                 params["cip"] = data["address_ip"]
-            requests.get(
+            requests.post(
                 matomo_api_url,
-                params=params,
+                data=params,
             )
             logger.info(f'Matomo tracked this link : {data["client_url"]}')
         except Exception:

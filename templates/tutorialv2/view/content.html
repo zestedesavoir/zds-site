@@ -13,7 +13,7 @@
 
 {% if display_config.online_config.show_dcmi_card %}
     {% block DCMI_cards %}
-        {% include "tutorialv2/includes/meta/dcmi_cards.part.html" with db_content=db_content content=content is_online=db_content.public_version %}
+        {% include "tutorialv2/includes/meta/dcmi_cards.part.html" with db_content=db_content online_content=public_object offline_content=content is_online=db_content.public_version %}
     {% endblock %}
 {% endif %}
 
@@ -103,6 +103,10 @@
         {% include "tutorialv2/includes/content/online_content.part.html" %}
     {% else %}
         {% include "tutorialv2/includes/content/content.part.html" %}
+    {% endif %}
+
+    {% if not display_config.edited_info.show_edited_info %}
+        {% include "tutorialv2/includes/opinion_not_edited.part.html" %}
     {% endif %}
 
     {% if display_config.online_config.show_content_pager %}
@@ -222,6 +226,12 @@
             {% if not public_object or public_object.is_exported %}
                 {% include "tutorialv2/includes/sidebar/list_of_exports.html" %}
             {% endif %}
+        </div>
+    {% endif %}
+
+    {% if display_config.edited_info.show_edited_info %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Édité par ZdS">
+            {% include "tutorialv2/includes/sidebar/edited.html" %}
         </div>
     {% endif %}
 {% endblock %}

@@ -8,10 +8,11 @@ Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les inst
 .. note::
 
     - Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
+    - Si l’environnement crashe suite à une mise à jour (incluant une mise à jour système), essayez une réinstallation complète de ZdS en supprimant le dossier `zdsenv` puis en redémarrant la procédure d’installation.
     - Il est impératif que la locale ``fr_FR.UTF-8`` soit installée sur votre distribution.
     - Si vous voulez savoir ce qui se cache derrière une commande ``make``, ajoutez ``--just-print`` à la commande ou ouvrez le fichier nommé ``Makefile`` présent à la racine du projet.
     - L'installation automatique des packages a été testée sour Ubuntu, Debian, Fedora et Archlinux. Si vous utilisez une autre distribution, essayez d'installer la liste de packages `située ici <#composant-packages>`_.
-    - Si une erreur s'est glissée dans la doc, ou si la doc a glissé vers l'obscolescence, ouvrez `un ticket sur notre repo github <https://github.com/zestedesavoir/zds-site/issues/new>`_
+    - Si une erreur s'est glissée dans la doc, ou si la doc a glissé vers l'obsolescence, ouvrez `un ticket sur notre repo github <https://github.com/zestedesavoir/zds-site/issues/new>`_
     - Si malgré tout vous ne parvenez pas à installer ZdS, n'hésitez pas à ouvrir `un sujet sur le forum <https://zestedesavoir.com/forums/sujet/nouveau/?forum=2>`_
 
 

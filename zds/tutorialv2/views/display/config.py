@@ -330,7 +330,7 @@ class ValidationActions:
         return self.enabled and self.is_staff and self.requires_validation
 
     def show_validation_link(self) -> bool:
-        return self.enabled and self.is_author_or_staff and self.in_validation
+        return self.enabled and self.is_author_or_staff and self.in_validation and not self.is_validation_page
 
     def show_comparison_with_validation(self) -> bool:
         return self.enabled and self.is_author_or_staff and self.in_validation and not self.version_is_validation
@@ -448,6 +448,18 @@ class ViewConfig:
         self.validation_info = ValidationInfo(user, content, versioned_content)
         self.beta_info = BetaInfo(user, content, versioned_content)
         self.enable_editorialization = False
+        self.edited_info = EditedInfo(content)
+
+
+class EditedInfo:
+    def __init__(self, content: PublishableContent, enabled=False):
+        self.enabled = enabled
+        self.content_type = content.type
+        # ISBN in the future
+
+    # Ensure edited info can be displayed only on edited contents
+    def show_edited_info(self) -> bool:
+        return self.enabled and (self.content_type == "TUTORIAL" or self.content_type == "ARTICLE")
 
 
 class ConfigForContentDraftView(ViewConfig):
@@ -492,6 +504,7 @@ class ConfigForOnlineView(ViewConfig):
         self.info_config.show_warn_typo = True
         self.validation_info.enabled = False
         self.beta_info.enabled = False
+        self.edited_info.enabled = True
         self.enable_editorialization = content.is_author(user) or user.has_perm("tutorialv2.change_publishablecontent")
 
 
@@ -512,7 +525,7 @@ class ConfigForValidationView(ViewConfig):
         self.beta_actions.enabled = False
         self.administration_actions.enabled = False
         self.validation_actions.enabled = True
-        self.validation_actions.show_validation_link = False
+        self.validation_actions.is_validation_page = True
         self.online_config.enabled = False
         self.info_config.show_warn_typo = True
         self.validation_actions.is_validation_page = True

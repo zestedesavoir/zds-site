@@ -121,6 +121,13 @@ nav {
     }
 }
 
+dl {
+    dt {
+        font-weight: bold;
+        padding: $length-12 0 $length-6 0;
+    }
+}
+
 .help-question-mark {
     position: relative;
     top: -1px;

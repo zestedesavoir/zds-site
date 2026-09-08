@@ -85,6 +85,13 @@ ZDS_APP = {
             "email_ca": "ca-zeste-de-savoir@googlegroups.com",
             "forum_ca_pk": 25,
             "subscribe_link": zds_config.get("association_subscribe_link", DEFAULT_ASSO_LINK),
+            "address": "5 rue de l’Exemple, 12345 Pétaouschnock",
+            "president": "Jean-Michel Président",
+        },
+        "editor": {
+            "issn": "1234-5678",
+            "publisher": "Claude Directeur",
+            "editor_in_chief": "Huguette Responsable",
         },
         "licenses": {
             "logo": {
@@ -154,7 +161,7 @@ ZDS_APP = {
     },
     "gallery": {
         "image_max_size": 1024 * 1024,  # bytes, also hard-coded in editor JS scripts
-        "gallery_per_page": 21,
+        "galleries_per_page": 21,
         "images_per_page": 21,
     },
     "homepage": {
@@ -179,9 +186,9 @@ ZDS_APP = {
         "max_tree_depth": 3,
         "default_licence_pk": 7,
         "content_per_page": 42,
-        "max_last_publications_level_1": 6,
-        "max_last_publications_level_2": 12,
-        "max_last_publications_level_3": 12,
+        "max_last_publications_level_1": 12,
+        "max_last_publications_level_2": 24,
+        "max_last_publications_level_3": 24,
         "notes_per_page": 25,
         "helps_per_page": 20,
         "commits_per_page": 20,

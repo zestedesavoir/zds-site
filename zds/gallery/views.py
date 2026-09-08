@@ -35,30 +35,26 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView
 
 
-class ListGallery(LoginRequiredMixin, ZdSPagingListView):
-    """Display the gallery list with all their images"""
+class ListGalleriesView(LoginRequiredMixin, ZdSPagingListView):
+    """Display the list of galleries."""
 
     object = UserGallery
     template_name = "gallery/gallery/list.html"
     context_object_name = "galleries"
-    paginate_by = settings.ZDS_APP["gallery"]["gallery_per_page"]
+    paginate_by = settings.ZDS_APP["gallery"]["galleries_per_page"]
 
     def get_queryset(self):
-        return Gallery.objects.galleries_of_user(self.request.user).order_by("pk")
+        return (
+            Gallery.objects.galleries_of_user(self.request.user)
+            .order_by("-pk")
+            .prefetch_related("publishablecontent_set")
+        )
 
     def get_context_data(self, **kwargs):
+        # Add an attribute to link to the content from the template
+        for gallery in self.object_list:
+            gallery.content = gallery.publishablecontent_set.first()
         context = super().get_context_data(**kwargs)
-
-        # fetch content linked to galleries:
-        linked_contents = {}
-        pk_list = [g.linked_content for g in self.object_list if g.linked_content is not None]
-        contents = PublishableContent.objects.filter(pk__in=pk_list).all()
-
-        for content in contents:
-            linked_contents[content.pk] = content
-
-        context["linked_contents"] = linked_contents
-
         return context
 
 
