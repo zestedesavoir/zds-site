@@ -12,7 +12,11 @@
     {% endif %}
 {% endblock %}
 
-
+{% block canonical %}
+    {% if content.source and content.source != "" %}
+        <link rel="canonical" href="{{ content.source }}">
+    {% endif %}
+{% endblock %}
 
 {% block mobile_title %}
     {% if current_content_type == "OPINION" %}
