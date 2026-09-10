@@ -7,6 +7,7 @@
 {% load pluralize_fr %}
 {% load cache %}
 {% load captureas %}
+{% load trim %}
 
 
 {% url 'api:utils:update-comment-potential-spam' message.pk as potential_spam_link %}
@@ -136,7 +137,7 @@
 
                             {% if not message_is_hidden and cite_link and not topic.is_locked and not is_antispam %}
                                 <li>
-                                    <a href="{{ cite_link | safe }}" class="ico-after cite" data-ajax-input="cite-message">
+                                    <a href="{{ cite_link | safe | trim }}" class="ico-after cite" data-ajax-input="cite-message">
                                         <span>{% trans "Citer" %}</span>
                                     </a>
                                 </li>
@@ -215,7 +216,7 @@
 
                                 {% if user.is_authenticated and message.is_visible and helpful_link and topic.author != user %}
                                     <li>
-                                        <form action="{{ helpful_link }}" method="post">
+                                        <form action="{{ helpful_link | trim }}" method="post">
                                             {% csrf_token %}
 
                                             {% spaceless %}
@@ -384,30 +385,30 @@
                             {% if user.is_authenticated %}
                                 {% with profile_user=user|profile %}
                                     {% if profile_user.show_sign %}
-                                        <label class="signature">
+                                        <div class="signature">
                                             <input type="checkbox" />
                                             {% cache 300 profile.user.username profile.sign %}
                                                 {{ profile.sign|emarkdown_inline }}
                                             {% endcache %}
-                                        </label>
+                                        </div>
                                     {% endif %}
                                 {% endwith %}
                             {% else %}
-                                <label class="signature">
+                                <div class="signature">
                                     <input type="checkbox" />
                                     {% cache 300 profile.user.username profile.sign %}
                                         {{ profile.sign|emarkdown_inline }}
                                     {% endcache %}
-                                </label>
+                                </div>
                             {% endif %}
                         {% endif %}
                     {% endif %}
                 {% endwith %}
 
                 {% if karma_link %}
-                    <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
+                    <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link | trim}}">
                         {% if user.is_authenticated and helpful_link and topic.author == user %}
-                            <form action="{{ helpful_link }}" method="post">
+                            <form action="{{ helpful_link | trim }}" method="post">
                                 {% csrf_token %}
 
                                 {% spaceless %}

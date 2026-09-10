@@ -3,10 +3,12 @@
 
 <table class="fullwidth">
     <thead>
-        <th>{% trans "Adresse IP" %}</th>
-        <th class="wide">{% trans "Date du blocage" %}</th>
-        <th class="wide">{% trans "Modérateur" %}</th>
-        <th class="wide">{% trans "Raison du blocage" %}</th>
+        <tr>
+            <th>{% trans "Adresse IP" %}</th>
+            <th class="wide">{% trans "Date du blocage" %}</th>
+            <th class="wide">{% trans "Modérateur" %}</th>
+            <th class="wide">{% trans "Raison du blocage" %}</th>
+        </tr>
     </thead>
     <tbody>
         {% for blocked_ip in blocked_ips %}

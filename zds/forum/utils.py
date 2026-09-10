@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from django.contrib import messages
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 from django.views.generic import CreateView
@@ -143,7 +143,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
             text = self.build_quote(request.GET.get("cite"), request.user)
 
             if is_ajax(request):
-                return HttpResponse(json.dumps({"text": text}), content_type="application/json")
+                return JsonResponse({"text": text})
 
         form = self.create_forum(self.form_class, **{"text": text})
         context = {

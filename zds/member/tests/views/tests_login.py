@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
-from urllib.parse import quote
+from urllib.parse import quote, quote_plus
 
 from django.conf import settings
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
 
 from zds.member.forms import LoginForm
 from zds.member.models import Ban, BlockedIP, Profile
 from zds.member.tests.factories import NonAsciiProfileFactory, ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class LoginTests(TestCase):
@@ -48,7 +48,7 @@ class LoginTests(TestCase):
 
     def test_form_action_redirect(self):
         """The form shall have the 'next' parameter in the action url of the form."""
-        next_fragment = "?next=" + reverse("member-detail", args=[self.correct_username])
+        next_fragment = "?next=" + quote_plus(reverse("member-detail", args=[self.correct_username]))
         full_url = self.login_url + next_fragment
         result = self.client.get(full_url, follow=False)
         self.assertContains(result, f'action="{full_url}"')
@@ -261,7 +261,7 @@ class LoginTests(TestCase):
         initial URL"""
         tutorial_list_url = reverse("publication:list") + "?type=tutorial"
         full_login_url = self.login_url + "?next=" + tutorial_list_url
-        full_login_url_quoted = self.login_url + "?next=" + quote(tutorial_list_url)
+        full_login_url_quoted = self.login_url + "?next=" + quote_plus(tutorial_list_url)
 
         # Let's go on a URL which contains a GET parameter
         tutorial_list_page = self.client.get(tutorial_list_url)
@@ -269,9 +269,9 @@ class LoginTests(TestCase):
         self.assertContains(tutorial_list_page, 'href="' + full_login_url_quoted)
 
         # Now, go to this login page
-        login_page = self.client.get(full_login_url_quoted)
+        login_page = self.client.get(full_login_url)
         # The form sends data to a URL containing the GET parameter
-        self.assertEqual(login_page.context["form"].helper.form_action, full_login_url)
+        self.assertEqual(login_page.context["form"].helper.form_action, full_login_url_quoted)
         # There is still a link to the login page (this link doesn't contain a
         # recursion of ?next= parameters)
         self.assertContains(login_page, 'href="' + full_login_url_quoted)

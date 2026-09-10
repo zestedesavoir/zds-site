@@ -226,10 +226,10 @@
                     </a>
 
                     <div class="header-dropdown">
-                        <span class="dropdown-title dropdown-pm">
+                        <div class="dropdown-title dropdown-pm">
                             <h1>{% trans "Messagerie privée" %}</h1>
                             <a href="{% url "mp:create" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
-                        </span>
+                        </div>
 
                         <ul class="dropdown-list">
                             {% for notification in header_private_topic_notifications.list %}

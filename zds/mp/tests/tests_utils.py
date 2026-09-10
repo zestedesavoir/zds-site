@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory
 from zds.mp.models import PrivateTopic
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class MpUtilTest(TestCase):

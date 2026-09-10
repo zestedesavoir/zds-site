@@ -4,6 +4,7 @@
 {% load captureas %}
 
 {% with authors=db_content|displayable_authors:online_mode %}
+    {% spaceless %}
     <div class="members">
         <span class="authors-label">
             {% trans "Par" %}
@@ -13,7 +14,7 @@
                 <li>
                     {% include "misc/member_item.part.html" with member=authors.first author=True avatar=True deletable=False %}
                 </li>
-            {% else %}
+            {% elif authors %}
                 {% for author in authors %}
                     <li>
                         {% include "misc/member_item.part.html" with member=author author=True avatar=True deletable=edit_authors %}
@@ -36,4 +37,5 @@
             {% endif %}
         </ul>
     </div>
+    {% endspaceless %}
 {% endwith %}

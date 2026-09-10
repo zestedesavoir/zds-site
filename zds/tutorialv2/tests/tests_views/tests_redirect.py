@@ -1,7 +1,7 @@
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class RedirectOldContentOfAuthorTest(TestCase):

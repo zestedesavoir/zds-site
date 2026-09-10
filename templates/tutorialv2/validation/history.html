@@ -39,8 +39,8 @@
         <table class="fullwidth">
             <thead>
                 <tr>
-                    <th width="50%">{% trans "Proposé" %}</th>
-                    <th width="50%">{% trans "Statut" %}</th>
+                    <th class="w-50">{% trans "Proposé" %}</th>
+                    <th class="w-50">{% trans "Statut" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,9 +54,7 @@
                                     {% trans "Message laissé à la validation" %}
                                 </a>
                                 <div class="modal modal-flex" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
-                                    <p>
-                                        {{ validation.comment_authors|emarkdown }}
-                                    </p>
+                                    {{ validation.comment_authors|emarkdown }}
                                 </div>
                             {% endif %}
                         </td>

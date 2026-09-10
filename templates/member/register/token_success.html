@@ -24,10 +24,10 @@
         <p>
             {% trans "Vous avez confirmé votre courriel sur le site." %}
         </p>
-        <p>
-            {% trans "Vous pouvez maintenant vous connecter et partager avec tous les membres." %}
+        <div>
+            <p>{% trans "Vous pouvez maintenant vous connecter et partager avec tous les membres." %}</p>
             {% crispy form %}
-        </p>
+        </div>
     </section>
 {% endblock %}
 

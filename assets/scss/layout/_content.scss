@@ -14,17 +14,17 @@
     }
 
     header {
-        >.title-block {
+        > .title-block {
             display: flex;
             flex-direction: row;
 
             margin-bottom: $length-10;
 
-            >.content-thumbnail-group {
+            > .content-thumbnail-group {
                 flex-grow: 0;
                 flex-shrink: 0;
 
-                display:block;
+                display: block;
                 height: $length-64;
                 width: $length-64;
 
@@ -32,50 +32,56 @@
 
                 background-size: contain;
 
-                >.thumbnail {
+                > .thumbnail {
                     width: 100%;
                     height: 100%;
                     border: $length-1 solid $grey-200;
                     box-sizing: border-box;
                 }
 
-                >.edit-thumbnail {
+                > .edit-thumbnail {
                     display: block;
                     width: $length-32;
                     height: $length-32;
-                    margin-top: calc($length-64/2 - $length-32/2);
-                    margin-left: calc($length-64/2 - $length-32/2);
+                    margin-top: calc($length-64 / 2 - $length-32 / 2);
+                    margin-left: calc($length-64 / 2 - $length-32 / 2);
                     border-radius: $radius-round;
                     background-color: rgba($grey-200, 0.7);
+
                     &.with-thumbnail {
                         position: relative;
                         top: -$length-64;
                     }
-                    &.with-placeholder{
+
+                    &.with-placeholder {
                         position: relative;
                         top: 0;
                     }
+
                     &::after {
                         content: " ";
                         display: block;
                         width: $length-16;
                         height: $length-16;
                         position: relative;
-                        top: calc($length-32/2 - $length-16/2);
-                        left: calc($length-32/2 - $length-16/2);
+                        top: calc($length-32 / 2 - $length-16 / 2);
+                        left: calc($length-32 / 2 - $length-16 / 2);
                         @include sprite;
                         @include sprite-position($edit-blue);
                         background-repeat: no-repeat;
                     }
+
                     transition: border-radius .005s ease-in-out;
+
                     &:hover {
                         border-radius: 0;
                         width: 100%;
                         height: 100%;
                         margin: 0;
+
                         &::after {
-                            top: calc($length-64/2 - $length-16/2);
-                            left: calc($length-64/2 - $length-16/2);
+                            top: calc($length-64 / 2 - $length-16 / 2);
+                            left: calc($length-64 / 2 - $length-16 / 2);
                         }
                     }
                 }
@@ -93,15 +99,15 @@
                 }
             }
 
-            >.content-title-and-subtitle-group {
-                width:100%;
+            > .content-title-and-subtitle-group {
+                width: 100%;
 
                 padding-bottom: $length-4;
 
                 border-bottom: $length-1 solid $accent-500;
 
-                >.content-title-group {
-                    >.title {
+                > .content-title-group {
+                    > .title {
                         display: inline;
                         vertical-align: middle;
                         border: none;
@@ -109,21 +115,21 @@
                         padding: 0;
                     }
 
-                    >.edit-button {
+                    > .edit-button {
                         display: inline-block;
                         vertical-align: middle;
                     }
                 }
 
-                >.content-subtitle-group {
-                    >.subtitle {
+                > .content-subtitle-group {
+                    > .subtitle {
                         display: inline;
                         vertical-align: middle;
                         margin: 0;
                         padding: 0;
                     }
 
-                    >.edit-button {
+                    > .edit-button {
                         display: inline-block;
                         vertical-align: middle;
                     }
@@ -135,11 +141,81 @@
         }
     }
 
-    section > h2 {
+    .content-header-container {
         display: flex;
+        align-items: center;
 
+        margin-bottom: $length-20;
+        padding: $length-6 $length-1;
+
+        border-top: $length-1 solid $grey-100;
+
+        background: $true-white;
+
+        font-weight: 400;
+        font-size: $font-size-6;
+        border-bottom: $length-1 solid $accent-500;
+
+        h2.title-with-buttons {
+            margin-top: 0;
+            padding: 0;
+            margin-bottom: 0;
+            border: none;
+        }
+
+        .actions-title {
+            @include mobile {
+                flex-direction: column;
+            }
+            ul {
+                display: flex;
+                list-style: none;
+                margin: $length-1;
+
+                .btn {
+                    height: $length-32;
+
+                    margin: $length-2;
+
+                    background-color: $grey-100;
+                    color: $grey-600;
+
+                    font-size: $font-size-9;
+                    line-height: 2;
+
+                    z-index: 1;
+
+                    transition: color .1s ease-in-out,
+                    background-color .1s ease-in-out;
+
+                    &.ico-after:after {
+                        margin-top: $length-8;
+                    }
+
+                    &:hover,
+                    &:focus {
+                        color: $grey-800;
+                        background-color: $grey-200;
+                        text-decoration: none;
+                    }
+                }
+            }
+
+        }
+    }
+
+    section > h2,
+    .content-header-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+
+        h2,
         span {
             flex: 2;
+            margin: 0;
+            min-width: 200px;
         }
 
         .btn {
@@ -182,7 +258,7 @@
             margin: $length-10 0;
             padding: $length-6 0 $length-6 $length-16;
 
-            border-left: $length-6 solid$grey-200;
+            border-left: $length-6 solid $grey-200;
         }
     }
 
@@ -319,7 +395,8 @@
             p,
             figure,
             blockquote,
-            .title-block {
+            .title-block,
+            .content-header-container {
                 margin-left: $length-10;
                 margin-right: $length-10;
             }

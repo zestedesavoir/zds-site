@@ -136,7 +136,7 @@
                                         {{ topic.title }}
                                     </a>
 
-                                    <span class="last-answer">
+                                    <div class="last-answer">
                                         {% with answer=topic.get_last_answer %}
                                             {% if answer %}
                                                 {% with profile=answer.author|profile %}
@@ -154,7 +154,7 @@
                                                 </span>
                                             {% endif %}
                                         {% endwith %}
-                                    </span>
+                                    </div>
                                 </li>
                             {% endfor %}
                         </ul>

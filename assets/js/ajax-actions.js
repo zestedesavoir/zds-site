@@ -39,7 +39,7 @@
     const $act = $(this)
     const $form = $(this).parents('form:first')
     let $email = $(this).parents('li:first').next().find("[data-ajax-input='follow-topic-by-email']")
-    const $followText = $act.find('span#follow_text')
+    const $followText = $act.find('span.follow_text')
     const $count = $form.find('span#subscriber_count')
     const $plural = $act.find('span#subscriber_plural')
     const $otherSubscriberCount = $($act.attr('data-raw-subscriber-count'))

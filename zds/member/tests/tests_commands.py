@@ -6,12 +6,12 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from zds.member.tests.factories import ProfileFactory, UserFactory
+from zds.tests.mixins import TestWithBotsMixin
 
 
-class TestUnregisterCommand(TestCase):
+class TestUnregisterCommand(TestCase, TestWithBotsMixin):
     def setUp(self):
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.create_bots()
 
     def test_unregister_command(self):
         def call_silent_command(arg: str):
@@ -26,4 +26,5 @@ class TestUnregisterCommand(TestCase):
 
         call_silent_command(user.user.username)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
-        self.assertEqual(User.objects.filter().count(), 2)  # anonymous and external
+        # all bot accounts
+        self.assertEqual(User.objects.filter().count(), 3)

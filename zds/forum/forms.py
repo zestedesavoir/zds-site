@@ -41,7 +41,7 @@ class TopicForm(forms.Form, FieldValidatorMixin):
     )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id=kwargs.pop("auto_id", "new_topic_id_%s"), **kwargs)
 
         self.fields["tags"].widget.attrs.update(
             {
@@ -107,7 +107,7 @@ class PostForm(forms.Form, FieldValidatorMixin):
     )
 
     def __init__(self, topic, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, auto_id=f"new_{topic.pk}_post_id_%s", **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = "post"
 

@@ -84,10 +84,9 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         :return: json answer
         """
         if self.object.is_opinion:
-            return HttpResponse(
-                json.dumps({"errors": str(_("Impossible de demander de l'aide pour un billet"))}),
+            return JsonResponse(
+                {"errors": str(_("Impossible de demander de l'aide pour un billet"))},
                 status=400,
-                content_type="application/json",
             )
         data = form.cleaned_data
         if data["activated"]:

@@ -13,18 +13,15 @@ from zds.api.utils import authenticate_oauth2_client
 from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.mp.models import PrivatePostVote, PrivateTopic
 from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
+from zds.tests.mixins import TestWithBotsMixin
 
 
-class PrivateTopicListAPITest(APITestCase):
+class PrivateTopicListAPITest(APITestCase, TestWithBotsMixin):
     def setUp(self):
         self.profile = ProfileFactory()
         self.client = APIClient()
         authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
-
-        self.bot_group = Group()
-        self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
-        self.bot_group.save()
-
+        self.create_bots()
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_list_mp_with_client_unauthenticated(self):
@@ -313,17 +310,14 @@ class PrivateTopicListAPITest(APITestCase):
         """
         Tries to create a new private topic with an unreachable user.
         """
-        anonymous_user = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"])
-        anonymous_user.groups.add(self.bot_group)
-        anonymous_user.save()
         data = {
             "title": "I love ice cream!",
             "subtitle": "Come eat one with me.",
-            "participants": [anonymous_user.id],
+            "participants": [self.anonymous.id],
         }
         response = self.client.post(reverse("api:mp:list"), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        private_topics = PrivateTopic.objects.get_private_topics_of_user(anonymous_user.id)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(self.anonymous.id)
         self.assertEqual(0, len(private_topics))
 
     def test_leave_private_topics_with_client_unauthenticated(self):

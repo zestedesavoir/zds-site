@@ -7,7 +7,7 @@
 
 {% block title %}
     {% blocktrans with title=content.title %}
-        Journal des événements de "{{ title }}"
+        Journal des événements de &quot;{{ title }}&quot;
     {% endblocktrans %}
 {% endblock %}
 
@@ -26,7 +26,7 @@
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         {% blocktrans with title=content.title %}
-            Journal des événements de "{{ title }}"
+            Journal des événements de &quot;{{ title }}&quot;
         {% endblocktrans %}
     </h1>
 
@@ -46,7 +46,7 @@
         <table class="fullwidth commits-list">
             <thead>
                 <tr>
-                    <th width="20%">{% trans "Date" %}</th>
+                    <th class="w-20">{% trans "Date" %}</th>
                     <th>{% trans "Description" %}</th>
                 </tr>
             </thead>

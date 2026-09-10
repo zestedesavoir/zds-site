@@ -206,8 +206,7 @@ $content-width: 1145px;
                         }
                     }
 
-                    // FIXME too specific
-                    #follow_text {
+                    button span.follow_text {
                         padding-left: $length-12;
                     }
                 }

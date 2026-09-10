@@ -1,11 +1,11 @@
 from copy import deepcopy
 
 from django.conf import settings
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.tests.utils import request_validation

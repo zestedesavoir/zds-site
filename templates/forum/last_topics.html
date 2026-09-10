@@ -11,7 +11,7 @@
 
 {% block breadcrumb %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-        <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
+        <a href="{{ current_url }}" itemprop="url">
             <span itemprop="title">{% trans "Derniers sujets" %}</span>
         </a>
     </li>

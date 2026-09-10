@@ -2,12 +2,13 @@ import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
@@ -21,14 +22,12 @@ from zds.utils.tests.factories import CategoryFactory, LicenceFactory, SubCatego
 
 
 @override_for_contents()
-class ContentTests(TutorialTestMixin, TestCase):
+class ContentTests(TutorialTestMixin, TestCase, TestWithBotsMixin):
     def setUp(self):
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory().user
-        self.overridden_zds_app["member"]["bot_account"] = self.mas.username
-
+        self.create_bots()
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
 
@@ -54,9 +53,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=self.overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=self.overridden_zds_app["member"]["external_account"], password="anything")
 
     def test_public_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])

@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.http import Http404, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -76,8 +76,12 @@ class LastTopicsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context.update({"topic_read": TopicRead.objects.list_read_topic_pk(self.request.user, context["topics"])})
-
+        context.update(
+            {
+                "topic_read": TopicRead.objects.list_read_topic_pk(self.request.user, context["topics"]),
+                "current_url": reverse("forum:last-subjects"),
+            }
+        )
         return context
 
 
@@ -110,7 +114,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
         self.object.save()
         if is_ajax(request):
-            return HttpResponse(json.dumps(response), content_type="application/json")
+            return JsonResponse(response)
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
     def get_context_data(self, **kwargs):
@@ -393,7 +397,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
 
         self.object.save()
         if is_ajax(request):
-            return HttpResponse(json.dumps(response), content_type="application/json")
+            return JsonResponse(response)
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
     def get_object(self, queryset=None):
@@ -513,7 +517,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
         self.object.save()
         if is_ajax(request):
-            return HttpResponse(json.dumps(response), content_type="application/json")
+            return JsonResponse(response)
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
     def get_context_data(self, *args, **kwargs):
@@ -719,7 +723,9 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.perform_useful(self.object)
 
         if is_ajax(request):
-            return HttpResponse(json.dumps(self.object.is_useful), content_type="application/json")
+            # we want a basic boolean, so we accept the safe=False. But if later we wrap it in an object
+            # we will have to change the js script
+            return JsonResponse(self.object.is_useful, safe=False)
 
         return redirect(self.object.get_absolute_url())
 

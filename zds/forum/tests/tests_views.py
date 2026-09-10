@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -11,6 +10,7 @@ from zds.forum.models import Post, Topic
 from zds.forum.tests.factories import PostFactory, TagFactory, create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import DevProfileFactory, ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.utils.models import CommentEdit, Hat
 
 

@@ -9,7 +9,7 @@
         <h3>{% trans "Informations" %}</h3>
         <ul>
             <li class="inactive">
-                <a>
+                <a href="#">
                 {% if profile.user == user %}
                     {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=True %}
                 {% else %}

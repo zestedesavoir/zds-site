@@ -682,12 +682,14 @@
                                 <h3>{% trans 'Karma' %}</h3>
                             </div>
 
-                            <span class="tail">
-                                <p>{% trans "Valeur actuelle" %} : {{ profile.karma }}</p>
-                            </span>
-                            <a href="#karmatiser-modal" class="tail open-modal">
-                                <p>{% trans "Ajouter une remarque" %}</p>
-                            </a>
+                            <p class="tail">
+                                {% trans "Valeur actuelle" %} : {{ profile.karma }}
+                            </p>
+                            <p>
+                                <a href="#karmatiser-modal" class="tail open-modal">
+                                    {% trans "Ajouter une remarque" %}
+                                </a>
+                            </p>
                             {% crispy karmaform %}
                         </div>
                         {% endif %}
@@ -894,10 +896,12 @@
                     <h2 itemprop="name">{% trans 'Historique de modération' %}</h2>
                     <table class="fullwidth">
                         <thead>
-                            <th>{% trans "Action" %}</th>
-                            <th>{% trans "Explication" %}</th>
-                            <th class="wide">{% trans "Modérateur" %}</th>
-                            <th class="wide">{% trans "Date" %}</th>
+                            <tr>
+                                <th>{% trans "Action" %}</th>
+                                <th>{% trans "Explication" %}</th>
+                                <th class="wide">{% trans "Modérateur" %}</th>
+                                <th class="wide">{% trans "Date" %}</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for action in actions %}

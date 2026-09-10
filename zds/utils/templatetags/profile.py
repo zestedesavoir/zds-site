@@ -80,3 +80,4 @@ def avatar(profile: Profile, size=80) -> dict:
             "avatar_size": size,
             "username": profile.user.username,
         }
+    return {"avatar_size": size, "username": "zeste inconnu"}

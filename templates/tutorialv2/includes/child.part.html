@@ -5,18 +5,28 @@
 {% load feminize %}
 {% load captureas %}
 
-<h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
-{% if not child.is_validable %}
-    class="not-ready"
-{% endif %}>
-    <a href="{{ base_url }}{{ child.get_url_path }}">{{ child.title }}</a>
-
+<div class="content-header-container">
+    <h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
+    {% if not child.is_validable %}
+        class="not-ready title-with-buttons"
+    {% else %}
+        class="title-with-buttons"
+    {% endif %}>
+        <a href="{{ base_url }}{{ child.get_url_path }}">{{ child.title }}</a>
+    </h2>
     {% if display_config.draft_actions.enable_edit %}
         <div class="actions-title">
-            <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
-                {% trans "Éditer" %}
-            </a>
-            <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
+            <ul>
+                <li>
+                <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">{% trans "Éditer" %}</a>
+                </li>
+                <li>
+                <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
+                </li>
+                <li>
+                    {% include "tutorialv2/includes/sidebar/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
+                </li>
+            </ul>
             <form action="{% url "content:move-element" %}" method="post" class="modal modal-flex" id="move-{{ child.slug }}">
                 <select name="moving_method">
                     <option disabled="disabled">{% trans "Déplacer" %}</option>
@@ -56,12 +66,9 @@
                     {% trans "Déplacer" %}
                 </button>
             </form>
-
-            {% include "tutorialv2/includes/sidebar/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
         </div>
     {% endif %}
-</h2>
-
+</div>
 {% if child.text %}
     {# child is an extract #}
     {% if child.get_text.strip|length == 0 %}
@@ -89,11 +96,7 @@
             {% endfor %}
             {% if display_config.draft_actions.enable_edit and child.can_add_extract %}
                 <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% if child.parent == content %}
-                                {% url "content:create-extract" content.pk content.slug child.slug %}
-                            {%  else %}
-                                {% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}
-                            {%  endif %}">
+                    <a class="btn btn-grey" href="{{ child.add_extract_url }}">
                         {% trans "Ajouter une section" %}
                     </a>
                 </li>
@@ -151,15 +154,14 @@
                     </p>
                     {% if not child.is_chapter %}
                         {% captureas url_create_container %}{% url "content:create-container" content.pk content.slug child.slug %}{% endcaptureas %}
-                        {% captureas url_create_extract %}{% url "content:create-extract" content.pk content.slug child.slug %}{% endcaptureas %}
-                        {% blocktrans %}
+                        {% blocktrans with add_extract=child.add_extract_url add_container=url_create_container %}
                         <ul>
                             <li>
-                                <a href="{{ url_create_container }}">Ajouter un chapitre</a>
+                                <a href="{{ add_container }}">Ajouter un chapitre</a>
                                 pour subdiviser cette partie en plusieurs pages ;
                             </li>
                             <li>
-                                <a href="{{ url_create_extract }}">Ajouter une section</a>
+                                <a href="{{ add_extract }}#">Ajouter une section</a>
                                 pour que cette partie soit affichée sur une unique page.
                             </li>
                         </ul>

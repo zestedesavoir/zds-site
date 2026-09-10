@@ -5,12 +5,12 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management import call_command
-from django.test import TestCase
 from django.urls import reverse
 
 from zds import json_handler
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import ContentReaction, ContentRead, PublishableContent, PublishedContent
 from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.publication_utils import (

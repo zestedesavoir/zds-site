@@ -1,5 +1,5 @@
 from copy import deepcopy
-from urllib.parse import quote
+from urllib.parse import quote_plus
 
 from django.conf import settings
 from django.urls import reverse
@@ -37,13 +37,13 @@ def member_login_url(request):
     # recursion (eg the link to the login form when on the login form page),
     # include current GET params only if `next` is not already a GET param:
     if "?next=" in full_path:
-        return {"member_login_url": full_path}
+        return {"member_login_url": request.path + "?next=" + quote_plus(request.GET["next"])}
     else:
         return {
             # `quote()` is the function used by the `urlencode` template tag
             "member_login_url": reverse("member-login")
             + "?next="
-            + quote(full_path)
+            + quote_plus(full_path)
         }
 
 

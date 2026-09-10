@@ -262,7 +262,7 @@ class EditIntroductionForm(forms.Form):
             IncludeEasyMDE(),
             Field("introduction"),
             ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+                StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn btn-grey preview-btn"),
             ),
             HTML(
                 """{% if form.introduction.value %}{% include "misc/preview.part.html" with text=form.introduction.value %}{% endif %}"""
@@ -358,7 +358,7 @@ class EditConclusionForm(forms.Form):
             IncludeEasyMDE(),
             Field("conclusion"),
             ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn")
+                StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn btn-grey preview-btn")
             ),
             HTML(
                 """{% if form.conclusion.value %}{% include "misc/preview.part.html" with text=form.conclusion.value %}{% endif %}"""

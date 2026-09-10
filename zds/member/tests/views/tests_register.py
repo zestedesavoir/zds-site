@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core import mail
 from django.core.mail.backends.base import BaseEmailBackend
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from oauth2_provider.models import AccessToken, Application
@@ -20,6 +20,8 @@ from zds.member.models import Ban, KarmaNote, NewEmailProvider, TokenRegister
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
+from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import BetaContentFactory, PublishableContentFactory, PublishedContentFactory
@@ -27,19 +29,13 @@ from zds.utils.models import CommentVote
 
 
 @override_for_contents()
-class TestRegister(TutorialTestMixin, TestCase):
+class TestRegister(TutorialTestMixin, TestCase, TestWithBotsMixin):
     def setUp(self):
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory()
-        settings.ZDS_APP["member"]["bot_account"] = self.mas.user.username
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.create_bots()
         self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.staff = StaffProfileFactory().user
-
-        self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
-        self.bot.save()
 
     def test_register(self):
         """

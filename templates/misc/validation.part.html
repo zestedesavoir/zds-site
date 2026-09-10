@@ -67,9 +67,7 @@
                 {% trans "Motif du rejet" %}
             </a>
             <div class="modal modal-flex" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
-                <p>
                     {{ validation.comment_validator|emarkdown }}
-                </p>
             </div>
         {% endif %}
     {% elif validation.is_cancel %}

@@ -10,17 +10,17 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.http import HttpResponseNotAllowed
-from django.test import TestCase
 from django.urls import reverse
 
 from zds import json_handler
-from zds.forum.models import Post, Topic, TopicRead
+from zds.forum.models import Topic, TopicRead
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription, Notification
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, Validation
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.publication_utils import (

@@ -65,11 +65,13 @@
             {% endif %}
             <table class="stat-table fullwidth">
                 <thead>
-                    <th>{% trans "Partie" %}</th>
-                    <th>{% trans "Vues" %}</th>
-                    <th>{% trans "Temps moyen sur la page" %}</th>
-                    <th>{% trans "Visiteurs uniques" %}</th>
-                    {% if display == 'global' and cumulative_stats|length > 1 %}<th></th>{% endif %}
+                    <tr>
+                        <th>{% trans "Partie" %}</th>
+                        <th>{% trans "Vues" %}</th>
+                        <th>{% trans "Temps moyen sur la page" %}</th>
+                        <th>{% trans "Visiteurs uniques" %}</th>
+                        {% if display == 'global' and cumulative_stats|length > 1 %}<th></th>{% endif %}
+                    </tr>
                 </thead>
                 <tbody>
                     {% for url, view in cumulative_stats.items %}
@@ -77,14 +79,14 @@
                             <td class="level-{{url.level}}">
                                 <a href="{{ url.url }}">{{ url.name }}</a>
                                 {% if display != 'details' and cumulative_stats|length > 1 %}
-                                - <a href="?urls={{ url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
+                                - <a href="{% querystring urls=url.url %}" >{% trans "(détails)" %}</a>
                                 {% endif %}
                             </td>
                             <td>{{ view.nb_hits }}</td>
                             <td>{{ view.avg_time_on_page|seconds_to_duration }}</td>
                             <td>{{ view.nb_uniq_visitors }}</td>
                             {% if display == 'global' and cumulative_stats|length > 1 %}
-                                <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ url.url }}" type="checkbox"></td>
+                                <td><input name="urls" id="id_urls_{{forloop.counter}}" value="{{ url.url }}" type="checkbox"></td>
                             {% endif %}
                         </tr>
                     {% endfor %}
@@ -108,8 +110,10 @@
                 <h2>{% trans "Types de reférent vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                         <thead>
-                            <th>{% trans "Type" %}</th>
-                            <th>{% trans "Visites" %}</th>
+                            <tr>
+                                <th>{% trans "Type" %}</th>
+                                <th>{% trans "Visites" %}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         {% for category, visits in type_referrers.items %}
@@ -125,8 +129,10 @@
                 <h2>{% trans "Sites entrants vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                     <thead>
-                        <th>{% trans "Site" %}</th>
-                        <th>{% trans "Visites" %}</th>
+                        <tr>
+                            <th>{% trans "Site" %}</th>
+                            <th>{% trans "Visites" %}</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% for referrer, visits in referrers.items %}
@@ -142,8 +148,10 @@
                 <h2>{% trans "Mots-clés vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                         <thead>
-                            <th>{% trans "Mot-clés" %}</th>
-                            <th>{% trans "Visites" %}</th>
+                            <tr>
+                                <th>{% trans "Mot-clés" %}</th>
+                                <th>{% trans "Visites" %}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         {% for keyword, visits in keywords.items %}
@@ -179,7 +187,7 @@
                 <li>
                     {% with start_date=-7|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' or request.GET.start_date is none %}selected{% endif %}"
-                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&amp;urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "7 derniers jours" %}
                     </a>
                     {% endwith %}
@@ -187,7 +195,7 @@
                 <li>
                     {% with start_date=-30|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&amp;urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "30 derniers jours" %}
                     </a>
                     {% endwith %}
@@ -195,7 +203,7 @@
                 <li>
                     {% with start_date=-365|datedelta_from_day end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&amp;urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "La dernière année" %}
                     </a>
                     {% endwith %}
@@ -203,7 +211,7 @@
                 <li>
                     {% with start_date=db_content.public_version.last_publication_date.date end_date=0|datedelta_from_day %}
                     <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                       href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&amp;urls={{url.url}}{% endfor %}{% endif %}">
                         {% trans "Depuis la dernière publication" %}
                     </a>
                     {% endwith %}
@@ -212,7 +220,7 @@
                     <li>
                         {% with start_date=db_content.first_publication_date.date end_date=0|datedelta_from_day %}
                         <a class="{% if request.GET.start_date == start_date|date:'Y-m-d' %}selected{% endif %}"
-                           href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&urls={{url.url}}{% endfor %}{% endif %}">
+                           href="{{ request.path }}{% querystring start_date=start_date end_date=end_date %}{% if display == 'comparison' %}{% for url in urls %}&amp;urls={{url.url}}{% endfor %}{% endif %}">
                             {% trans "Depuis la première publication" %}
                         </a>
                         {% endwith %}

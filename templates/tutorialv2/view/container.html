@@ -7,6 +7,7 @@
 {% load times %}
 {% load feminize %}
 {% load pluralize_fr %}
+{% load trim %}
 
 {% block title %}
     {{ container.title }} - {{ content.title }}
@@ -108,11 +109,7 @@
 
                 {% if not container.can_add_container and container.can_add_extract and display_config.draft_actions.enable_edit %}
                     <li class="simple-create-button">
-                        <a class="btn btn-grey" href="{% if container.parent == content %}
-                                    {% url "content:create-extract" content.pk content.slug container.slug %}
-                                {%  else %}
-                                    {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                                {%  endif %}">
+                        <a class="btn btn-grey" href="{{ container.add_extract_url }}">
                             {% trans "Ajouter une section" %}
                         </a>
                     </li>
@@ -129,28 +126,14 @@
                         {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est vide." %}
                     </p>
                     {% if container.can_add_extract and container.can_add_container %}
-                        {% captureas url_create_container %}
-                            {% if container.parent == content %}
-                                {% url "content:create-container" content.pk content.slug container.slug %}
-                            {% else %}
-                                {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                            {% endif %}
-                        {% endcaptureas %}
-                        {% captureas url_create_extract %}
-                            {% if container.parent == content %}
-                                {% url "content:create-extract" content.pk content.slug container.slug %}
-                            {% else %}
-                                {% url "content:create-extract" content.pk content.slug container.parent.slug %}
-                            {% endif %}
-                        {% endcaptureas %}
-                        {% blocktrans %}
+                        {% blocktrans with add_container=container.add_container_url add_extract=container.add_extract_url %}
                         <ul>
                             <li>
-                                <a href="{{ url_create_container }}">Ajouter un chapitre</a>
+                                <a href="{{ add_container }}">Ajouter un chapitre</a>
                                 pour subdiviser cette partie en plusieurs pages ;
                             </li>
                             <li>
-                                <a href="{{ url_create_extract }}">Ajouter une section</a>
+                                <a href="{{ add_extract }}">Ajouter une section</a>
                                 pour que cette partie soit affichée sur une unique page.
                             </li>
                         </ul>
@@ -162,22 +145,14 @@
         {% if display_config.draft_actions.enable_edit %}
             {% if container.can_add_container and not container.can_add_extract %}
                 <h2>
-                    <a class="force-blue" href="{% if container.parent == content %}
-                                {% url "content:create-container" content.pk content.slug container.slug %}
-                            {%  else %}
-                                {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                            {%  endif %}">
+                    <a class="force-blue" href="{{ container.add_container_url }}">
                         {% trans "Ajouter un chapitre" %}
                     </a>
-                    <div class="actions-title">
-                        <a href="{% if container.parent == content %}
-                                    {% url "content:create-container" content.pk content.slug container.slug %}
-                                {%  else %}
-                                    {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                                {%  endif %}" class="ico-after more btn btn-grey">
+                    <span class="actions-title">
+                        <a href="{{ container.add_container_url }}" class="ico-after more btn btn-grey">
                             {% trans "Ajouter" %}
                         </a>
-                    </div>
+                    </span>
                 </h2>
                 <div class="ico-after information">
                     <p>{% trans "Cliquer sur ajouter pour ajouter un nouveau chapitre." %}</p>
@@ -185,22 +160,14 @@
             {% endif %}
             {% if not container.can_add_container and container.can_add_extract %}
                 <h2 class="force-blue">
-                    <a href="{% if container.parent == content %}
-                                {% url "content:create-extract" content.pk content.slug container.slug %}
-                            {%  else %}
-                                {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                            {%  endif %}">
+                    <a href="{{ container.add_extract_url }}">
                         {% trans "Ajouter une section" %}
                     </a>
-                    <div class="actions-title">
-                        <a href="{% if container.parent == content %}
-                                    {% url "content:create-extract" content.pk content.slug container.slug %}
-                                {%  else %}
-                                    {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                                {%  endif %}" class="ico-after more btn btn-grey">
+                    <span class="actions-title">
+                        <a href="{{ container.add_extract_url }}" class="ico-after more btn btn-grey">
                             {% trans "Ajouter" %}
                         </a>
-                    </div>
+                    </span>
                 </h2>
                 <div class="ico-after information">
                     <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>

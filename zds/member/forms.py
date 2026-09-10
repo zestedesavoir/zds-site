@@ -285,7 +285,7 @@ class ProfileForm(MiniProfileForm):
             IncludeEasyMDE(),
             Field("biography"),
             ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+                StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn btn-grey preview-btn"),
             ),
             HTML(
                 """
@@ -714,7 +714,7 @@ class HatRequestForm(forms.ModelForm):
             Field("reason"),
             ButtonHolder(
                 StrictButton(_("Envoyer"), type="submit"),
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+                StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn btn-grey preview-btn"),
             ),
         )
 

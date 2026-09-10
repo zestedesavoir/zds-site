@@ -2,31 +2,24 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, UserFactory
+from zds.tests.common import ZdsTestCase as TestCase
+from zds.tests.mixins import TestWithBotsMixin
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 
 
 @override_for_contents()
-class AddAuthorTest(TutorialTestMixin, TestCase):
+class AddAuthorTest(TutorialTestMixin, TestCase, TestWithBotsMixin):
     def setUp(self):
-        self.bot_group = Group(name=settings.ZDS_APP["member"]["bot_group"])
-        self.bot_group.save()
-
-        self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
-
+        self.create_bots()
         self.user_author = ProfileFactory().user
         self.user_guest = ProfileFactory().user
-        self.external = UserFactory(username=self.overridden_zds_app["member"]["external_account"])
-        self.external.groups.add(self.bot_group)
-        self.external.save()
-
         self.tuto = PublishableContentFactory(type="TUTORIAL", author_list=[self.user_author])
         UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode="W")
 

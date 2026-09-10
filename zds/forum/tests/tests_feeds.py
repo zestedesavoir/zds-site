@@ -1,11 +1,11 @@
 from django.conf import settings
-from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
 
 from zds.forum.feeds import LastPostsFeedATOM, LastPostsFeedRSS, LastTopicsFeedATOM, LastTopicsFeedRSS
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TagFactory, TopicFactory
 from zds.member.tests.factories import ProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 
 
 class LastTopicsFeedTest(TestCase):

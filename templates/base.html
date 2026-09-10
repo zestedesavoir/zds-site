@@ -6,7 +6,7 @@
 {% load interventions %}
 {% load messages %}
 {% load trail %}
-
+{% spaceless %}
 
 <!DOCTYPE html>
 <html class="enable-mobile-menu" lang="fr" antidoteapi_jsconnect="true">
@@ -46,7 +46,7 @@
             {{app.site.long_description}}
         {% endblock %}
     {% endcaptureas %}
-    <meta name="description" content="{{ description|safe }}">
+    <meta name="description" content="{{ description|escape }}">
 
 
     {% captureas meta_image %}
@@ -57,8 +57,8 @@
 
 
     {# OpenGraph #}
-    <meta property="og:site_name" content="{{app.site.literal_name}}">
-    <meta property="og:title" content="{{ title|safe }}">
+    <meta property="og:site_name" content="{{app.site.literal_name|escape}}">
+    <meta property="og:title" content="{{ title|escape }}">
     <meta property="og:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="og:language" content="fr_FR">
     <meta property="og:image:url" content="http://{{ meta_image }}">
@@ -76,8 +76,8 @@
         <meta property="twitter:card" content="summary">
     {% endif %}
     <meta property="twitter:url" content="{{app.site.url}}{{ request.path }}">
-    <meta property="twitter:title" content="{{ title|safe }}">
-    <meta property="twitter:description" content="{{ description|safe }}">
+    <meta property="twitter:title" content="{{ title|escape }}">
+    <meta property="twitter:description" content="{{ description|escape }}">
     <meta property="twitter:site" content="@{{app.site.name}}">
     <meta property="twitter:creator" content="@{{app.site.name}}">
     <meta property="twitter:image" content="http://{{ meta_image }}">
@@ -116,18 +116,18 @@
     {% endwith %}
 
     {# RSS links #}
-    {% with request.GET|yesno:'?,'|add:request.GET.urlencode as rss_params %}
-    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "forum:post-feed-rss" %}{{ rss_params | safe }}">
-    <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}{{ rss_params | safe }}">
-    <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}{{ rss_params | safe }}">
-    <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}{{ rss_params | safe }}">
-    <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}{{ rss_params | safe }}">
-    <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}{{ rss_params | safe }}">
-    <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}{{ rss_params | safe }}">
-    {% endwith %}
+
+    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "forum:post-feed-rss" %}{% querystring %}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}{% querystring %}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}{% querystring %}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}{% querystring %}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}{% querystring %}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}{% querystring %}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}{% querystring %}">
+
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.literal_name }}" href="{% url "search:opensearch" %}">
-
+    {% include "very_top_banner_style.html" %}
     {% block head_extra %}{% endblock %}
 </head>
 
@@ -250,3 +250,4 @@
     <script src="{% static "js/script.js" %}"></script>
 </body>
 </html>
+{% endspaceless %}

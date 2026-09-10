@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.forum.commons import PostEditMixin
@@ -12,6 +11,7 @@ from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFa
 from zds.forum.utils import get_tag_by_title
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.utils import old_slugify
 from zds.utils.models import Alert, Tag
 

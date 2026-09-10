@@ -1,8 +1,8 @@
-from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.models.shareable_links import ShareableLink
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.tutorialv2.tests.factories import PublishableContentFactory

@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
-from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tests.common import ZdsTestCase as TestCase
 from zds.tutorialv2.tests.factories import GoalFactory, PublishableContentFactory
 
 

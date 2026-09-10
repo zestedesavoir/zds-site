@@ -46,10 +46,9 @@
                                 {% endblocktrans %}
                             </span>
                             <ul>
-                                <li>
-                                    <em>
-                                        {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
-                                    </em>
+                                <li class="topic-author">
+                                    <!-- do not use <em> here, we include a potential <canvas> in member_item.part.html -->
+                                    {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                                 </li>
 
                                 {% for member in topic.participants.all %}
