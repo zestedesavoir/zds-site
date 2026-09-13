@@ -55,6 +55,10 @@ def version(request):
 
 
 def header_notifications(request):
+    if not hasattr(request, "user"):
+        # mostly when "request" is a WSGIRequest instance (e.g in tests or in static files)
+        # it then generate a "attribute error" thet is not usefull here
+        return {}
     user = request.user
     results = get_header_notifications(user)
     if results is None:

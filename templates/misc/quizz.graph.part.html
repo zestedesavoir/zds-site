@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load emarkdown%}
+{% load get_item %}
+
+<section class="full-content-wrapper">
+<div id="{{ tab_name }}" class="tabcontent-stats">
+    {% for quizz_name, questions in quizz.items %}
+    <header class="header-stats-quiz">
+        <h3 class="quizz_name">{{ url_to_human_name_lookup|get_item:quizz_name }}</h3>
+        <button class="delete-quizz-button" data-quizz="{{ quizz_name }}" ><i class="fas fa-trash-alt"></i></button>
+    </header>
+    {% for question, stats in questions.items %}
+    <article class="stat-graph">
+        <div class="Question">
+            <h4 class="question-stats">{% trans graph_title %} <span>{{ question|emarkdown }}</span></h4>
+            <button class="delete-question-button" data-quizz="{{ quizz_name }}"  data-question="{{question}}"><i
+                    class="fas fa-trash-alt"></i></button>
+        </div>
+        <ul class="quizz-answers">
+            {% for answer_name, answer_stats in stats.responses.items %}
+            <li class="{% if answer_stats.good %} quizz-stats-good{% endif %} quizz-stats">
+                <span class="progress-stat">{{ answer_name|emarkdown }}</span>
+                <span>
+                    <progress class="progress-stat" aria-label="{% trans 'Résultat pour' %} {{ answer_name }}" max="{{ stats.total }}"
+                        value="{{ answer_stats.nb }}" />
+                </span>
+                <span class="over-progress progress-stat">{{answer_stats.nb}} / {{ stats.total }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </article>
+    {% endfor %}
+    {% endfor %}
+</div>
+</section>
