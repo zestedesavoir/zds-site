@@ -55,7 +55,6 @@ class PublishableContentFactory(factory.django.DjangoModelFactory):
     description = factory.Sequence("Description du contenu No{}".format)
     type = "TUTORIAL"
     creation_date = datetime.now()
-    pubdate = datetime.now()
 
     @classmethod
     def _generate(cls, create, attrs):
