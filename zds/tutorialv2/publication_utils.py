@@ -603,7 +603,6 @@ def unpublish_content(db_object, moderator=None):
         if db_object.is_opinion:
             update_params["sha_public"] = None
             update_params["sha_picked"] = None
-            update_params["pubdate"] = None
 
         db_object.update(**update_params)
         content_unpublished.send(
@@ -667,8 +666,7 @@ def save_validation_state(
     db_object.source = source
     db_object.sha_validation = None
     db_object.public_version = published
-    if is_major or not is_update or db_object.pubdate is None:
-        db_object.pubdate = datetime.now()
+    if is_major or not is_update:
         db_object.is_obsolete = False
 
     # close beta if is an article
