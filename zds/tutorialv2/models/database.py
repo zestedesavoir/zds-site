@@ -143,6 +143,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     js_support = models.BooleanField("Support du Javascript", default=False)
 
     is_obsolete = models.BooleanField("Est obsolète", default=False)
+    obsolescence_description = models.CharField("Description de l'obsolescence", max_length=400, blank=True, null=True)
 
     public_version = models.ForeignKey(
         "PublishedContent", verbose_name="Version publiée", blank=True, null=True, on_delete=models.SET_NULL

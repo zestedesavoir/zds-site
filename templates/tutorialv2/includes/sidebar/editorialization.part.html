@@ -75,17 +75,11 @@
             {% endif %}
 
             {% if perms.tutorialv2.change_validation %}
-               <li>
-                    <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="ico-after alert blue">
-                            {% if is_obsolete %}
-                                {% trans "Marquer comme non obsolète" %}
-                            {% else %}
-                                {% trans "Marquer comme obsolète" %}
-                            {% endif %}
-                        </button>
-                    </form>
+                <li>
+                    <a href="#edit-obsolescence" class="open-modal ico-after gear blue">
+                        {% trans "Gérer l'obsolescence" %}
+                    </a>
+                    {% crispy form_edit_obsolescence %}
                 </li>
             {% endif %}
 
