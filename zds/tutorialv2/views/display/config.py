@@ -210,6 +210,9 @@ class DraftActionsState:
     def show_empty_section_warnings(self) -> bool:
         return self.enabled and self.is_allowed
 
+    def show_exports(self) -> bool:
+        return self.enabled
+
 
 class OnlineState:
     def __init__(self, user, content: PublishableContent, enabled=False):
