@@ -16,6 +16,7 @@ lxml==6.0.2
 Pillow==12.0.0
 pymemcache==4.0.0
 requests==2.32.5
+scikit-learn==1.6.1
 typesense==1.1.1
 ua-parser==1.0.1
 

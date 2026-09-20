@@ -75,7 +75,7 @@ def check_essential_accounts():
     from django.conf import settings
 
     User = get_user_model()
-    essential_accounts = ("bot_account", "anonymous_account", "external_account")
+    essential_accounts = ("bot_account", "anonymous_account", "external_account", "antispam_account")
 
     for account in essential_accounts:
         username = settings.ZDS_APP["member"][account]
