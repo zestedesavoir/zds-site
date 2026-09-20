@@ -221,7 +221,7 @@
         {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}
     {% endif %}
 
-    {% if display_config.online_config.show_exports %}
+    {% if display_config.online_config.show_exports or display_config.draft_actions.show_exports  %}
         {% if not public_object or public_object.is_exported %}
             {% include "tutorialv2/includes/sidebar/list_of_exports.html" %}
         {% endif %}
