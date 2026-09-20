@@ -1,0 +1,11 @@
+zdsenv
+*.log
+.git
+node_modules
+dist
+contents-private
+contents-public
+data_mysql
+doc/build
+media
+.sass-cache
