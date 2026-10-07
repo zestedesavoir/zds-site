@@ -91,6 +91,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
             self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_same"])
             self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_more_recent"])
             self.assertNotContains(draft_page, PublicActionsState.messages["export_content"])
+            self.assertContains(draft_page, "Archive")  # The link to download the archive of the draft
 
             return draft_page
 
