@@ -290,7 +290,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
     permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
+        raise Http404(_("Éditer un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -556,7 +556,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             self.request,
             _(
                 """Le billet a bien été copié sous forme d’article
-                                            et est en attente de validation."""
+                                            et est en attente d’édition."""
             ),
         )
 

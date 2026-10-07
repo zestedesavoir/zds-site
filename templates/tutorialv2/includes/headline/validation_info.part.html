@@ -5,7 +5,7 @@
 {% captureas validation_comment_from_authors %}
     {% if validation.comment_authors %}
         <div class="content-wrapper comment-author">
-            <p>{% trans "Le message suivant a été laissé à destination des validateurs" %} :</p>
+            <p>{% trans "Le message suivant a été laissé à destination des éditeurs" %} :</p>
             <blockquote>{{ validation.comment_authors|emarkdown }}</blockquote>
         </div>
     {% endif %}
@@ -13,14 +13,14 @@
 
 {% if state.current_version_and_reserved %}
     <p class="content-wrapper alert-box info">
-        {% trans "Cette version est en cours de validation par" %}
+        {% trans "Cette version est en cours d’édition par" %}
         {% include "misc/member_item.part.html" with member=validation.validator %}.
     </p>
     {{ validation_comment_from_authors }}
 {% endif %}
 
 {% if state.current_version_and_waiting_validator %}
-    <p class="content-wrapper alert-box alert">{% trans "Cette version est en attente d’un validateur." %}</p>
+    <p class="content-wrapper alert-box alert">{% trans "Cette version est en attente d’un·e éditeur·ice." %}</p>
     {{ validation_comment_from_authors }}
 {% endif %}
 
@@ -31,7 +31,7 @@
         <a href="{{ validation_version_url }}">
             {% trans "Une autre version de cette publication" %}
         </a>
-        {% trans "est en cours de validation par" %}
+        {% trans "est en cours d’édition par" %}
         {% include "misc/member_item.part.html" with member=validation.validator %}.
     </p>
 {% endif %}
@@ -41,6 +41,6 @@
         <a href="{{ validation_version_url }}">
             {% trans "Une autre version de cette publication" %}
         </a>
-        {% trans "est en attente d’un validateur." %}
+        {% trans "est en attente d’un·e éditeur·ice." %}
     </p>
 {% endif %}

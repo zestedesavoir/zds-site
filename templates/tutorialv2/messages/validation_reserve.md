@@ -4,13 +4,13 @@
 
 Salut !
 
-Je viens de prendre en charge la validation de ton contenu, « [{{ title }}]({{ url }}) ».
+Je viens de prendre en charge l’édition de ton contenu, « [{{ title }}]({{ url }}) ».
 
 À bientôt !
 {% plural %}
 Salut !
 
-Je viens de prendre en charge la validation de votre contenu, « [{{ title }}]({{ url }}) ».
+Je viens de prendre en charge l’édition de votre contenu, « [{{ title }}]({{ url }}) ».
 
 À bientôt !
 

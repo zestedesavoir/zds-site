@@ -90,7 +90,7 @@ class RemoveContributorWorkflowTests(TutorialTestMixin, TestCase):
         self.author = ProfileFactory().user
         self.contributor = ProfileFactory().user
         self.content = PublishableContentFactory(author_list=[self.author])
-        self.role = ContentContributionRoleFactory(title="Validateur")
+        self.role = ContentContributionRoleFactory(title="Éditeur")
         self.contribution = create_contribution(self.role, self.contributor, self.content)
 
         # Get information to be reused in tests

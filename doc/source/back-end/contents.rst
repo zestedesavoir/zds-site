@@ -11,7 +11,7 @@ Vocabulaire et définitions
 - **Tribune libre** : ensemble de billets associés à un utilisateur.
 - **Billet** : contenu, généralement court dont l'objectif est de donner un retour d'expérience, de donner son opinion quant à une actualité, de donner un lien intéressant… La validation (ou modération) d'un billet se fait après publication, publication étant directement faite par l'auteur.
 - **git**: système de gestion de versions employé (entre autres) par ZdS. Il permet de faire coexister différentes versions d'un contenu de manière simple et transparente pour l'auteur.
-- **Version** : état du contenu à un moment donné. Toute mise à jour du contenu (ou d'une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un *hash*, c'est-à-dire par une chaîne de 40 caractères de long (aussi appelée *sha*, en référence à l'algorithme employé pour les générer). Ce *hash* permet d'identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du *sha*, sont désignées par un nom. On distingue ainsi la version brouillon (*draft*), la version en bêta (*beta*), la version en validation (*validation*) et la version publiée (*public*). Pour ce faire, les *hash* correspondant à ces versions sont simplement mis de côté.
+- **Version** : état du contenu à un moment donné. Toute mise à jour du contenu (ou d'une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un *hash*, c'est-à-dire par une chaîne de 40 caractères de long (aussi appelée *sha*, en référence à l'algorithme employé pour les générer). Ce *hash* permet d'identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du *sha*, sont désignées par un nom. On distingue ainsi la version brouillon (*draft*), la version en bêta (*beta*), la version en édition (*validation*) (pour raison historique) et la version publiée (*public*). Pour ce faire, les *hash* correspondant à ces versions sont simplement mis de côté.
 - Fichier **manifest.json** : fichier à la racine de tout contenu dont l'objectif est de décrire ce dernier. Un tel fichier comporte deux types d'informations : à propos du contenu en lui-même (les métadonnées mentionnées plus haut) et à propos de son arborescence. La spécification de ce fichier est détaillée plus loin. On retiendra qu'à chaque version correspond un fichier ``manifest.json`` et que le contenu de ce dernier peut fortement varier d'une version à l'autre.
 - **Conteneur** (*container*) : sous-structure d'un contenu. Explicité plus bas.
 - **Extrait** (*extract*) : base atomique (plus petite unité) d'un contenu. Explicité plus bas.
@@ -193,7 +193,7 @@ Le brouillon
 Le brouillon est la première étape du cycle de vie d'un contenu. Il donne
 toujours l'état le plus récent d'un contenu vu par les auteurs. Chaque fois
 que le contenu est modifié, c'est la version brouillon qui est mise à jour.
-La version brouillon est accessible uniquement pour les auteurs et validateurs
+La version brouillon est accessible uniquement pour les auteurs et éditeurs
 d'un tutoriel. Si on souhaite donner un accès en lecture seule à nos écrits,
 il faut passer par la méthode adéquate.
 
@@ -217,25 +217,25 @@ Seulement, la version brouillon ne sera plus identique à la version en bêta et
 il ne faudra pas oublier de mettre à jour cette dernière pour que la communauté
 puisse juger des dernières modifications.
 
-La validation
+L’édition
 -------------
 
 Une fois que l'auteur a eu assez de retours sur son contenu, et qu'il estime
-qu'il est prêt à être publié, il décide d'envoyer son contenu en validation.
-*Via* l'interface idoine, un validateur peut alors réserver le contenu et
+qu'il est prêt à être publié, il décide d'envoyer son contenu en édition.
+*Via* l'interface idoine, un éditeur peut alors réserver le contenu et
 commencer à vérifier qu'il satisfait la politique éditoriale du site. Dans le
 cas contraire, le contenu est rejeté et un message est envoyé aux auteurs pour
 expliquer les raisons du refus.
 
-L'envoi en validation n'est pas définitif, dans le sens où vous pouvez à tout
-moment mettre à jour la version en cours de validation. Évitez d'en abuser tout
-de même, car, si un validateur commence à lire votre contenu, il devra
+L'envoi en édition n'est pas définitif, dans le sens où vous pouvez à tout
+moment mettre à jour la version en cours d’édition. Évitez d'en abuser tout
+de même, car, si un éditeur commence à lire votre contenu, il devra
 recommencer son travail si vous faites une mise à jour dessus. Cela pourrait non
-seulement ralentir le processus de validation de votre contenu, mais aussi ceux
+seulement ralentir le processus d’édition de votre contenu, mais aussi ceux
 autres contenus !
 
 Comme pour la bêta, la version brouillon du contenu peut continuer à être
-améliorée pendant que la version de validation reste figée. Auteurs et validateurs
+améliorée pendant que la version d’édition reste figée. Auteurs et éditeurs
 peuvent donc continuer à travailler chacun de leur côté.
 
 La publication
@@ -243,12 +243,12 @@ La publication
 
 **Le cas général**
 
-Une fois que le contenu est passé en validation et a satisfait les critères
+Une fois que le contenu est passé en édition et a satisfait les critères
 éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs afin
 de les informer de la publication et de leur transmettre le message laissé
-par le validateur en charge du contenu. Il faut bien préciser que le processus
-de validation peut être assez long. De plus, un historique de validation est
-disponible pour les validateurs.
+par l’éditeur en charge du contenu. Il faut bien préciser que le processus
+d’édition peut être assez long. De plus, un historique d’édition est
+disponible pour les éditeurs.
 
 La publication d'un contenu entraîne l'export du contenu en plusieurs formats :
 
@@ -455,15 +455,15 @@ Les permissions
 Afin de gérer ce module, trois permissions peuvent être utilisées :
 
 - ``tutorialv2.change_publishablecontent`` : pour le droit d'accéder et de modifier les contenus même sans en être l'auteur ;
-- ``tutorialv2.change_validation`` : pour le droit à accéder à l'interface de validation, réserver, valider ou refuser des contenus ;
+- ``tutorialv2.change_validation`` : pour le droit à accéder à l'interface d’édition, réserver, édition ou refuser des contenus ;
 - ``tutorialv2.change_contentreaction`` : pour le droit à modérer les commentaires sur les contenus une fois publiés (masquer, éditer, ...).
 
-Ces permissions doivent être accordées aux administateurs/modérateurs/validateurs selon les besoins via l'interface d'administration de Django.
+Ces permissions doivent être accordées aux administateurs/modérateurs/éditeurs selon les besoins via l'interface d'administration de Django.
 
 Processus de publication
 ------------------------
 
-Apès avoir passé les étapes de validation, le contenu est près à être publié.
+Apès avoir passé les étapes d’édition, le contenu est près à être publié.
 Cette action est effectuée par un membre du Staff. Le but de la publication
 est double : permettre aux visiteurs de consulter le contenu, mais aussi
 d’effectuer certains traitements (détaillés ci-après) afin que celui-ci soit
@@ -477,7 +477,7 @@ La publication se passe comme suit :
 2. Le code *markdown* est converti en HTML afin de gagner du temps à l'affichage. Pour chaque conteneur, deux cas se présentent :
     * Si celui-ci contient des extraits, ils sont tous rassemblés dans un seul fichier HTML, avec l'introduction et la conclusion ;
     * Dans le cas contraire, l'introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le *manifest* sont mis à jour.
-3. Le *manifest* correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
+3. Le *manifest* correspondant à la version publiée est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
 4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `ZMarkdown <https://github.com/zestedesavoir/zmarkdown/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
 5. Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l'ancienne version publiée. Un objet ``PublishedContent`` est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l'affichage dans la liste des contenus publiés. Le ``sha_public`` est mis à jour dans la base de données et l'objet ``Validation`` est également changé.
 

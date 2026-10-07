@@ -158,5 +158,5 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 
 
-.. [#cv2] C'est-à-dire 60% en validation (dont 20% réservés) et 30% publiés. S'il sagit de tutoriels, 50% de petits, 30% de moyen et 20% de *bigs*.
+.. [#cv2] C'est-à-dire 60% en édition (dont 20% réservés) et 30% publiés. S'il sagit de tutoriels, 50% de petits, 30% de moyen et 20% de *bigs*.
 .. [#moy] Ce nombre est une moyenne, le nombre réel est choisi au hasard autour de cette moyenne.

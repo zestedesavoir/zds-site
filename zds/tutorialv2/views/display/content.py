@@ -342,7 +342,7 @@ class ContentValidationView(LoginRequiredMixin, ContentBaseView):
         obj = super().get_object(queryset)
 
         if not obj.sha_validation:
-            raise Http404("Aucune version en validation n'existe pour ce contenu.")
+            raise Http404("Aucune version en édition n'existe pour ce contenu.")
         else:
             self.sha = obj.sha_validation
 

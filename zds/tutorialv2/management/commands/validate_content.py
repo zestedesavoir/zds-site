@@ -13,7 +13,7 @@ from zds.tutorialv2.publication_utils import (
 
 
 class Command(BaseCommand):
-    help = "Publish one content by its id. This require the content to be in validation and reserved by someone"
+    help = "Publish one content by its id. This require the content to be in edition and reserved by someone"
 
     def add_arguments(self, parser):
         parser.add_argument("content", type=Command.id_validator)
@@ -31,7 +31,7 @@ class Command(BaseCommand):
             raise ValueError("Content does not exist")
 
         if not Validation.objects.filter(content=content, status="PENDING_V").first():
-            raise ValueError("Content is not being validated")
+            raise ValueError("Content is not being edited")
 
         return content
 

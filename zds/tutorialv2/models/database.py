@@ -100,11 +100,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     sha_public = models.CharField("Sha1 de la version publique", blank=True, null=True, max_length=80, db_index=True)
     sha_beta = models.CharField("Sha1 de la version beta publique", blank=True, null=True, max_length=80, db_index=True)
     sha_validation = models.CharField(
-        "Sha1 de la version en validation", blank=True, null=True, max_length=80, db_index=True
+        "Sha1 de la version en édition", blank=True, null=True, max_length=80, db_index=True
     )
     sha_draft = models.CharField("Sha1 de la version de rédaction", blank=True, null=True, max_length=80, db_index=True)
     sha_picked = models.CharField(
-        "Sha1 de la version choisie (contenus publiés sans validation)",
+        "Sha1 de la version choisie (contenus publiés sans édition)",
         blank=True,
         null=True,
         max_length=80,
@@ -1409,8 +1409,8 @@ class Validation(models.Model):
     """
 
     class Meta:
-        verbose_name = "Validation"
-        verbose_name_plural = "Validations"
+        verbose_name = "Édition"
+        verbose_name_plural = "Éditions"
 
     content = models.ForeignKey(
         PublishableContent,
@@ -1425,7 +1425,7 @@ class Validation(models.Model):
     comment_authors = models.TextField("Commentaire de l'auteur", null=True, blank=True)
     validator = models.ForeignKey(
         User,
-        verbose_name="Validateur",
+        verbose_name="Éditeur·ices",
         related_name="author_content_validations",
         blank=True,
         null=True,
@@ -1433,12 +1433,12 @@ class Validation(models.Model):
         on_delete=models.SET_NULL,
     )
     date_reserve = models.DateTimeField("Date de réservation", blank=True, null=True)
-    date_validation = models.DateTimeField("Date de validation", blank=True, null=True)
-    comment_validator = models.TextField("Commentaire du validateur", blank=True, null=True)
+    date_validation = models.DateTimeField("Date d’édition", blank=True, null=True)
+    comment_validator = models.TextField("Commentaire d’édition", blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
 
     def __str__(self):
-        return _("Validation de « {} »").format(self.content.title)
+        return _("Édition de « {} »").format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending

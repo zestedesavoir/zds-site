@@ -1547,7 +1547,7 @@ class ContentTests(TutorialTestMixin, TestCase):
     def test_validation_subscription(self):
         """test if the author suscribes to their own content"""
 
-        text_validation = "Valide moi ce truc, s'il te plait"
+        text_validation = "Édite moi ce truc, s'il te plait"
         text_accept = "C'est cool, merci !"
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -1679,7 +1679,7 @@ class ContentTests(TutorialTestMixin, TestCase):
     def test_validation_workflow(self, validation_management):
         """test the different case of validation"""
 
-        text_validation = "Valide moi ce truc, s'il te plait"
+        text_validation = "Édite-moi ce truc, s'il te plait"
         text_accept = "C'est cool, merci !"
         text_reject = "Je refuse ce contenu."
 
@@ -1998,7 +1998,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
-            {"text": "Valide moi ce truc, s'il te plait", "version": self.tuto_draft.current_version},
+            {"text": "Édite-moi ce truc, s'il te plait", "version": self.tuto_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -2052,7 +2052,7 @@ class ContentTests(TutorialTestMixin, TestCase):
     def test_delete_while_validating(self):
         """this test ensure that the validator is warned if the content he is validing is removed"""
 
-        text_validation = "Valide moi ce truc, s'il te plait"
+        text_validation = "Édite-moi ce truc, s'il te plait"
         text_cancel = "Veux pas !"
 
         # let's create a medium-size tutorial
@@ -2402,7 +2402,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
-            {"text": "valide moi ça, please", "version": versioned.current_version},
+            {"text": "Édite-moi ça, please", "version": versioned.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)

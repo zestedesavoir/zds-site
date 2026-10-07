@@ -156,14 +156,14 @@ Il est possible de modifier les différents paramètres de la recherche dans
             "opinion": (_("Billet"), ["opinion"]),
         },
         "search_validated_content": {
-            "validated": (_("Contenus validés"), ["validated"]),
+            "validated": (_("Contenus édités"), ["validated"]),
             "no_validated": (_("Contenus libres"), ["no_validated"]),
         },
         "boosts": {
             "publishedcontent": {
                 "global": global_weight_publishedcontent,
-                "if_validated": 2.0,  # s'il s'agit d'une publication validée (article ou tuto)
-                "if_validated_and_multipage": 2.5, # s'il s'agit d'une publication validée sur plusieurs pages (medium ou big)
+                "if_validated": 2.0,  # s'il s'agit d'une publication éditée (article ou tuto)
+                "if_validated_and_multipage": 2.5, # s'il s'agit d'une publication éditée sur plusieurs pages (medium ou big)
                 "if_opinion": 1.66, # s'il s'agit d'un billet
                 "if_opinion_not_picked": 1.5, # s'il s'agit d'un billet non mis en avant sur la page d'accueil
 
@@ -209,7 +209,7 @@ Il est possible de modifier les différents paramètres de la recherche dans
   manière dont ils sont groupés sur le formulaire de recherche,
 + ``search_content_type`` définit les différents types de contenus publiés et
   la manière dont ils sont groupés sur le formulaire de recherche,
-+ ``search_validated_content``  définit les différentes validations des contenus
++ ``search_validated_content``  définit les différentes éditions des contenus
   publiés et la manière dont elles sont groupées sur le formulaire de recherche,
 + ``boosts`` contient les différents facteurs de *boost* appliqués aux
   différentes situations. Modifier ces valeurs permet de changer l'ordre des

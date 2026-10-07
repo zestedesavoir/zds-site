@@ -52,6 +52,6 @@ Vous pouvez vous connecter avec le membre ``user``, le membre ``staff`` ou n'imp
 S'amuser
 ========
 
-Votre instance locale de Zeste de Savoir vous appartient, vous êtes libre d'y faire tout ce que vous souhaitez ! N'hésitez pas à explorer les fonctionnalités que vous connaissez moins : la validation des contenus, la modération des messages et des membres, etc. Ainsi, vous aurez un aperçu global des fonctionnalités !
+Votre instance locale de Zeste de Savoir vous appartient, vous êtes libre d'y faire tout ce que vous souhaitez ! N'hésitez pas à explorer les fonctionnalités que vous connaissez moins : l’édition des contenus, la modération des messages et des membres, etc. Ainsi, vous aurez un aperçu global des fonctionnalités !
 
 .. include:: ../includes/contact-us.rst

@@ -68,8 +68,8 @@
                     <div class="column">
                         <h1>{% trans "Partagez vos savoirs…" %}</h1>
                         {% blocktrans %}
-                            <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des contenus</strong>.</p>
-                            <p>Pour assurer la qualité, l’équipe du site valide chaque tutoriel et article.</p>
+                            <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des cours</strong>.</p>
+                            <p>Pour assurer la qualité, l’équipe du site édite chacun d’eux.</p>
                         {% endblocktrans %}
                         <h1>{% trans "… sur une plate-forme libre" %}</h1>
                         {% blocktrans %}
@@ -113,7 +113,7 @@
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
-                    <span>{% trans "Dernières pépites validées par l'équipe" %}</span>
+                    <span>{% trans "Dernières pépites éditées par l'équipe" %}</span>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
@@ -132,11 +132,11 @@
                             <p class="lead">
                                 {% if validated_contents_count == 0 %}
                                     {% blocktrans %}
-                                         Il y a {{ validated_contents_count }} publication validée par l'équipe.</p>
+                                         Il y a {{ validated_contents_count }} publication éditée par l'équipe.</p>
                                     {% endblocktrans %}
                                 {% else %}
                                     {% blocktrans %}
-                                         Il y a {{ validated_contents_count }} publications validées par l'équipe.</p>
+                                         Il y a {{ validated_contents_count }} publications éditées par l'équipe.</p>
                                     {% endblocktrans %}
                                 {% endif %}
                         </div>

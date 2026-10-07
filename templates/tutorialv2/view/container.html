@@ -69,7 +69,7 @@
         {% if display_config.draft_actions.show_ready_to_publish %}
             {% if not container.ready_to_publish %}
                 <div class="alert-box ico-alerts">
-                    {% trans "Cette partie n'est pas prête à la publication. En cas de validation, elle ne sera pas publiée." %}
+                    {% trans "Cette partie n'est pas prête à la publication. En cas d’édition, elle ne sera pas publiée." %}
                 </div>
             {% endif %}
         {% endif %}
@@ -274,11 +274,11 @@
             <a data-url="{% url 'api:content:readiness' content.pk %}" class="readiness" data-is-ready="{{ container.ready_to_publish|yesno:"true,false" }}"
                data-container-slug="{{ container.slug }}"
                 {% if container.parent.parent %}data-parent-container-slug="{{ container.parent.slug }}"{% endif %}
-                data-is-ready-false="{% trans "Marquer comme prêt à valider." %}" data-is-ready-true="{% trans "Marquer comme à ne pas valider." %}">
+                data-is-ready-false="{% trans "Marquer comme prêt à éditer." %}" data-is-ready-true="{% trans "Marquer comme à ne pas éditer." %}">
                 {% if container.ready_to_publish %}
-                    {% trans "Marquer comme à ne pas valider." %}
+                    {% trans "Marquer comme à ne pas éditer." %}
                 {% else %}
-                    {% trans "Marquer comme prêt à valider." %}
+                    {% trans "Marquer comme prêt à éditer." %}
                 {% endif %}
             </a>
         </li>

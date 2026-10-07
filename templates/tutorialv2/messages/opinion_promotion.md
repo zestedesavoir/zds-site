@@ -6,7 +6,7 @@ Félicitations !
 
 Je viens de proposer le billet « [{{ title }}]({{ url }}) » comme article !
 
-Il est en validation et sera examiné prochainement.
+Il est en zone d’édition et sera examiné prochainement.
 
 À bientôt !
 {% endblocktrans %}

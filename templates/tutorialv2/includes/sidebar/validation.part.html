@@ -5,14 +5,14 @@
 
 
 {% if display_config.validation_actions.show_validation_actions %}
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-        <h3>{% if content.requires_validation %}{% trans "Validation"%}{%else %}{%trans "Modération" %}{% endif %}</h3>
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Édition">
+        <h3>{% if content.requires_validation %}{% trans "Édition"%}{%else %}{%trans "Modération" %}{% endif %}</h3>
         <ul>
             {% if display_config.validation_actions.show_validation_link %}
                 <li>
                     {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
                     <a href="{{ url_validation }}" class="ico-after online blue">
-                        {% trans "Voir la page de validation" %}
+                        {% trans "Voir la page d’édition" %}
                     </a>
                 </li>
             {% endif %}
@@ -27,21 +27,21 @@
 
             {% if display_config.validation_actions.show_ask_validation %}
                 <li>
-                    <a href="#ask-validation" class="open-modal ico-after tick green">{% trans "Demander la validation" %}</a>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">{% trans "Demander l’édition" %}</a>
                     {% crispy form_ask_validation %}
                 </li>
             {% endif %}
 
             {% if display_config.validation_actions.show_cancel_validation %}
                 <li>
-                    <a href="#cancel-validation" class="open-modal ico-after cross blue">{% trans "Annuler la demande de validation" %}</a>
+                    <a href="#cancel-validation" class="open-modal ico-after cross blue">{% trans "Annuler la demande d’édition" %}</a>
                     {% crispy form_cancel_validation %}
                 </li>
             {% endif %}
 
             {% if display_config.validation_actions.show_update_validation %}
                 <li>
-                    <a href="#ask-validation" class="open-modal ico-after tick green">{% trans "Mettre à jour la version en validation" %}</a>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">{% trans "Mettre à jour la version en édition" %}</a>
                     {% crispy form_ask_validation %}
                 </li>
             {% endif %}
@@ -81,7 +81,7 @@
                                 </form>
                             </li>
                             <li>
-                                <a href="#valid-publish" class="open-modal ico-after tick green">{% trans "Valider et publier" %}</a>
+                                <a href="#valid-publish" class="open-modal ico-after tick green">{% trans "Publier" %}</a>
                                 {% crispy form_valid %}
                             </li>
                             <li>
@@ -98,7 +98,7 @@
                                 <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-flex" id="unreservation">
                                     {% csrf_token %}
                                     <p>
-                                        {% trans "La validation de ce contenu est actuellement réservée par" %}
+                                        {% trans "L’édition de ce contenu est actuellement réservée par" %}
                                         {% include "misc/member_item.part.html" with member=validation.validator %}.
                                         {% trans "Êtes-vous certain de vouloir le retirer" %} ?
                                     </p>
@@ -117,7 +117,7 @@
                     {% captureas to_sha %}{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}{% endcaptureas %}
                     {% captureas diff_valid_url %}{% url "content:diff" content.pk content.slug_repository %}?from={{ validation.version }}&amp;to={{ to_sha }}{% endcaptureas %}
                     <a href="{{ diff_valid_url }}" class="ico-after history blue">
-                        {% trans "Comparer avec la version en validation" %}
+                        {% trans "Comparer avec la version en cours d’édition" %}
                     </a>
                 </li>
             {% endif %}
@@ -125,7 +125,7 @@
             {% if display_config.validation_actions.show_validation_history %}
                 <li>
                     {% url "validation:history" content.pk content.slug as history_url %}
-                    <a href="{{ history_url }}" class="ico-after history blue">{% trans "Historique de validation" %}</a>
+                    <a href="{{ history_url }}" class="ico-after history blue">{% trans "Historique d’édition" %}</a>
                 </li>
             {% endif %}
 

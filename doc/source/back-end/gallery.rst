@@ -45,7 +45,7 @@ Une fois l'image uploadée, il est possible d'y effectuer différentes actions s
 
 Autrement dit :
 
-+ En modifier le titre, la légende ou encore l'image en elle-même. À noter que le titre et la légende peuvent être modifiés **sans qu'il ne soit nécessaire** d'uploader une nouvelle image. Si une nouvelle version de l'image est uploadée, l'ancienne version de l'image n'est pas supprimée du serveur et reste accessible depuis son URL ; un nouvel identifiant (et donc une nouvelle URL) sera attribué à la nouvelle version de l'image. Cela signifie notamment que mettre à jour une image ne changera pas l'image là où elle a déjà été utilisée (tutoriel, article, message, ...). Ce comportement permet d'éviter que les images utilisées dans des contenus validés soient changées sans repasser par une validation.
++ En modifier le titre, la légende ou encore l'image en elle-même. À noter que le titre et la légende peuvent être modifiés **sans qu'il ne soit nécessaire** d'uploader une nouvelle image. Si une nouvelle version de l'image est uploadée, l'ancienne version de l'image n'est pas supprimée du serveur et reste accessible depuis son URL ; un nouvel identifiant (et donc une nouvelle URL) sera attribué à la nouvelle version de l'image. Cela signifie notamment que mettre à jour une image ne changera pas l'image là où elle a déjà été utilisée (tutoriel, article, message, ...). Ce comportement permet d'éviter que les images utilisées dans des contenus édités soient changées sans repasser par une édition.
 + Obtenir le code à insérer dans un champ de texte acceptant le Markdown pour l'image en elle-même, sa miniature ou encore la miniature accompagnée du lien vers l'image en taille réelle.
 
 Les utilisateurs et leurs droits
