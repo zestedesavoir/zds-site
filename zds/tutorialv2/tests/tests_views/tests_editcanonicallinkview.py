@@ -6,6 +6,7 @@ from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.views.canonical import EditCanonicalLinkForm, EditCanonicalLinkView
@@ -102,20 +103,68 @@ class FunctionalTests(TutorialTestMixin, TestCase):
         # Log in with an authorized user (e.g the author of the content) to perform the tests
         self.client.force_login(self.author.user)
 
-    @patch("zds.tutorialv2.signals.canonical_link_management")
-    def test_normal(self, canonical_link_management):
-        valid_url = "https://example.com"
-        self.client.post(self.form_url, data={"source": valid_url}, follow=True)
-        expected = {"source": valid_url, "call_count": 1}
+    def add_canonical_link_url(self, canonical_link_management, url):
+        self.client.post(self.form_url, data={"source": url}, follow=True)
+        expected = {"source": url, "call_count": 1}
         self.check_effects(expected, canonical_link_management)
 
-    @patch("zds.tutorialv2.signals.canonical_link_management")
-    def test_empty(self, canonical_link_management):
-        self.client.post(self.form_url, data={"source": ""}, follow=True)
-        expected = {"source": "", "call_count": 1}
-        self.check_effects(expected, canonical_link_management)
+    def publish(self, is_major_update):
+        published = publish_content(self.content, self.content.load_version(), is_major_update=is_major_update)
+        self.content.public_version = published
+        self.content.save()
+
+    def get_public_content_url(self):
+        url = reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug})
+        response = self.client.get(url)
+        return response
 
     def check_effects(self, expected_outputs, canonical_link_management):
         self.content.refresh_from_db()
         self.assertEqual(self.content.source, expected_outputs["source"])
         self.assertEqual(canonical_link_management.send.call_count, expected_outputs["call_count"])
+
+    @patch("zds.tutorialv2.signals.canonical_link_management")
+    def test_normal(self, canonical_link_management):
+        self.add_canonical_link_url(canonical_link_management=canonical_link_management, url="https://example.com")
+
+    @patch("zds.tutorialv2.signals.canonical_link_management")
+    def test_empty(self, canonical_link_management):
+        self.add_canonical_link_url(canonical_link_management=canonical_link_management, url="")
+
+    @patch("zds.tutorialv2.signals.canonical_link_management")
+    def test_canonical_link_appears_on_published_content(self, canonical_link_management):
+        valid_url = "https://example.com/original-link"
+        self.add_canonical_link_url(canonical_link_management=canonical_link_management, url=valid_url)
+
+        # publication
+        self.publish(is_major_update=True)
+
+        # checks if the canonical link is present on the page
+        self.assertContains(self.get_public_content_url(), f'<link rel="canonical" href="{valid_url}"')
+
+    @patch("zds.tutorialv2.signals.canonical_link_management")
+    def test_canonical_link_doesnt_appear_without_republished_content(self, canonical_link_management):
+        valid_url = "https://example.com/original-link"
+
+        # publication
+        self.publish(is_major_update=True)
+
+        response = self.client.get(reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug}))
+        # checks if the canonical link is not present on the page
+        self.assertNotContains(response, f'<link rel="canonical" href="{valid_url}"')
+
+        # add canonical link
+        self.add_canonical_link_url(canonical_link_management=canonical_link_management, url=valid_url)
+
+        # checks if the canonical link is present on the page without publication
+        self.assertContains(self.get_public_content_url(), f'<link rel="canonical" href="{valid_url}"')
+
+        # minor publication
+        self.publish(is_major_update=False)
+        # checks if the canonical link is present on the page after minor publication
+        self.assertContains(self.get_public_content_url(), f'<link rel="canonical" href="{valid_url}"')
+
+        # major publication
+        self.publish(is_major_update=True)
+        # checks if the canonical link is still present on the page after major publication
+        self.assertContains(self.get_public_content_url(), f'<link rel="canonical" href="{valid_url}"')
