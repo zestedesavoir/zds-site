@@ -1001,7 +1001,6 @@ class NotificationPrivateTopicTest(TestCase):
         When the user asked to be notified via email, we actually send the email
         when a topic is created.
         """
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.assertEqual(0, len(mail.outbox))
 
         topic = send_mp(

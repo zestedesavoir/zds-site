@@ -44,10 +44,15 @@ ALLOWED_HOSTS = [
     "163.172.171.246",
 ]
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_USE_TLS = False
-EMAIL_HOST = "localhost"
-EMAIL_PORT = 25
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": "localhost",
+            "use_tls": False,  # port 25 is the default for unsecured connection
+        },
+    },
+}
 
 CACHES = {
     "default": {
