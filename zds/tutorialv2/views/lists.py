@@ -168,9 +168,7 @@ class ViewPublications(TemplateView):
             AND `tutorialv2_publishablecontent`.`type` IN ({})
             AND `tutorialv2_publishablecontent_subcategory`.`subcategory_id` =
               `utils_categorysubcategory`.`subcategory_id`)
-        """.format(
-            ", ".join(f"'{t}'" for t in handled_types)
-        )
+        """.format(", ".join(f"'{t}'" for t in handled_types))
 
         queryset = (
             CategorySubCategory.objects.filter(is_main=True, category=category)
