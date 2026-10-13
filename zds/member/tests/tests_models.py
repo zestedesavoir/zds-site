@@ -344,6 +344,9 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         profile_external = ProfileFactory()
         profile_external.user.username = settings.ZDS_APP["member"]["external_account"]
         profile_external.user.save()
+        profile_antispam = ProfileFactory()
+        profile_antispam.user.username = settings.ZDS_APP["member"]["antispam_account"]
+        profile_antispam.user.save()
         profile_ban_def = ProfileFactory()
         profile_ban_def.can_read = False
         profile_ban_def.can_write = False

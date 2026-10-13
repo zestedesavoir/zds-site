@@ -49,6 +49,7 @@ class CheckEssentialAccountsTest(TestCase):
         UserFactory(username=settings.ZDS_APP["member"]["bot_account"])
         UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"])
         UserFactory(username=settings.ZDS_APP["member"]["external_account"])
+        UserFactory(username=settings.ZDS_APP["member"]["antispam_account"])
         check_essential_accounts()
 
     def test_without_accounts(self):

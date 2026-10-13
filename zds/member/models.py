@@ -419,6 +419,17 @@ class Profile(models.Model):
                 skeleton += homoglyph[0]
         return skeleton.lower()
 
+    def is_spam(self, field_name):
+        """
+        Check if a specific field in the Profile is marked as spam.
+        :param field_name: The name of the field to check (e.g., 'biography', 'sign').
+        :return: True if the field is spam, False otherwise.
+        """
+        # FIXME: à migrer dans la config antispam/spam_fields.py ?
+        if field_name not in ["biography", "sign"]:
+            raise ValueError(f"Field '{field_name}' is not spam-checkable.")
+        return not self.can_read
+
 
 @receiver(models.signals.post_delete, sender=User)
 def auto_delete_token_on_unregistering(sender, instance, **kwargs):

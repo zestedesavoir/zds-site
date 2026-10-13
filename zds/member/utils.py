@@ -63,6 +63,14 @@ def get_anonymous_account() -> User:
     return User.objects.get(username=settings.ZDS_APP["member"]["anonymous_account"])
 
 
+def get_antispam_account() -> User:
+    """
+    Get the antispam account.
+    Used for signaling users as spam.
+    """
+    return User.objects.get(username=settings.ZDS_APP["member"]["antispam_account"])
+
+
 def get_geo_location_from_ip(ip: str) -> str:
     """
     Uses geo-localization to get physical localization of an IP address.
