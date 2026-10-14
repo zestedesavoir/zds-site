@@ -527,8 +527,13 @@ def init_new_repo(db_object, introduction_text="", conclusion_text="", commit_me
     if not os.path.isdir(path):
         os.makedirs(path, mode=0o777)
 
-    # init repo:
-    Repo.init(path, bare=False, template="")
+    # Init repo:
+    #
+    # We percise we don't want to use the default template, which contains, for
+    # instance, examples of all possible hooks. We don't need them in Git
+    # repositories for contents.
+    # Using parameter `template` requires `allow_unsafe_options=True`.
+    Repo.init(path, bare=False, template="", allow_unsafe_options=True)
 
     # create object
     versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)
