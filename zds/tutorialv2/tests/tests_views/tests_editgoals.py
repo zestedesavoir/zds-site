@@ -89,3 +89,19 @@ class EditGoalsFunctionalTests(TestCase):
         self.assertEqual(list(self.content.goals.all()), [])
         self.assertContains(response, "alert-box alert")
         self.assertFalse(goals_management.send.called)
+
+    @patch("zds.tutorialv2.signals.goals_management")
+    def test_redirect_to_next_url(self, goals_management):
+        self.client.force_login(self.staff)
+        custom_url = reverse("content:view-goals")
+        response = self.client.post(self.url, {"goals": [], "next": custom_url})
+        self.assertRedirects(response, custom_url)
+        self.assertEqual(goals_management.send.call_count, 1)
+
+    @patch("zds.tutorialv2.signals.goals_management")
+    def test_redirect_default_without_next(self, goals_management):
+        self.client.force_login(self.staff)
+        content_url = reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug})
+        response = self.client.post(self.url, {"goals": []})
+        self.assertRedirects(response, content_url)
+        self.assertEqual(goals_management.send.call_count, 1)
