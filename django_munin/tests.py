@@ -36,3 +36,25 @@ class MuninViewDecoratorTests(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode(), f"{config}\ntopics.label topics\nsolved.label solved")
+
+    def test_custom_labels(self):
+        config = """graph_title Total Posts
+graph_vlabel posts
+posts.label Forum posts
+posts.draw LINE1
+comments.label Article and Tutorial comments
+comments.draw STACK"""
+
+        @muninview(config=config)
+        def view(request):
+            return [("posts", 12), ("comments", 2)]
+
+        request = RequestFactory().get("/munin/view")
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), "posts 12\ncomments 2")
+
+        request = RequestFactory().get("/munin/view", {"config": 1})
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), config)
