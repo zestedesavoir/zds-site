@@ -88,3 +88,15 @@ class SendValidationEmailViewTest(TestCase):
         response = self.client.post(reverse("send-validation-email"), {"email": "un@known"})
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context["form"].errors))
+
+    def test_post_invalid_form(self):
+        """The form is valid as long as we have at least username **or** email field."""
+        profile = ProfileFactory()
+
+        response = self.client.post(reverse("send-validation-email"), {"username": profile.user.username, "foo": "bar"})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["form"].errors))
+
+        response = self.client.post(reverse("send-validation-email"), {"foo": "bar", "email": profile.user.email})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["form"].errors))
