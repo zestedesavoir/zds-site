@@ -31,7 +31,7 @@ graph_vlabel posts
 graph_args --lower-limit 0
 posts.label Forum posts
 posts.draw LINE1
-comments.label Article and Tutorial comments
+comments.label Content comments
 comments.draw STACK"""
 )
 def total_posts(request):
