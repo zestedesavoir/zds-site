@@ -76,6 +76,8 @@ class SendValidationEmailView(FormView, TokenGenerator):
     usr = None
 
     def get_user(self, username, email):
+        # if the user doesn't exist, a validator in the form fails and the form
+        # is not valid, and this function is not called
         if username:
             self.usr = get_object_or_404(User, username=username)
 
@@ -90,13 +92,13 @@ class SendValidationEmailView(FormView, TokenGenerator):
 
         if form.is_valid():
             # Fetch the user
-            self.get_user(form.data["username"], form.data["email"])
+            self.get_user(form.cleaned_data.get("username"), form.cleaned_data.get("email"))
 
             # User should not already be active
             if not self.usr.is_active:
                 return self.form_valid(form)
             else:
-                if form.data["username"]:
+                if form.cleaned_data.get("username"):
                     form.errors["username"] = form.error_class([self.get_error_message()])
                 else:
                     form.errors["email"] = form.error_class([self.get_error_message()])
