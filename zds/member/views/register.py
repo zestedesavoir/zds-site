@@ -84,13 +84,12 @@ class SendValidationEmailView(FormView, TokenGenerator):
         elif email:
             self.usr = get_object_or_404(User, email=email)
 
-    def get_form(self, form_class=UsernameAndEmailForm):
-        return form_class()
-
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
         if form.is_valid():
+            error_message = _("Le compte est déjà activé.")
+
             # Fetch the user
             self.get_user(form.cleaned_data.get("username"), form.cleaned_data.get("email"))
 
@@ -99,9 +98,9 @@ class SendValidationEmailView(FormView, TokenGenerator):
                 return self.form_valid(form)
             else:
                 if form.cleaned_data.get("username"):
-                    form.errors["username"] = form.error_class([self.get_error_message()])
+                    form.errors["username"] = form.error_class([error_message])
                 else:
-                    form.errors["email"] = form.error_class([self.get_error_message()])
+                    form.errors["email"] = form.error_class([error_message])
 
         return render(request, self.template_name, {"form": form})
 
@@ -120,13 +119,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
             messages.warning(self.request, _("Impossible d'envoyer l'email."))
             return self.form_invalid(form)
 
-        return render(self.request, self.get_success_template())
-
-    def get_success_template(self):
-        return "member/register/send_validation_email_success.html"
-
-    def get_error_message(self):
-        return _("Le compte est déjà activé.")
+        return render(self.request, "member/register/send_validation_email_success.html")
 
 
 @login_required
