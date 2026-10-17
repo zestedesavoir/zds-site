@@ -73,3 +73,18 @@ class UpdateMemberViewTest(TestCase):
         self.assertEqual(self.profile.site, initial_site)
         self.assertEqual(self.profile.avatar_url, initial_avatar_url)
         self.assertEqual(self.profile.sign, initial_sign)
+
+
+class SendValidationEmailViewTest(TestCase):
+    def test_get(self):
+        response = self.client.get(reverse("send-validation-email"))
+        self.assertEqual(200, response.status_code)
+
+    def test_post_invalid_user(self):
+        response = self.client.post(reverse("send-validation-email"), {"username": "unknown"})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["form"].errors))
+
+        response = self.client.post(reverse("send-validation-email"), {"email": "un@known"})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["form"].errors))
