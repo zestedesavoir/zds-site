@@ -17,6 +17,7 @@ def banned_users(request):
 
 @muninview(
     config="""graph_title Total Topics
+graph_args --lower-limit 0
 graph_vlabel topics"""
 )
 def total_topics(request):
@@ -27,9 +28,10 @@ def total_topics(request):
 @muninview(
     config="""graph_title Total Posts
 graph_vlabel posts
+graph_args --lower-limit 0
 posts.label Forum posts
 posts.draw LINE1
-comments.label Article and Tutorial comments
+comments.label Content comments
 comments.draw STACK"""
 )
 def total_posts(request):
@@ -38,6 +40,7 @@ def total_posts(request):
 
 @muninview(
     config="""graph_title Total MPs
+graph_args --lower-limit 0
 graph_vlabel count"""
 )
 def total_mps(request):
@@ -46,6 +49,7 @@ def total_mps(request):
 
 @muninview(
     config="""graph_title Total Tutorials
+graph_args --lower-limit 0
 graph_vlabel tutorials"""
 )
 def total_tutorials(request):
@@ -59,6 +63,7 @@ def total_tutorials(request):
 
 @muninview(
     config="""graph_title Total articles
+graph_args --lower-limit 0
 graph_vlabel articles"""
 )
 def total_articles(request):
@@ -72,6 +77,7 @@ def total_articles(request):
 
 @muninview(
     config="""graph_title Total Opinions
+graph_args --lower-limit 0
 graph_vlabel #opinions
 draft.label Draft
 draft.draw LINE1

@@ -30,6 +30,7 @@ def total_users(request):
 @muninview(
     config="""graph_title Active Users
 graph_vlabel users
+graph_args --lower-limit 0
 graph_info Number of users logged in during the last hour"""
 )
 def active_users(request):
@@ -39,6 +40,7 @@ def active_users(request):
 
 @muninview(
     config="""graph_title Total Sessions
+graph_args --lower-limit 0
 graph_vlabel sessions"""
 )
 def total_sessions(request):
@@ -47,6 +49,7 @@ def total_sessions(request):
 
 @muninview(
     config="""graph_title Active Sessions
+graph_args --lower-limit 0
 graph_vlabel sessions"""
 )
 def active_sessions(request):
@@ -56,6 +59,7 @@ def active_sessions(request):
 @muninview(
     config="""graph_title DB performance
 graph_vlabel milliseconds
+graph_args --lower-limit 0
 graph_info performance of simple insert/select/delete operations"""
 )
 def db_performance(request):
