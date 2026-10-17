@@ -14,6 +14,7 @@ def banned_users(request):
 
 
 @muninview(config="""graph_title Total Topics
+graph_args --lower-limit 0
 graph_vlabel topics""")
 def total_topics(request):
     topics = Topic.objects.all()
@@ -22,6 +23,7 @@ def total_topics(request):
 
 @muninview(config="""graph_title Total Posts
 graph_vlabel posts
+graph_args --lower-limit 0
 posts.label Forum posts
 posts.draw LINE1
 comments.label Article and Tutorial comments
@@ -31,12 +33,14 @@ def total_posts(request):
 
 
 @muninview(config="""graph_title Total MPs
+graph_args --lower-limit 0
 graph_vlabel count""")
 def total_mps(request):
     return [("mp", PrivateTopic.objects.all().count()), ("replies", PrivatePost.objects.all().count())]
 
 
 @muninview(config="""graph_title Total Tutorials
+graph_args --lower-limit 0
 graph_vlabel tutorials""")
 def total_tutorials(request):
     tutorials = PublishableContent.objects.filter(type="TUTORIAL").all()
@@ -48,6 +52,7 @@ def total_tutorials(request):
 
 
 @muninview(config="""graph_title Total articles
+graph_args --lower-limit 0
 graph_vlabel articles""")
 def total_articles(request):
     articles = PublishableContent.objects.filter(type="ARTICLE").all()
@@ -59,13 +64,13 @@ def total_articles(request):
 
 
 @muninview(config="""graph_title Total Opinions
+graph_args --lower-limit 0
 graph_vlabel #opinions
 draft.label Draft
 draft.draw LINE1
 featured.label Featured
 published.label Published
-converted.label Converted
-""")
+converted.label Converted""")
 def total_opinions(request):
     opinions = PublishableContent.objects.filter(type="OPINION").all()
     return [
