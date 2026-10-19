@@ -51,6 +51,8 @@
             {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" y_label="Nombre de pages" %}
             {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" report_key="avg_time_on_page" y_label="Secondes" %}
             {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs uniques" canvas_id="users-graph" report_key="nb_uniq_visitors" y_label="Nombre de visiteurs" %}
+
+
         {% endif %}
 
         {% if cumulative_stats %}
@@ -174,6 +176,14 @@
 {% block sidebar %}
     <aside class="sidebar summary mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>{% trans "Les quizz" %}</h3>
+            <ul>
+                <li>
+                    <a href="{% url "content:stats-quizz" content.pk content.slug%}" >
+                        {% trans "Réponses aux quizz" %}
+                    </a>
+                </li>
+            </ul>
             <h3>{% trans "Échelle de temps" %}</h3>
             <ul>
                 <li>
