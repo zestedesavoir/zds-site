@@ -101,7 +101,7 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_warn_typo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
         context["form_edit_tags"] = EditTagsForm(self.versioned_object, self.object)
         context["form_edit_canonical_link"] = EditCanonicalLinkForm(self.object)
-        context["form_edit_goals"] = EditGoalsForm(self.object)
+        context["form_edit_goals"] = EditGoalsForm(self.object, next_url=self.get_base_url())
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
         return context
