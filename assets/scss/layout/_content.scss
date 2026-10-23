@@ -162,7 +162,8 @@
         th,
         td,
         ul:not(.pagination),
-        ol:not(.summary-part) {
+        ol:not(.summary-part),
+        dl {
             font-family: $font-serif;
             font-size: $font-size-10;
         }

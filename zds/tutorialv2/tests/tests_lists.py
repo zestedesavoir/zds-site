@@ -65,14 +65,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
         self.client.logout()
 
-        resp = self.client.get(reverse("publication:list") + "?type=tutorial")
-        self.assertContains(resp, tutorial.title)
-        self.assertNotContains(resp, tutorial_unpublished.title)
-
-        resp = self.client.get(reverse("publication:list") + "?type=article")
-        self.assertContains(resp, article.title)
-        self.assertNotContains(resp, article_unpublished.title)
-
         resp = self.client.get(reverse("tutorial:find-tutorial", args=[self.user_author.username]) + "?filter=public")
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)

@@ -16,7 +16,7 @@ Lancez un shell interactif dans un conteneur basé sur Debian :
 
 .. sourcecode:: bash
 
-    docker run -it -p 8000:8000 debian:bookworm
+    docker run -it -p 8000:8000 debian:trixie
 
 
 Une fois dans le conteneur, saisissez les commandes suivantes :

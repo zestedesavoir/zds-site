@@ -2868,16 +2868,13 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
+        tuto.refresh_from_db()  # the previous request set its public_version
 
         published = PublishedContent.objects.filter(content=tuto).first()
         self.assertIsNotNone(published)  # ok for the publication
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-
-        self.assertIsNotNone(tuto.pubdate)
         self.assertIsNotNone(published.publication_date)
+        current_date = published.publication_date
 
-        current_pubdate = tuto.pubdate
         ExtractFactory(container=self.chapter1, db_object=tuto)
 
         # connect with author:
@@ -2911,9 +2908,8 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         published = PublishedContent.objects.filter(content=tuto).last()
         self.assertIsNotNone(published)  # ok for the publication
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        self.assertEqual(tuto.pubdate, current_pubdate)  # `is_major` in False → no update of the publication date
+        # `is_major` was False => no update of the publication date:
+        self.assertEqual(published.publication_date, current_date)
 
     def test_no_form_not_allowed(self):
         """Check that author cannot access to form that he is not allowed to in the creation process, because

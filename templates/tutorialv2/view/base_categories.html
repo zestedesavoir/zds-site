@@ -103,9 +103,6 @@
                                 {% if subcategory %}
                                     <span class="has-separator option">{% trans 'Catégorie :' %} <strong><a href="{% url 'publication:subcategory' slug_category=category.slug slug=subcategory.slug %}">{{subcategory}}</a></strong></span>
                                 {% endif %}
-                                {% if type %}
-                                    <span class="has-separator option">{% trans 'Type :' %} <strong>{{type}}</strong></span>
-                                {% endif %}
                                 {% if tag %}
                                     <span class="has-separator option">{% trans 'Tag :' %} <strong>{{tag}}</strong></span>
                                 {% endif %}

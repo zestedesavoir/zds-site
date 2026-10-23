@@ -8,7 +8,8 @@ p a,
 th,
 td,
 ul:not(.pagination),
-ol:not(.summary-part) {
+ol:not(.summary-part),
+dl {
     line-height: 1.6;
 }
 

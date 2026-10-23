@@ -97,9 +97,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         eval "sudo $packagingTool_install $dep"; exVal=$?
         echo ""
 
-        if [[ $exVal != 0 && $dep == "python3-venv" ]]; then
-            print_error "!! We were unable to install virtualenv. Don't panic, we will try with pip3."
-        elif [[ $exVal != 0 && ! $(_in "--answer-yes" $@) ]]; then
+        if [[ $exVal != 0 && ! $(_in "--answer-yes" $@) ]]; then
             print_error "Unable to install \`$dep\`, press \`y\` to continue the script."
             echo -n "Choice : "
             read -n 1
@@ -127,7 +125,7 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
 
     if [ ! -f $ZDS_VENV/bin/activate ]; then
         if [ -d $ZDS_VENV ]; then
-            print_info "!! Find corrupted virtualenv folder without bin/activate"
+            print_info "!! Found corrupted virtualenv folder without bin/activate"
 
             if $(_in "--answer-yes" $@); then
                 print_info "remove $(realpath $ZDS_VENV)"
@@ -147,23 +145,13 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             fi
         fi
 
-        print_info "* [+virtualenv] installing \`virtualenv $ZDS_VENV_VERSION\` with pip"
-        pip3 install --user virtualenv==$ZDS_VENV_VERSION
-
         print_info "* [+virtualenv] creating virtualenv"
-        err=$(python3 -m venv $ZDS_VENV 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
-        if [[ $err != "" ]]; then
-            exVal=1
-            if [[ $err == *"ensurepip"* ]]; then # possible issue on python 3.6
-                print_info "!! Trying to create the virtualenv without pip"
-                python3 -m venv $ZDS_VENV --without-pip; exVal=$?
-            fi
+        python3 -m venv $ZDS_VENV; exVal=$?
 
-            if [[ $exVal != 0 ]]; then
-                print_error "!! Cannot create (use \`-virtualenv\` to skip)"
-                print_info "You can try to change the path of zdsenv folder before retrying this command with \`export ZDS_VENV=../zdsenv\`"
-                exit 1
-            fi
+        if [[ $exVal != 0 ]]; then
+            print_error "!! Cannot create (use \`-virtualenv\` to skip)"
+            print_info "You can try to change the path of zdsenv folder before retrying this command with \`export ZDS_VENV=../zdsenv\`"
+            exit 1
         fi
     fi
 fi

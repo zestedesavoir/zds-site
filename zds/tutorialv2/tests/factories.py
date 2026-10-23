@@ -55,7 +55,6 @@ class PublishableContentFactory(factory.django.DjangoModelFactory):
     description = factory.Sequence("Description du contenu No{}".format)
     type = "TUTORIAL"
     creation_date = datetime.now()
-    pubdate = datetime.now()
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -242,7 +241,7 @@ class PublishedContentFactory(PublishableContentFactory):
     """
 
     @classmethod
-    def _generate(cls, create, attrs):
+    def _generate(cls, create, attrs) -> PublishableContent:
         # This parameter is only used inside _generate() and won't be saved in the database,
         # which is why we use attrs.pop() (it is removed from attrs).
         is_major_update = attrs.pop("is_major_update", True)

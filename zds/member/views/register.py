@@ -115,7 +115,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
             self.send_email(token, self.usr)
         except Exception as e:
             logging.getLogger(__name__).warning("Mail not sent", exc_info=e)
-            messages.warning(_("Impossible d'envoyer l'email."))
+            messages.warning(self.request, _("Impossible d'envoyer l'email."))
             return self.form_invalid(form)
 
         return render(self.request, self.get_success_template())

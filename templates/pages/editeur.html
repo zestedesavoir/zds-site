@@ -1,0 +1,117 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load set %}
+
+{% block title %}
+    {% trans "Zeste de Savoir, un éditeur associatif" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans "Éditeur associatif" %}</li>
+{% endblock %}
+
+{% block headline %}
+    <h1>{% trans "Zeste de Savoir, un éditeur associatif" %}</h1>
+{% endblock %}
+
+{% block content %}
+    <div>
+       <ol>
+           <li><a href="#zdsediteur">Zeste de Savoir en tant qu’éditeur</a></li>
+           <li><a href="#tribunelibre">La tribune libre</a></li>
+           <li><a href="#faq">Questions et réponses</a></li>
+           <li><a href="#mentionslegales">Mentions légales</a></li>
+       </ol>
+        <h2 id="zdsediteur">Zeste de Savoir en tant qu’éditeur</h2>
+        <p>Zeste de Savoir est un <strong>éditeur associatif</strong>, qui diffuse ses publications au travers du présent <em>site internet</em>.</p>
+        <p>L’association publie tout <em>« partage de connaissances »</em> - voyez <a href="/pages/association/">la page de l’association</a> pour plus de détails.</p>
+        <p>Elle garantit la disponibilité des publications : c’est l’une de ses raisons d’être.</p>
+        <p>Les publications sur ce site sont bien référencées et bénéficient d’une bonne visiblité. Vous pouvez <a href="/billets/?category=zeste-de-savoir">vérifier les statistiques vous-même</a>.</p>
+    </div>
+    <div>
+        <div class="content-col-2">
+            <h3>L’apport de Zeste de Savoir</h3>
+            <p>Une <strong>relecture par les pairs</strong> : Zeste de Savoir permet de profiter de relectures par des personnes du domaine, qui seront à même de prodiguer des conseils et de détecter d’éventuelles coquilles.</p>
+            <p>Des <strong>conseils pédagogiques</strong> : bien connaitre son sujet est une chose, savoir le vulgariser efficacement en est une autre. Zeste de Savoir a une longue expérience en la matière et peut vous aider à rendre votre publication plus claire.</p>
+            <p>Une <strong>intégration dans un ensemble de publications</strong> : les publications sur le même thème sont liées ensemble, pour fournir des resources les plus complètes possibles.</p>
+            <p>Une publication lisible directement sur le Web (format HTML) ainsi qu’en <strong>livres électroniques</strong>, aux formats EPUB et PDF.</p>
+            <p>Et, bien entendu, une relecture sur la forme pure : orthographe, grammaire, typographie…</p>
+        </div>
+
+        <div class="content-col-2">
+            <h3>Différences avec un éditeur classique</h3>
+            <p>Zeste de Savoir n’est pas un éditeur commercial, mais un <strong>éditeur associatif</strong> ; notre but n’est pas de <em>vendre</em> vos publications (dans le sens mercantile du terme), mais d’en améliorer la qualité et surtout de les <em>partager au plus grand nombre</em>.</p>
+            <p>Concrètement, ça implique que :</p>
+            <ul>
+                <li>Les auteur·ices restent <strong>pleinement propriétaires de leurs publications</strong>, qui peuvent être diffusées ailleurs. Zeste de Savoir n’exige aucune forme d’exclusivité sur ces publications.</li>
+                <li>Le travail d’édition est collaboratif avec l’auteur·ice : Zeste de Savoir <em>propose</em> des corrections ; l’auteur·ice reste libre de les accepter ou non ; et Zeste de Savoir reste libre de publier le résultat final ou non.</li>
+                <li>Zeste de Savoir n’étant pas un éditeur à compte d’auteur, les auteur·ices n’ont rien à débourser.</li>
+                <li>Zeste de Savoir n’étant pas un éditeur mercantile et ne proposant aucun produit payant, l’association ne pourra pas rétribuer ses auteur·ices.</li>
+                <li>L’association entre Zeste de Savoir et les auteur·ices se fait sans contrat d’édition. En particulier, le temps de traitement n’est pas garanti, puisque tous nos éditeur·ices sont bénévoles.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div>
+        <h2 id="tribunelibre">La tribune libre</h2>
+
+        <h3>Publier sans être édité</h3>
+        <p>Zeste de Savoir propose une <strong>tribune libre</strong> : un outil de publication gratuit, accessible à tout le monde, dotée des outils d’édition standards.</p>
+        <p>Toute personne inscrite sur le site peut y publier ce qu’il souhaite, tant que c’est légal et conforme aux <a href="/pages/cgu/">conditions générales d’utilisation</a> du site.</p>
+        <p>Les publications de la tribune libre ont moins de visibilité que celles éditées par Zeste de Savoir, mais dispensent de passer par le processus d’édition. Il est bien sûr possible de publier en tribune libre <em>d’abord</em> puis d’être <strong>édité ensuite</strong>.</p>
+        <p>Vous pouvez <a href="/billets/">parcourir la tribune libre ici</a>.</p>
+
+        <h3>Le service de transformation de <i>threads</i> en billets</h3>
+        <p>Vous êtes coutumier de longs <i>threads</i> sur les réseaux sociaux ?</p>
+        <p>Ce format est très pratique pour avoir une bonne visibilité instantanée, mais ces <i>threads</i> sont difficiles à retrouver ensuite et leurs informations sont virtuellement perdues après quelques jours seulement. Dommage, non ?</p>
+        <p>Zeste de Savoir, en plus de son service d’édition, vous propose de <strong>convertir ces <i>threads</i> en publications</strong> de tribune libre et de les lier à votre compte sur le site : votre précieuse production est sauvegardée, indexée par les moteurs de recherche et facile à retrouver pour les lecteurs.</p>
+        <p>À votre demande, l’association se charge de tout : conversion – import des images compris – et publication. Vous pouvez toujours modifier le résultat à votre convenance à l’aide de nos outils d’édition. Le délai de réalisation peut dépendre de la disponibilité des bénévoles ; et avec un peu d’habitude, vous pourrez faire la conversion vous-même en quelques minutes.</p>
+        <p>Une fois ces billets créés, vous pouvez les publier directement dans la tribune libre, hors du circuit éditorial ; ou bien les retravailler pour les transformer en publication éditorialisée.</p>
+
+        <h3>… et tous types de partages de connaissances !</h3>
+        <p>La tribune libre peut servir pour tous types de partage de connaissance autres que ceux déjà listés.</p>
+        <p>Par exemple, héberger des résumés de publications scientifiques, des transcriptions de vos vidéos – vous pouvez <a href="/tutoriels/249/rediger-sur-zds/#vid%C3%A9os">intégrer des vidéos hébergées ailleurs</a> – etc.</p>
+        <p>Soyez créatifs !</p>
+
+        <h2 id="faq">Questions et réponses</h2>
+        <dl>
+            <dt>Où peut-on trouver les publications de Zeste de Savoir ?</dt>
+            <dd>Gratuitement sur le présent site zestedesavoir.com, aux formats HTML (les pages web classiques), mais aussi en tant que livres électroniques au format PDF et EPUB. Zeste de Savoir n’édite ni livres ni articles de recherches, nos publications ne sont donc pas disponibles en librairies sur les plateformes d’articles scientifiques.</dd>
+
+            <dt>Que puis-je publier chez Zeste de Savoir ?</dt>
+            <dd>Tout partage de connaissances. Cette notion est à prendre au sens large. En cas de doute, <a href="/forums/communaute/association/">venez en discuter sur le forum</a>.</dd>
+
+            <dt>Combien ça coute de publier chez Zeste de Savoir ?</dt>
+            <dd>Pas un centime. Mais comme pour tout processus de publication, vous aurez des améliorations et corrections à faire, ce qui peut prendre du temps.</dd>
+
+            <dt>Combien je gagne à publier chez Zeste de Savoir ?</dt>
+            <dd>Pas un centime. Zeste de Savoir ne vends rien, et ne peut donc pas rémunérer ses auteur·ices. Comme vous restez propriétaires de vos droits, vous pouvez vendre vos publications ailleurs tout en les laissant publiées chez nous.</dd>
+
+            <dt>Est-ce obligatoire de publier sous licence libre ?</dt>
+            <dd>Non. Les licences libres Creative Commons sont fréquentes pour des raisons historiques et de préférences personnelles, mais nous acceptons la publication sous copyright, et tous types de licences, qu’elles soient libres ou de libre diffusion.</dd>
+        </dl>
+    </div>
+
+    <div>
+        <h2 id="mentionslegales">Mentions légales</h2>
+        {# See https://associations.gouv.fr/la-presse-associative #}
+        <p>
+            {% blocktrans with association_address=app.site.association.address association_president=app.site.association.president %}
+            La section éditoriale de Zeste de Savoir est éditée par
+                <a href="/pages/association">l’association Zeste de Savoir</a>, sise {{ association_address }}
+                et représentée par son président, {{ association_president }}. Cette section est à parution irrégulière.
+                Elle est publiée gratuitement.
+            {% endblocktrans %}
+        </p>
+        {% if app.site.editor.issn %}
+            <p>Numéro ISSN : {{  app.site.editor.issn }}</p>
+        {% endif %}
+        {% if app.site.editor.publisher %}
+            <p>Directeur de la publication : {{  app.site.editor.publisher }}</p>
+        {% endif %}
+        {% if app.site.editor.editor_in_chief %}
+            <p>Responsable de la rédaction : {{  app.site.editor.editor_in_chief }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

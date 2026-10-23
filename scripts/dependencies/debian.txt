@@ -1,5 +1,5 @@
 #title=Debian
-#desc=Utilisation de apt-get / Testé sur Debian Bullseye (11), Bookworm (12)
+#desc=Utilisation de apt-get / Testé sur Debian Bookworm (12), Trixie (13)
 #updatecmd=apt-get -y update
 #installcmd=apt-get -y install
 git
@@ -20,10 +20,12 @@ libz-dev
 libjpeg62-turbo
 libjpeg62-turbo-dev
 libfreetype6
-libfreetype6-dev
+libfreetype-dev
 libffi-dev
 build-essential
 imagemagick
 librsvg2-bin
 xzdec
 dh-autoreconf
+# pour la commande `column`, utilisée par `make help`:
+bsdextrautils

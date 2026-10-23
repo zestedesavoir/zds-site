@@ -107,6 +107,10 @@ def cookies(request):
     return render(request, "pages/cookies.html")
 
 
+def editor(request):
+    return render(request, "pages/editeur.html")
+
+
 @can_write_and_read_now
 @login_required
 @permission_required("forum.change_post", raise_exception=True)

@@ -32,7 +32,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     form_class = ContentCompareStatsURLForm
     urls = []
     matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
-    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomo_url"], matomo_token_auth)
+    matomo_api_url = f"{settings.ZDS_APP['site']['matomo_url']}/index.php"
     matomo_site_id = settings.ZDS_APP["site"]["matomo_site_id"]
     logger = logging.getLogger(__name__)
 
@@ -104,6 +104,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
             # Build a fresh bulk request for this chunk
             data_request = {
+                "token_auth": self.matomo_token_auth,
                 "module": "API",
                 "method": "API.getBulkRequest",
                 "format": "json",
