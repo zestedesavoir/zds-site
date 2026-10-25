@@ -262,23 +262,19 @@
         display: flex;
         align-items: center;
 
-        width: 50%;
-        height: $length-38;
+        width: 271px; // TODO: dot not use an absolute value, but rather a %
+        height: $length-40;
 
         @include mobile {
             width: 80%;
         }
 
-        margin: $length-8 auto;
+        margin: $length-16 auto $length-8; /* top left/right bottom */
 
         border: 1px solid transparent;
 
         transition: $transition-duration ease-in-out;
         transition-property: background-color border-color;
-
-        &:not(:first-of-type) {
-            margin-top: $length-16;
-        }
 
         img {
             width: $length-24;
@@ -289,8 +285,6 @@
             flex: 2;
             text-align: center;
             font-size: $font-size-9;
-
-            line-height: 1.2;
         }
 
         &.is-facebook {
