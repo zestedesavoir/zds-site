@@ -72,3 +72,7 @@ opinions_management = Signal()
 # Categories management
 # For the signal below, the arguments "performer", "content" and "action" shall be provided.
 categories_management = Signal()
+
+# Obsolescence management
+# For the signal below, the arguments "performer" and "content"  shall be provided.
+obsolescence_management = Signal()
