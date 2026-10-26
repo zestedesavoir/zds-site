@@ -196,19 +196,18 @@ class SingleNotificationMixin:
 
 
 class MultipleNotificationsMixin:
-    def send_notification(self, content=None, send_email=True, sender=None):
+    def send_notification(
+        self, content: models.Model | None = None, send_email: bool = True, sender: User | None = None
+    ) -> "Notification | None":
         """
         Sends the notification about the given content
-        :param content:  the content the notification is about
-        :param sender: the user whose action triggered the notification
-        :param send_email : whether an email must be sent if the subscription by email is active
         """
 
         assert hasattr(self, "get_notification_url")
         assert hasattr(self, "get_notification_title")
         assert hasattr(self, "send_email")
         if self.last_notification and not self.last_notification.is_read:
-            return
+            return None
 
         notification = self.build_notification(content, sender)
         with transaction.atomic():
@@ -218,6 +217,8 @@ class MultipleNotificationsMixin:
 
         if send_email and self.by_email:
             self.send_email(notification)
+
+        return notification
 
     def build_notification(self, content, sender):
         notification = Notification(subscription=self, content_object=content, sender=sender)
