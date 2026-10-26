@@ -196,13 +196,11 @@ class SingleNotificationMixin:
 
 
 class MultipleNotificationsMixin:
-    def send_notification(self, content=None, send_email=True, sender=None):
+    def send_notification(
+        self, content: models.Model | None = None, send_email: bool = True, sender: User | None = None
+    ) -> "Notification | None":
         """
         Sends the notification about the given content
-        :param content:  the content the notification is about
-        :param sender: the user whose action triggered the notification
-        :param send_email : whether an email must be sent if the subscription by email is active
-        :return: the created notification, or None if no notification was sent
         """
 
         assert hasattr(self, "get_notification_url")
