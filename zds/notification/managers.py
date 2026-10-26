@@ -293,15 +293,16 @@ class NotificationManager(models.Manager):
         )
         return [notification.subscription.user for notification in notifications]
 
-    def get_user_ids_for_notification_on(self, content_object: models.Model) -> models.QuerySet:
+    def get_users_notified_on(self, content_object: models.Model) -> models.QuerySet:
         """
-        Gets the ids of all users who have been notified about the given content object,
+        Gets all users who have been notified about the given content object,
         whatever the subscription the notification comes from.
         """
         content_type = ContentType.objects.get_for_model(content_object)
-        return self.filter(object_id=content_object.pk, content_type__pk=content_type.pk).values_list(
-            "subscription__user", flat=True
-        )
+        return User.objects.filter(
+            subscriber__subscription__object_id=content_object.pk,
+            subscriber__subscription__content_type=content_type,
+        ).distinct()
 
 
 class TopicFollowedManager(models.Manager):

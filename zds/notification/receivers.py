@@ -265,18 +265,14 @@ def edit_topic_event(sender, *, topic, **kwargs):
 
 
 def _handle_added_tags(topic):
-    already_notified_users = set(Notification.objects.get_user_ids_for_notification_on(topic))
+    already_notified_users = set(Notification.objects.get_users_notified_on(topic))
     for subscription in NewTopicSubscription.objects.get_subscriptions_to_tags_of(topic):
         subscriber = subscription.user
-        if (
-            subscriber.pk in already_notified_users
-            or subscriber == topic.author
-            or not topic.forum.can_read(subscriber)
-        ):
+        if subscriber in already_notified_users or subscriber == topic.author or not topic.forum.can_read(subscriber):
             continue
         notification = subscription.send_notification(content=topic, sender=topic.author)
         if notification:
-            already_notified_users.add(subscriber.pk)
+            already_notified_users.add(subscriber)
 
 
 def _handle_deleted_tags(topic, topic_content_type):
