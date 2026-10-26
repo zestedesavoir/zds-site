@@ -277,22 +277,6 @@ class NotificationManager(models.Manager):
         content_subscription_type = ContentType.objects.get_for_model(model)
         return self.filter(subscription__content_type__pk=content_subscription_type.pk)
 
-    def get_users_for_unread_notification_on(self, content_object):
-        """
-        Gets all users who have an notification unread on the given content object.
-
-        :param content_object: generic content object.
-        :type content_object: instance concerned by notifications
-        :return: an iterable list of users.
-        """
-        content_type = ContentType.objects.get_for_model(content_object)
-        notifications = (
-            self.filter(object_id=content_object.pk, content_type__pk=content_type.pk)
-            .select_related("subscription")
-            .select_related("subscription__user")
-        )
-        return [notification.subscription.user for notification in notifications]
-
     def get_users_notified_on(self, content_object: models.Model) -> models.QuerySet:
         """
         Gets all users who have been notified about the given content object,
