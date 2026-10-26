@@ -107,8 +107,8 @@ class PostEditMixin:
             post.text_hidden = data.get("text_hidden", "")
 
             messages.success(request, _("Le message est désormais masqué."))
-            for user in Notification.objects.get_users_for_unread_notification_on(post):
-                signals.topic_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
+            for notified_user in Notification.objects.get_users_notified_on(post):
+                signals.topic_read.send(sender=post.topic.__class__, instance=post.topic, user=notified_user)
         else:
             raise PermissionDenied
 
