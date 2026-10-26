@@ -175,6 +175,23 @@ class NewPublicationSubscriptionManager(SubscriptionManager):
 
 
 class NewTopicSubscriptionManager(SubscriptionManager):
+    def get_subscriptions_to_tags_of(self, topic, is_active=True):
+        """
+        Gets subscriptions to the tags of a topic, with their users already loaded.
+
+        :param topic: topic whose tags are followed.
+        :type topic: zds.forum.models.Topic
+        :param is_active: Boolean to know if we want a subscription active or not.
+        :type is_active: Boolean
+        :return: a queryset of subscriptions.
+        """
+        tag_content_type = ContentType.objects.get_for_model(topic.tags.model)
+        return self.filter(
+            object_id__in=topic.tags.values_list("pk", flat=True),
+            content_type__pk=tag_content_type.pk,
+            is_active=is_active,
+        ).select_related("user")
+
     def mark_read_everybody_at(self, topic):
         """
         Mark every unaccessible notifications as read.
@@ -281,6 +298,20 @@ class NotificationManager(models.Manager):
             .select_related("subscription__user")
         )
         return [notification.subscription.user for notification in notifications]
+
+    def get_user_ids_for_notification_on(self, content_object):
+        """
+        Gets the ids of all users who have been notified about the given content object,
+        whatever the subscription the notification comes from.
+
+        :param content_object: generic content object.
+        :type content_object: instance concerned by notifications
+        :return: a queryset of user ids.
+        """
+        content_type = ContentType.objects.get_for_model(content_object)
+        return self.filter(object_id=content_object.pk, content_type__pk=content_type.pk).values_list(
+            "subscription__user", flat=True
+        )
 
 
 class TopicFollowedManager(models.Manager):

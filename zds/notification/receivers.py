@@ -258,22 +258,25 @@ def edit_topic_event(sender, *, topic, **kwargs):
     topic_content_type = ContentType.objects.get_for_model(topic)
 
     # Update notification as dead if it was triggered by a deleted tag
-    tag_content_type = _handle_deleted_tags(topic, topic_content_type)
+    _handle_deleted_tags(topic, topic_content_type)
 
     # Add notification of new topic for the subscription on the new tags
-    _handle_added_tags(tag_content_type, topic)
+    _handle_added_tags(topic)
 
 
-def _handle_added_tags(tag_content_type, topic):
-    for tag in topic.tags.all():
-        subscriptions = NewTopicSubscription.objects.filter(
-            object_id=tag.id, content_type__pk=tag_content_type.pk, is_active=True
-        )
-        for subscription in subscriptions:
-            notification = Notification.objects.filter(object_id=topic.id, subscription=subscription)
-            if not notification:
-                if subscription.user != topic.author and topic.forum.can_read(subscription.user):
-                    subscription.send_notification(content=topic, sender=topic.author)
+def _handle_added_tags(topic):
+    already_notified_users = set(Notification.objects.get_user_ids_for_notification_on(topic))
+    for subscription in NewTopicSubscription.objects.get_subscriptions_to_tags_of(topic):
+        subscriber = subscription.user
+        if (
+            subscriber.pk in already_notified_users
+            or subscriber == topic.author
+            or not topic.forum.can_read(subscriber)
+        ):
+            continue
+        notification = subscription.send_notification(content=topic, sender=topic.author)
+        if notification:
+            already_notified_users.add(subscriber.pk)
 
 
 def _handle_deleted_tags(topic, topic_content_type):
@@ -297,7 +300,6 @@ def _handle_deleted_tags(topic, topic_content_type):
             else:
                 notification.is_dead = True
             notification.save()
-    return tag_content_type
 
 
 def _handle_private_forum_moving(topic, topic_content_type, post_content_type):
