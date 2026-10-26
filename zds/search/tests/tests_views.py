@@ -293,7 +293,12 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # Should not get a 500 if collections do not exist:
         self.manager.clear_index()
-        result = self.client.get(reverse("search:similar") + "?q=mange", follow=False)
+        with self.assertLogs(level="ERROR") as error_log:
+            result = self.client.get(reverse("search:similar", query={"q": "mange"}), follow=False)
+        self.assertEqual(
+            error_log.output[0],
+            "ERROR:zds.search.views:Typesense search raised an error: [Errno 404] Collection not found",
+        )
         self.assertEqual(result.status_code, 200)
         content = json_handler.loads(result.content.decode("utf-8"))
         self.assertEqual(len(content["results"]), 0)
@@ -1077,7 +1082,12 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # Should not get a 500 if collections do not exist:
         self.manager.clear_index()
-        result = self.client.get(reverse("search:suggestion") + "?q=foo", follow=False)
+        with self.assertLogs(level="ERROR") as error_log:
+            result = self.client.get(reverse("search:suggestion", query={"q": "foo"}), follow=False)
+        self.assertEqual(
+            error_log.output[0],
+            "ERROR:zds.search.views:Typesense search raised an error: [Errno 404] Collection not found",
+        )
         self.assertEqual(result.status_code, 200)
         content = json_handler.loads(result.content.decode("utf-8"))
         self.assertEqual(len(content["results"]), 0)
@@ -1129,3 +1139,45 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # delete index:
         self.manager.clear_index()
+
+
+class ErrorDuringSearchTests(TestCase):
+    """This class connects to Typesense, with an invalid API key, which raises
+    exceptions when performing search."""
+
+    def setUp(self):
+        # We still create a valid connection to Typesense and create
+        # collections, because some tests require collections to exist to hit
+        # the code we want to test here.
+        valid_manager = SearchIndexManager()
+        if not valid_manager.connected:
+            self.skipTest("Could not connect to search engine")
+        valid_manager.reset_index()
+
+        # We simulate an error during a search by using an incorrect API access key
+        self.previous_api_key = settings.SEARCH_CONNECTION["api_key"]
+        settings.SEARCH_CONNECTION["api_key"] = "incorrect_key"
+
+        # We use an LRU cache on SearchIndexManager class to mimic a singleton
+        # design pattern, so we need to clear the LRU cache to create a new
+        # SearchIndexManager object with the invalid API key
+        SearchIndexManager.cache_clear()
+        self.manager = SearchIndexManager()
+
+    def test_error_during_search(self):
+        for route in ["search:query", "search:similar", "search:suggestion"]:
+            with self.subTest(msg=f"Error during search in route {route}"):
+                with self.assertLogs(level="ERROR") as error_log:
+                    result = self.client.get(reverse(route, query={"q": "foo"}), follow=False)
+                self.assertTrue(
+                    error_log.output[0].startswith("ERROR:zds.search.views:Typesense search raised an error:")
+                )
+                self.assertEqual(result.status_code, 200)
+
+    def tearDown(self):
+        super().tearDown()
+
+        # Remove from the LRU cache the Typesense connection with invalid API
+        # key (which could breaks other tests)
+        SearchIndexManager.cache_clear()
+        settings.SEARCH_CONNECTION["api_key"] = self.previous_api_key

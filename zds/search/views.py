@@ -29,38 +29,40 @@ class SimilarTopicsView(View):
 
     def get(self, request, *args, **kwargs):
         results = []
-
+        search_query = request.GET.get("q", "")
         search_engine_manager = SearchIndexManager()
-        if search_engine_manager.connected:
-            if "topic" in search_engine_manager.collections:
-                search_query = request.GET.get("q", "")
 
-                if search_query and "*" not in search_query:
-                    max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
+        if search_engine_manager.connected and search_query and "*" not in search_query:
+            max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
 
-                    search_parameters = {
-                        "q": search_query,
-                        "page": 1,
-                        "per_page": max_similar_topics,
-                    } | Topic.get_search_query(self.request.user)
+            search_parameters = {
+                "q": search_query,
+                "page": 1,
+                "per_page": max_similar_topics,
+            } | Topic.get_search_query(self.request.user)
 
-                    hits = search_engine_manager.engine.collections["topic"].documents.search(search_parameters)["hits"]
-                    assert len(hits) <= max_similar_topics
+            hits = []
+            try:
+                # Exception like
+                # "ServiceUnavailable [Errno 503] Not # Ready or Lagging"
+                # can happen when performing a search
+                hits = search_engine_manager.engine.collections["topic"].documents.search(search_parameters)["hits"]
+            except Exception as e:
+                logger.error(f"Typesense search raised an error: {e}")
+            assert len(hits) <= max_similar_topics
 
-                    for hit in hits:
-                        document = hit["document"]
-                        result = {
-                            "id": document["forum_pk"],
-                            "url": str(document["get_absolute_url"]),
-                            "title": str(document["title"]),
-                            "subtitle": str(document["subtitle"]),
-                            "forumTitle": str(document["forum_title"]),
-                            "forumUrl": str(document["forum_get_absolute_url"]),
-                            "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
-                        }
-                        results.append(result)
-            else:
-                logger.warning("SimilarTopicView called, but there is no 'topic' collection.")
+            for hit in hits:
+                document = hit["document"]
+                result = {
+                    "id": document["forum_pk"],
+                    "url": str(document["get_absolute_url"]),
+                    "title": str(document["title"]),
+                    "subtitle": str(document["subtitle"]),
+                    "forumTitle": str(document["forum_title"]),
+                    "forumUrl": str(document["forum_get_absolute_url"]),
+                    "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
+                }
+                results.append(result)
 
         return JsonResponse({"results": results})
 
@@ -75,43 +77,44 @@ class SuggestionContentView(View):
 
     def get(self, request, *args, **kwargs):
         results = []
-
+        search_query = request.GET.get("q", "")
         search_engine_manager = SearchIndexManager()
 
-        if search_engine_manager.connected:
-            search_query = request.GET.get("q", "")
+        if search_engine_manager.connected and search_query and "*" not in search_query:
+            max_suggestion_search_results = settings.ZDS_APP["content"]["max_suggestion_search_results"]
 
-            if "publishedcontent" in search_engine_manager.collections:
-                if search_query and "*" not in search_query:
-                    max_suggestion_search_results = settings.ZDS_APP["content"]["max_suggestion_search_results"]
+            search_parameters = {
+                "q": search_query,
+                "page": 1,
+                "per_page": max_suggestion_search_results,
+            } | PublishedContent.get_search_query()
 
-                    search_parameters = {
-                        "q": search_query,
-                        "page": 1,
-                        "per_page": max_suggestion_search_results,
-                    } | PublishedContent.get_search_query()
+            # We exclude contents already picked as a suggestion:
+            excluded_content_ids = request.GET.get("excluded", "")
+            if excluded_content_ids:
+                filter_by = SearchFilter()
+                filter_by.add_not_numerical_filter("content_pk", excluded_content_ids.split(","))
+                search_parameters["filter_by"] = str(filter_by)
 
-                    # We exclude contents already picked as a suggestion:
-                    excluded_content_ids = request.GET.get("excluded", "")
-                    if excluded_content_ids:
-                        filter_by = SearchFilter()
-                        filter_by.add_not_numerical_filter("content_pk", excluded_content_ids.split(","))
-                        search_parameters["filter_by"] = str(filter_by)
+            hits = []
+            try:
+                # Exception like
+                # "ServiceUnavailable [Errno 503] Not # Ready or Lagging"
+                # can happen when performing a search
+                hits = search_engine_manager.engine.collections["publishedcontent"].documents.search(search_parameters)[
+                    "hits"
+                ]
+            except Exception as e:
+                logger.error(f"Typesense search raised an error: {e}")
+            assert len(hits) <= max_suggestion_search_results
 
-                    hits = search_engine_manager.engine.collections["publishedcontent"].documents.search(
-                        search_parameters
-                    )["hits"]
-                    assert len(hits) <= max_suggestion_search_results
-
-                    for hit in hits:
-                        document = hit["document"]
-                        result = {
-                            "id": document["content_pk"],
-                            "title": str(document["title"]),
-                        }
-                        results.append(result)
-            else:
-                logger.warning("SuggestionContentView called, but there is no 'publishedcontent' collection.")
+            for hit in hits:
+                document = hit["document"]
+                result = {
+                    "id": document["content_pk"],
+                    "title": str(document["title"]),
+                }
+                results.append(result)
 
         return JsonResponse({"results": results})
 
@@ -203,9 +206,17 @@ class SearchView(ZdSPagingListView):
                 "page": "1",
             }
 
-            search_results = search_engine_manager.engine.multi_search.perform(search_requests, common_search_params)[
-                "results"
-            ]
+            search_results = []
+
+            try:
+                # Exception like "ServiceUnavailable [Errno 503] Not Ready or Lagging" can happen when performing a search
+                search_results = search_engine_manager.engine.multi_search.perform(
+                    search_requests, common_search_params
+                )["results"]
+            except Exception as e:
+                logger.error(f"Typesense search raised an error: {e}")
+                messages.warning(self.request, _(f"Le moteur de recherche a renvoyé une erreur : {e}"))
+
             for i in range(len(search_results)):
                 if "error" in search_results[i]:
                     logger.warning(f"Typesearch answered with an error: {search_results[i]['error']}")
