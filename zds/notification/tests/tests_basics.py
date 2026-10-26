@@ -436,8 +436,8 @@ class NotificationForumTest(TestCase):
         topic.add_tags(["Linux", "Windows"])
 
         # Then
-        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
-        self.assertEqual(1, len(notifications))
+        notifications_count = Notification.objects.filter(object_id=topic.pk, is_read=False).count()
+        self.assertEqual(1, notifications_count)
 
     def test_single_notification_on_forum_and_tag_subscribed(self):
         """
@@ -452,8 +452,8 @@ class NotificationForumTest(TestCase):
         topic.add_tags(["Linux"])
 
         # Then
-        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
-        self.assertEqual(1, len(notifications))
+        notifications_count = Notification.objects.filter(object_id=topic.pk, is_read=False).count()
+        self.assertEqual(1, notifications_count)
 
     def test_no_notification_on_new_topic_in_hidden_forum(self):
         """
