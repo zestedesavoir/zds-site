@@ -423,6 +423,38 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
+    def test_single_notification_on_several_tags_subscribed(self):
+        """
+        When a user subscribes to several tags of a new topic, they receive a single notification.
+        """
+        # Given
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+        NewTopicSubscription.objects.toggle_follow(self.tag2, self.user1)
+
+        # When
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        topic.add_tags(["Linux", "Windows"])
+
+        # Then
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+    def test_single_notification_on_forum_and_tag_subscribed(self):
+        """
+        When a user subscribes to the forum and to a tag of a new topic, they receive a single notification.
+        """
+        # Given
+        NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
+        NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
+
+        # When
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        topic.add_tags(["Linux"])
+
+        # Then
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
     def test_no_notification_on_new_topic_in_hidden_forum(self):
         """
         When a user subscribes to a forum that gets hidden and a topic is created in that forum, no notification is sent
