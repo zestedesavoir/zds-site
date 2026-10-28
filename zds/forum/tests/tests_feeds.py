@@ -11,9 +11,6 @@ from zds.member.tests.factories import ProfileFactory
 class LastTopicsFeedTest(TestCase):
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
-
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
         self.category1 = ForumCategoryFactory(position=1)
         self.forum = ForumFactory(category=self.category1, position_in_category=1)
         self.forum2 = ForumFactory(category=self.category1, position_in_category=2)
@@ -161,9 +158,6 @@ class LastTopicsFeedTest(TestCase):
 class LastPostsFeedTest(TestCase):
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
-
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
         self.category1 = ForumCategoryFactory(position=1)
         self.forum = ForumFactory(category=self.category1, position_in_category=1)
         self.forum2 = ForumFactory(category=self.category1, position_in_category=2)

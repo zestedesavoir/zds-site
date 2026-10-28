@@ -18,8 +18,6 @@ from zds.utils.models import Alert, Tag
 
 class ForumMemberTests(TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
         self.category1 = ForumCategoryFactory(position=1)
         self.category2 = ForumCategoryFactory(position=2)
         self.category3 = ForumCategoryFactory(position=3)
@@ -821,8 +819,6 @@ class ForumMemberTests(TestCase):
 
 class ForumGuestTests(TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
         self.category1 = ForumCategoryFactory(position=1)
         self.category2 = ForumCategoryFactory(position=2)
         self.category3 = ForumCategoryFactory(position=3)

@@ -11,7 +11,6 @@ from zds.notification.models import TopicAnswerSubscription
 
 class MemberTests(TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory()
         settings.ZDS_APP["member"]["bot_account"] = self.mas.user.username
         self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")

@@ -26,7 +26,6 @@ from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 @override_for_contents()
 class ContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         self.overridden_zds_app["member"]["bot_account"] = self.mas.username
 
