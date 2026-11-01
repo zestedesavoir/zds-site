@@ -69,7 +69,7 @@ Dès le lancement, cette commande vous demandera quelle est votre distribution L
 
 Ensuite, le reste de l'installation se fait tout seul sans rien vous demander ! En fonction de votre connexion Internet et de la puissance de votre ordinateur cela peut prendre du temps, soyez patient !
 
-**Si vous rencontrez un soucis, n'hésitez pas à nous contacter !**
+**Si vous rencontrez un souci, n'hésitez pas à nous contacter !**
 
 Installation complète
 ---------------------
