@@ -318,134 +318,52 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     :rtype: zds.tutorialv2.models.versioned.VersionedContent|zds.tutorialv2.models.database.PublishedContent
     """
 
-    from zds.tutorialv2.models.versioned import Container, Extract, PublicContent, VersionedContent
+    from zds.tutorialv2.models.versioned import PublicContent, VersionedContent
 
-    if "version" in json and json["version"] in (2, 2.1):  # add newest version of manifest
-        if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
-            raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
-        # create and fill the container
-        if len(json["title"]) > max_title_len:
-            raise BadManifestError(
-                _("Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len)
-            )
+    if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
+        raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
+    # create and fill the container
+    if len(json["title"]) > max_title_len:
+        raise BadManifestError(
+            _("Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len)
+        )
 
-        # check that title gives correct slug
-        slugify_raise_on_invalid(json["title"])
+    # check that title gives correct slug
+    slugify_raise_on_invalid(json["title"])
 
-        if not check_slug(json["slug"]):
-            raise InvalidSlugError(json["slug"])
-        else:
-            json_slug = json["slug"]
-
-        if not public:
-            versioned = VersionedContent(sha, "TUTORIAL", json["title"], json_slug, slug_last_draft)
-        else:
-            versioned = PublicContent(sha, "TUTORIAL", json["title"], json_slug)
-
-        # fill metadata :
-        if "description" in json:
-            versioned.description = json["description"]
-
-        if "type" in json:
-            if json["type"] in CONTENT_TYPE_LIST:
-                versioned.type = json["type"]
-
-        if "licence" in json:
-            if hint_licence is not None and hint_licence.code == json["licence"]:
-                versioned.licence = hint_licence
-            else:
-                versioned.licence = Licence.objects.filter(code=json["licence"]).first()
-        # Note: There is no fallback to a default license in case of problems.
-        # The author will have to set it himself prior to publication.
-
-        if "introduction" in json:
-            versioned.introduction = json["introduction"]
-        if "conclusion" in json:
-            versioned.conclusion = json["conclusion"]
-
-        # then, fill container with children
-        fill_containers_from_json(json, versioned)
+    if not check_slug(json["slug"]):
+        raise InvalidSlugError(json["slug"])
     else:
-        # minimal support for deprecated manifest version 1
-        # supported content types are exclusively ARTICLE and TUTORIAL
+        json_slug = json["slug"]
 
-        if "type" in json:
-            if json["type"] == "article":
-                _type = "ARTICLE"
-            else:
-                _type = "TUTORIAL"
+    if not public:
+        versioned = VersionedContent(sha, "TUTORIAL", json["title"], json_slug, slug_last_draft)
+    else:
+        versioned = PublicContent(sha, "TUTORIAL", json["title"], json_slug)
+
+    # fill metadata :
+    if "description" in json:
+        versioned.description = json["description"]
+
+    if "type" in json:
+        if json["type"] in CONTENT_TYPE_LIST:
+            versioned.type = json["type"]
+
+    if "licence" in json:
+        if hint_licence is not None and hint_licence.code == json["licence"]:
+            versioned.licence = hint_licence
         else:
-            _type = "ARTICLE"
-
-        if not public:
-            versioned = VersionedContent(sha, _type, json["title"], slug_last_draft)
-        else:
-            versioned = PublicContent(sha, _type, json["title"], slug_last_draft)
-
-        if "description" in json:
-            versioned.description = json["description"]
-        if "introduction" in json:
-            versioned.introduction = json["introduction"]
-        if "conclusion" in json:
-            versioned.conclusion = json["conclusion"]
-        if "licence" in json:
             versioned.licence = Licence.objects.filter(code=json["licence"]).first()
-        # Note: There is no fallback to a default license in case of problems.
-        # The author will have to set it himself prior to publication.
+    # Note: There is no fallback to a default license in case of problems.
+    # The author will have to set it himself prior to publication.
 
-        versioned.ready_to_publish = True  # the parent is always ready to publish
-        if _type == "ARTICLE":
-            extract = Extract("text", "")
-            if "text" in json:
-                extract.text = json["text"]  # probably 'text.md' !
-            versioned.add_extract(extract, generate_slug=True)
+    if "introduction" in json:
+        versioned.introduction = json["introduction"]
+    if "conclusion" in json:
+        versioned.conclusion = json["conclusion"]
 
-        else:  # it's a tutorial
-            if json["type"] == "MINI" and "chapter" in json and "extracts" in json["chapter"]:
-                for extract in json["chapter"]["extracts"]:
-                    new_extract = Extract(
-                        extract["title"],
-                        "{}_{}".format(extract["pk"], slugify_raise_on_invalid(extract["title"], True)),
-                    )
-                    if "text" in extract:
-                        new_extract.text = extract["text"]
-                    versioned.add_extract(new_extract, generate_slug=False)
-
-            elif json["type"] == "BIG" and "parts" in json:
-                for part in json["parts"]:
-                    new_part = Container(
-                        part["title"], "{}_{}".format(part["pk"], slugify_raise_on_invalid(part["title"], True))
-                    )
-
-                    if "introduction" in part:
-                        new_part.introduction = part["introduction"]
-                    if "conclusion" in part:
-                        new_part.conclusion = part["conclusion"]
-                    versioned.add_container(new_part, generate_slug=False)
-
-                    if "chapters" in part:
-                        for chapter in part["chapters"]:
-                            new_chapter = Container(
-                                chapter["title"],
-                                "{}_{}".format(chapter["pk"], slugify_raise_on_invalid(chapter["title"], True)),
-                            )
-
-                            if "introduction" in chapter:
-                                new_chapter.introduction = chapter["introduction"]
-                            if "conclusion" in chapter:
-                                new_chapter.conclusion = chapter["conclusion"]
-                            new_part.add_container(new_chapter, generate_slug=False)
-
-                            if "extracts" in chapter:
-                                for extract in chapter["extracts"]:
-                                    new_extract = Extract(
-                                        extract["title"],
-                                        "{}_{}".format(extract["pk"], slugify_raise_on_invalid(extract["title"], True)),
-                                    )
-
-                                    if "text" in extract:
-                                        new_extract.text = extract["text"]
-                                    new_chapter.add_extract(new_extract, generate_slug=False)
+    # then, fill container with children
+    fill_containers_from_json(json, versioned)
 
     return versioned
 

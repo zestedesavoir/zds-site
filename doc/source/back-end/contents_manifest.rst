@@ -29,11 +29,10 @@ Plus précisément :
   mais l'ancien interpréteur ne peut pas interpréter un manifeste X.Y. Le cas typique d'incrémentation de Y est le passage d'obligatoire à optionnel d'un champ du manifeste.
 - L'incrémentation de Z assure la compatibilité ascendante ET descendante, les cas typiques d'incrémentation de Z est l'ajout d'un champ optionnel au manifeste.
 
-Sauf cas exceptionnel, la numérotation de X commence à 1, la numérotation de Y commence à 0, la numérotation de Z commence à 0.
+La numérotation de X commence à 2, la numérotation de Y commence à 0, la numérotation de Z commence à 0.
 
 La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( ``{ version: "2.0.0"}``).
-L'absence du champ version est interprétée comme ``{version: "1.0"}``.
-Les 0 non significatifs sont optionnels ainsi ``{version: "1"}`` est strictement équivalent à ``{version: "1.0"}`` lui-même strictement équivalent à ``{version: "1.0.0"}``.
+Les 0 non significatifs sont optionnels ainsi ``{version: "2"}`` est strictement équivalent à ``{version: "2.0"}`` lui-même strictement équivalent à ``{version: "2.0.0"}``.
 
 Version 2.1
 -----------
@@ -84,7 +83,7 @@ Version 2.0
         ]
     }
 
-1. ``type`` : Le type de contenu, vaut "TUTORIAL" ou "ARTICLE". *Si ce champ est absent ou invalide, le type vaudra par défaut "TUTORIAL".*
+1. ``type`` : Le type de contenu, vaut "TUTORIAL", "ARTICLE" ou "OPINION". *Si ce champ est absent ou invalide, le type vaudra par défaut "TUTORIAL".*
 2. ``description`` : La description du contenu. Est affichée comme sous-titre dans la page finale. **Obligatoire**
 3. ``title`` : Le titre du contenu. **Obligatoire**
 4. ``slug`` : slug du contenu qui permet de faire une url SEO-friendly. Pour rappel, `certaines contraintes doivent être respectées dans le choix du slug <contents.html#des-objets-en-general>`_. **Obligatoire**.  ATENTION : si ce slug existe déjà dans notre base de données, il est possible qu'un nombre lui soit ajouté
@@ -99,86 +98,3 @@ Version 2.0
     5. ``conclusion`` : nom du fichier contenant la conclusion quand l'enfant est de type *container*. *Optionnel mais conseillé*
     6. ``children`` : tableau vers les enfants de niveau inférieur si l'enfant est de type *container*. **Obligatoire**
     7. ``text`` : nom du fichier contenant le texte quand l'enfant est de type *extract*. Nous conseillons de garder la convention ``nom de fichier = slug.md`` mais rien n'est obligatoire à ce sujet. **Obligatoire**
-
-
-
-
-Version 1.0
------------
-
-
-.. note::
-
-    La version 1.0 est dépréciée, et il est conseillé d'employer la version 2.0. Il est ceci dit toujours possible
-    `d'importer des contenus <contents.html#import-de-contenus>`_ dont le manifeste est toujours en version 1.0, mais à vos risques et périls.
-
-
-La version 1.0 définit trois types de manifeste selon que nous faisons face à un article,  un mini tutoriel ou un big tutoriel.
-
-
-MINI TUTO
-+++++++++
-
-.. sourcecode:: js
-
-    {
-        "title": "Mon Tutoriel No10",
-        "description": "Description du Tutoriel No10",
-        "type": "MINI",
-        "introduction": "introduction.md",
-        "conclusion": "conclusion.md"
-    }
-
-BIG TUTO
-++++++++
-
-.. sourcecode:: js
-
-    {
-        "title": "3D temps réel avec Irrlicht",
-        "description": "3D temps réel avec Irrlicht",
-        "type": "BIG",
-        "licence": "Tous droits réservés",
-        "introduction": "introduction.md",
-        "conclusion": "conclusion.md",
-        "parts": [
-            {
-                "pk": 7,
-                "title": "Chapitres de base",
-                "introduction": "7_chapitres-de-base/introduction.md",
-                "conclusion": "7_chapitres-de-base/conclusion.md",
-                "chapters": [
-                    {
-                        "pk": 25,
-                        "title": "Introduction",
-                        "introduction": "7_chapitres-de-base/25_introduction/introduction.md",
-                        "conclusion": "7_chapitres-de-base/25_introduction/conclusion.md",
-                        "extracts": [
-                            {
-                                "pk": 87,
-                                "title": "Ce qu'est un moteur 3D",
-                                "text": "7_chapitres-de-base/25_introduction/87_ce-quest-un-moteur-3d.md"
-                            },
-                            {
-                                "pk": 88,
-                                "title": "Irrlicht",
-                                "text": "7_chapitres-de-base/25_introduction/88_irrlicht.md"
-                            }
-                        ]
-                    },(...)
-                ]
-            }, (...)
-        ]
-    }
-
-Article
-+++++++
-
-.. sourcecode:: json
-
-    {
-        "title": "Mon Article No5",
-        "description": "Description de l'article No5",
-        "type": "article",
-        "text": "text.md"
-    }

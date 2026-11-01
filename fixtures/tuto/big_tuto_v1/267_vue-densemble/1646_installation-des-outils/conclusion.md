@@ -1,1 +1,0 @@
-Nous avons tout ce qu'il nous faut pour commencer à programmer. Il reste cependant un point à éclaircir : les différents types de technologies que nous pouvons utiliser avec ASP.NET afin de créer une application Web. La suite au prochain chapitre !
