@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.forms import (
     BooleanField,
+    CharField,
     CheckboxSelectMultiple,
     HiddenInput,
     IntegerField,
@@ -37,9 +38,15 @@ class EditGoalsForm(forms.Form):
     )
 
     def __init__(self, content, *args, **kwargs):
+        next_url = kwargs.pop("next_url", None)
         kwargs["initial"] = {"goals": content.goals.all()}
         super().__init__(*args, **kwargs)
 
+        self.fields["next_url"] = CharField(
+            widget=HiddenInput(),
+            required=False,
+            initial=next_url or "",
+        )
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -48,6 +55,7 @@ class EditGoalsForm(forms.Form):
         self.helper.form_action = reverse("content:edit-goals", kwargs={"pk": content.pk})
         self.helper.layout = Layout(
             Field("goals"),
+            Field("next_url"),
             ButtonHolder(StrictButton("Valider", type="submit")),
         )
 
@@ -59,6 +67,7 @@ class EditGoals(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormVi
     model = PublishableContent
     form_class = EditGoalsForm
     success_message = _("Les objectifs ont bien été modifiés.")
+    next_url = CharField(widget=HiddenInput(), required=False)
     modal_form = True
     http_method_names = ["post"]
 
@@ -83,6 +92,9 @@ class EditGoals(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormVi
         self.object.goals.add(*new_goals)
         messages.success(self.request, self.success_message)
         signals.goals_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
+        next_url = form.cleaned_data.get("next_url")
+        if next_url:
+            self.success_url = next_url
         return super().form_valid(form)
 
 
