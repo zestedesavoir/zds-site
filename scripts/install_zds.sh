@@ -246,7 +246,19 @@ if  ! $(_in "-typesense-local" $@) && ( $(_in "+typesense-local" $@) || $(_in "+
     mkdir $typesense_path
     cd $typesense_path
 
-    readonly archive_name=typesense-server-$ZDS_TYPESENSE_VERSION-linux-amd64.tar.gz
+    # Detect OS and architecture for Typesense download
+    readonly os_name=$(uname -s)
+    readonly machine_arch=$(uname -m)
+
+    if [[ "$os_name" == "Darwin" ]]; then
+        if [[ "$machine_arch" == "arm64" ]]; then
+            readonly archive_name=typesense-server-$ZDS_TYPESENSE_VERSION-darwin-arm64.tar.gz
+        else
+            readonly archive_name=typesense-server-$ZDS_TYPESENSE_VERSION-darwin-amd64.tar.gz
+        fi
+    else
+        readonly archive_name=typesense-server-$ZDS_TYPESENSE_VERSION-linux-amd64.tar.gz
+    fi
 
     wget  -q https://dl.typesense.org/releases/$ZDS_TYPESENSE_VERSION/$archive_name --show-progress
     if [[ $? == 0 ]]; then
