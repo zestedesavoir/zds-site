@@ -1,11 +1,17 @@
 {% load i18n %}
+{% load emarkdown %}
 
 {% if is_obsolete %}
-    <div class="content-wrapper">
-        <div class="alert-box warning">
-            {% blocktrans %}
-                Ce contenu est obsolète. Il peut contenir des informations intéressantes mais soyez prudent avec celles-ci.
-            {% endblocktrans %}
+        <div class="article-content">
+            <div class="custom-block custom-block-warning">
+                <div class="custom-block-heading">{% blocktrans %}Cette publication est obsolète.{% endblocktrans %}</div>
+                <div class="custom-block-body">
+                    {% if description %}
+                        {{ description|emarkdown }}
+                    {% else %}
+                        <p>Elle peut contenir des informations intéressantes, mais soyez prudent avec celles-ci.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    </div>
 {% endif %}
