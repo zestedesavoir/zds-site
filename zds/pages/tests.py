@@ -28,7 +28,6 @@ class SitemapsTests(TestCase):
                 self.assertEqual(len(w), 0)
 
 
-@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 class PagesMemberTests(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user

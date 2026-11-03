@@ -54,7 +54,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         overridden_zds_app["member"]["bot_account"] = self.mas.username
 
@@ -1066,7 +1065,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_reaction_follow_email(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.assertEqual(0, len(mail.outbox))
 
         profile = ProfileFactory()

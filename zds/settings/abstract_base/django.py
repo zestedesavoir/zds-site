@@ -42,9 +42,6 @@ LOCALE_PATHS = (str(BASE_DIR / "conf" / "locale"),)
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
 
-# prepare for django 6
-FORMS_URLFIELD_ASSUME_HTTPS = True
-
 LANGUAGES = (
     ("fr", _("Français")),
     ("en", _("Anglais")),
@@ -296,7 +293,11 @@ ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda u: "/@{}".format(quote(u.username.
 SERVE = False
 
 # Fake mails (in console)
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+    },
+}
 
 MESSAGE_TAGS = {
     message_constants.DEBUG: "debug",

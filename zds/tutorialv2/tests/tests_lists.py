@@ -25,7 +25,6 @@ class ContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         self.overridden_zds_app["member"]["bot_account"] = self.mas.username
 

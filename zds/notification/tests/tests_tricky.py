@@ -533,7 +533,6 @@ class ContentNotification(TestCase, TutorialTestMixin):
         self.assertEqual(1, len(notifs), str(notifs))
 
 
-@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 class SubscriptionsTest(TestCase):
     def setUp(self):
         self.userStandard1 = ProfileFactory(email_for_answer=True, email_for_new_mp=True).user

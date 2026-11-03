@@ -1390,14 +1390,14 @@ class ContentRead(models.Model):
     note = models.ForeignKey(ContentReaction, db_index=True, null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(User, related_name="content_notes_read", db_index=True, on_delete=models.CASCADE)
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, **kwargs):
         """
         Save this model but check that if we have not a related note it is because the user is content author.
         """
         if self.user not in self.content.authors.all() and self.note is None:
             raise ValueError(_("La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
-        return super().save(force_insert, force_update, using, update_fields)
+        return super().save(**kwargs)
 
     def __str__(self):
         return f'<Contenu "{self.content}" lu par {self.user}, #{self.note.pk}>'
