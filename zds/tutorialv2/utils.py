@@ -320,6 +320,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     from zds.tutorialv2.models.versioned import PublicContent, VersionedContent
 
+    if "version" in json and json["version"] < 2:
+        raise BadManifestError(_("Le fichier manifest utilise une version qui n'est plus supportée."))
+
     if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
         raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
     # create and fill the container
