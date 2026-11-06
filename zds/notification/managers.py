@@ -182,7 +182,7 @@ class NewTopicSubscriptionManager(SubscriptionManager):
         tag_content_type = ContentType.objects.get_for_model(topic.tags.model)
         return self.filter(
             object_id__in=topic.tags.values_list("pk", flat=True),
-            content_type__pk=tag_content_type.pk,
+            content_type=tag_content_type,
             is_active=is_active,
         ).select_related("user")
 
