@@ -410,7 +410,7 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
 
         topic1 = TopicFactory(forum=self.forum11, author=self.user2)
-        topic1.add_tags(["Linux"])
+        topic1.add_tags([self.tag1.title])
 
         notifications = Notification.objects.filter(object_id=topic1.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
@@ -419,7 +419,7 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
 
         topic2 = TopicFactory(forum=self.forum11, author=self.user2)
-        topic2.add_tags(["Linux"])
+        topic2.add_tags([self.tag1.title])
         notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
@@ -433,7 +433,7 @@ class NotificationForumTest(TestCase):
 
         # When
         topic = TopicFactory(forum=self.forum11, author=self.user2)
-        topic.add_tags(["Linux", "Windows"])
+        topic.add_tags([self.tag1.title, self.tag2.title])
 
         # Then
         notifications_count = Notification.objects.filter(object_id=topic.pk, is_read=False).count()
@@ -449,7 +449,7 @@ class NotificationForumTest(TestCase):
 
         # When
         topic = TopicFactory(forum=self.forum11, author=self.user2)
-        topic.add_tags(["Linux"])
+        topic.add_tags([self.tag1.title])
 
         # Then
         notifications_count = Notification.objects.filter(object_id=topic.pk, is_read=False).count()
@@ -503,7 +503,7 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
 
         topic = TopicFactory(forum=self.forum11, author=self.user2)
-        topic.add_tags(["Linux"])
+        topic.add_tags([self.tag1.title])
 
         PostFactory(topic=topic, author=self.user2, position=1)
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -530,7 +530,7 @@ class NotificationForumTest(TestCase):
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
-                "tags": "Linux",
+                "tags": self.tag1.title,
             },
             follow=False,
         )
@@ -545,7 +545,7 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
 
         topic = TopicFactory(forum=self.forum11, author=self.user1)
-        topic.add_tags(["Linux"])
+        topic.add_tags([self.tag1.title])
         PostFactory(topic=topic, author=self.user1, position=1)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -557,7 +557,7 @@ class NotificationForumTest(TestCase):
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein été",
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
-                "tags": "Windows",
+                "tags": self.tag2.title,
             },
             follow=False,
         )
