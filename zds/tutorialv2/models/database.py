@@ -1041,7 +1041,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         The result only changes when the publication changes (or when the thumbnail is edited), so it is
         cached: the cache key embeds the primary key, the publication/update dates and the thumbnail, which
-        invalidates the entry as soon as the content is republished. Default TTL is 30d,
+        invalidates the entry as soon as the content is republished. Default TTL is 30d.
 
         :return: the structured data serialized as a JSON string, safe to embed in a ``<script>`` tag
         :rtype: str
