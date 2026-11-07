@@ -692,19 +692,19 @@ class ForumMemberTests(TestCase):
 
         topic_with_conflict_tags = TopicFactory(forum=self.forum11, author=self.user)
         topic_with_conflict_tags.title = "[C][c][ c][C ]name"
-        (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
+        tags, title = get_tag_by_title(topic_with_conflict_tags.title)
         topic_with_conflict_tags.add_tags(tags)
         self.assertEqual(topic_with_conflict_tags.tags.all().count(), 1)
 
         topic_with_conflict_tags = TopicFactory(forum=self.forum11, author=self.user)
         topic_with_conflict_tags.title = "[][ ][   ]name"
-        (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
+        tags, title = get_tag_by_title(topic_with_conflict_tags.title)
         topic_with_conflict_tags.add_tags(tags)
         self.assertEqual(topic_with_conflict_tags.tags.all().count(), 0)
 
         topic_with_utf8mb4_tags = TopicFactory(forum=self.forum11, author=self.user)
         topic_with_utf8mb4_tags.title = "[🍆][tag987][🐙]name"
-        (tags, title) = get_tag_by_title(topic_with_utf8mb4_tags.title)
+        tags, title = get_tag_by_title(topic_with_utf8mb4_tags.title)
         topic_with_utf8mb4_tags.add_tags(tags)
         self.assertEqual(topic_with_utf8mb4_tags.tags.all().count(), 1)
 

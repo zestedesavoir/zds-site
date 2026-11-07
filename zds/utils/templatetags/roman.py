@@ -27,7 +27,7 @@ def roman(input_text):
         raise Exception("out of range!")
     output_text = ""
     for arabeval, romantext in CONVERT_VALUES:
-        (resultat, user_value) = divmod(user_value, arabeval)
+        resultat, user_value = divmod(user_value, arabeval)
         for index in range(resultat):
             output_text += romantext
     return output_text

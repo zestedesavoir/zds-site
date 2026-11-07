@@ -8,7 +8,7 @@ from zds.gallery.views import (
     EditImage,
     GalleryDetails,
     ImportImages,
-    ListGallery,
+    ListGalleriesView,
     NewGallery,
     NewImage,
 )
@@ -17,7 +17,7 @@ app_name = "gallery"
 
 urlpatterns = [
     # Index
-    path("", ListGallery.as_view(), name="list"),
+    path("", ListGalleriesView.as_view(), name="list"),
     # Gallery operations
     path("creer/", NewGallery.as_view(), name="create"),
     path("<int:pk>/<slug:slug>/", GalleryDetails.as_view(), name="details"),

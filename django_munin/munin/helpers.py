@@ -9,16 +9,26 @@ class muninview:
 
     def __call__(self, func):
         def rendered_func(request, *args, **kwargs):
-            tuples = func(request, *args, **kwargs)
+            view_output_tuples = func(request, *args, **kwargs)
+            assert type(view_output_tuples) == type([])
+
             if "autoconfig" in request.GET:
                 return HttpResponse("yes")
+
             if "config" in request.GET:
-                rows = ["{}.label {}".format(t[0].replace(" ", "_"), t[0]) for t in tuples]
-                return HttpResponse("\n".join([self.config] + rows))
-            if type(tuples) == type([]):
-                rows = ["{} {}".format(t[0].replace(" ", "_"), str(t[1])) for t in tuples]
-                return HttpResponse("\n".join(rows))
-            else:
-                return tuples
+                default_labels = []
+                for row_name, _ in view_output_tuples:
+                    assert " " not in row_name
+                    if f"{row_name}.label " not in self.config:
+                        default_labels.append(f"{row_name}.label {row_name}")
+
+                return HttpResponse("\n".join([self.config] + default_labels))
+
+            rows = []
+            for row_name, row_value in view_output_tuples:
+                assert " " not in row_name
+                rows.append(f"{row_name} {row_value}")
+
+            return HttpResponse("\n".join(rows))
 
         return rendered_func

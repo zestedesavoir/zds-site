@@ -18,8 +18,10 @@ class ContentSitemap(Sitemap):
     priority = 1
 
     def items(self):
-        return PublishedContent.objects.filter(must_redirect=False, content_type=self.content_type).prefetch_related(
-            "content"
+        return (
+            PublishedContent.objects.filter(must_redirect=False, content_type=self.content_type)
+            .order_by("publication_date")
+            .prefetch_related("content")
         )
 
     def lastmod(self, content):
@@ -65,15 +67,15 @@ sitemaps = {
     ),
     "topics": GenericSitemap(
         {
-            "queryset": Topic.objects.filter(is_locked=False, forum__groups__isnull=True).exclude(
-                forum__pk=settings.ZDS_APP["forum"]["beta_forum_id"]
-            ),
+            "queryset": Topic.objects.filter(is_locked=False, forum__groups__isnull=True)
+            .exclude(forum__pk=settings.ZDS_APP["forum"]["beta_forum_id"])
+            .order_by("pubdate"),
             "date_field": "pubdate",
         },
         changefreq="hourly",
         priority=0.7,
     ),
-    "tags": GenericSitemap({"queryset": Tag.objects.all()}),
+    "tags": GenericSitemap({"queryset": Tag.objects.order_by("title").all()}),
     "pages": PageSitemap,
 }
 
@@ -102,7 +104,12 @@ urlpatterns = [
 
 # SiteMap URLs
 urlpatterns += [
-    re_path(r"^sitemap\.xml$", index_view, {"sitemaps": sitemaps}),
+    re_path(
+        r"^sitemap\.xml$",
+        index_view,
+        {"sitemaps": sitemaps},
+        name="sitemap",
+    ),
     re_path(
         r"^sitemap-(?P<section>.+)\.xml$",
         sitemap_view,

@@ -1,9 +1,9 @@
 import logging
+from _datetime import datetime
 from queue import Queue
 from threading import Thread
 
 import requests
-from _datetime import datetime
 from django.conf import settings
 from django.urls import reverse
 

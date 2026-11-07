@@ -188,7 +188,6 @@ INSTALLED_APPS = (
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "zds.api.pagination.DefaultPagination",
-    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     # Active OAuth2 authentication.
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "oauth2_provider.contrib.rest_framework.OAuth2Authentication",

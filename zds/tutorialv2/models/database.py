@@ -38,7 +38,7 @@ from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.mixins import OnlineLinkableContentMixin, TemplatableContentModelMixin
-from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.models.versioned import Container, NotAPublicVersion, VersionedContent
 from zds.tutorialv2.utils import BadManifestError, get_blob, get_content_from_json
 from zds.utils import get_current_user
 from zds.utils.models import Category, Comment, Licence, SubCategory, Tag
@@ -91,10 +91,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         Gallery, verbose_name="Galerie d'images", blank=True, null=True, db_index=True, on_delete=models.SET_NULL
     )
 
+    # Publication date is in PublishedContent
     creation_date = models.DateTimeField("Date de création")
-    pubdate = models.DateTimeField("Date de publication", blank=True, null=True, db_index=True)
     update_date = models.DateTimeField("Date de mise à jour", blank=True, null=True)
-
     picked_date = models.DateTimeField("Date de mise en avant", db_index=True, blank=True, null=True, default=None)
 
     sha_public = models.CharField("Sha1 de la version publique", blank=True, null=True, max_length=80, db_index=True)
@@ -471,7 +470,6 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             "subcategory",
             "image",
             "creation_date",
-            "pubdate",
             "update_date",
             "source",
             "sha_draft",
@@ -1092,7 +1090,9 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                         FakeChapter.remove_from_search_engine(search_engine_manager, content.search_engine_id)
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
+                        chapters.append(
+                            FakeChapter(chapter, versioned, content.search_engine_id, content.publication_date)
+                        )
 
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
@@ -1245,7 +1245,7 @@ class FakeChapter(AbstractSearchIndexable):
     categories = None
     subcategories = None
 
-    def __init__(self, chapter, main_container, parent_id):
+    def __init__(self, chapter: Container, main_container: VersionedContent, parent_id: str, pubdate: datetime):
         self.title = chapter.title
         self.text = chapter.get_content_online()
         self.parent_id = parent_id
@@ -1257,7 +1257,7 @@ class FakeChapter(AbstractSearchIndexable):
 
         self.parent_title = main_container.title
         self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
-        self.parent_publication_date = main_container.pubdate
+        self.parent_publication_date = pubdate
 
         if main_container.image:
             self.thumbnail = main_container.image.physical["content_thumb"].url

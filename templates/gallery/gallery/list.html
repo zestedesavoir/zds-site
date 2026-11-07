@@ -56,13 +56,11 @@
                     {% endwith %}
                 </p>
 
-                {% if gallery.linked_content in linked_contents %}
-                    {% with content=linked_contents|get_item:gallery.linked_content %}
-                        <p class="topic-last-answer">
-                            {% trans "Liée à la publication" %}
-                            «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
-                        </p>
-                    {% endwith %}
+                {% if gallery.content %}
+                    <p class="topic-last-answer">
+                        {% trans "Liée à la publication" %}
+                        «&NonBreakingSpace;<a href="{{ gallery.content.get_absolute_url }}">{{ gallery.content.title }}</a>&NonBreakingSpace;».
+                    </p>
                 {% endif %}
             </div>
         {% endfor %}

@@ -175,6 +175,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzM
 
             # Build a fresh bulk request for this chunk
             data_request = {
+                "token_auth": self.matomo_token_auth,
                 "module": "API",
                 "method": "API.getBulkRequest",
                 "format": "json",
@@ -212,7 +213,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView, QuizzM
             param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
 
             request_params = {
-                "token_auth": self.matomo_token_auth,
                 "method": method,
                 "idSite": self.matomo_site_id,
                 "date": date_ranges,

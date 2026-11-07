@@ -28,4 +28,4 @@ def authenticate_oauth2_client(client, user, password):
         },
     )
     access_token = AccessToken.objects.get(user=user)
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token.token}")

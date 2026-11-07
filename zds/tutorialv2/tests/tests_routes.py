@@ -1,7 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.tutorialv2.models.database import PublishableContent
+from zds.member.tests.factories import ProfileFactory
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import ContainerFactory, PublishableContentFactory
@@ -50,6 +52,35 @@ class BasicRouteTestsMixin(TutorialTestMixin):
             "container_slug": self.subcontainer.slug,
         }
         self.assert_can_be_reached(self.container_view_name, route_args)
+
+    def test_published_content_absolute_url(self):
+        # Given
+        published = self.content.public_version
+
+        # When
+        url = published.get_absolute_url()
+
+        # Then
+        expected_url = reverse(self.view_name, kwargs={"pk": self.content.pk, "slug": self.content.slug})
+        self.assertEqual(url, expected_url)
+
+    def test_admin_view_on_site(self):
+        # Given
+        admin = ProfileFactory().user
+        admin.is_staff = True
+        admin.is_superuser = True
+        admin.save()
+        self.client.force_login(admin)
+        published = self.content.public_version
+
+        # When
+        content_type = ContentType.objects.get_for_model(PublishedContent)
+        url = reverse("admin:view_on_site", args=[content_type.pk, published.pk])
+        response = self.client.get(url)
+
+        # Then
+        expected_url = reverse(self.view_name, kwargs={"pk": self.content.pk, "slug": self.content.slug})
+        self.assertRedirects(response, response.wsgi_request.build_absolute_uri(expected_url))
 
     def assert_can_be_reached(self, route, route_args):
         url = reverse(route, kwargs=route_args)

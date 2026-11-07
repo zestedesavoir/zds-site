@@ -287,26 +287,20 @@ class ProfileForm(MiniProfileForm):
             ButtonHolder(
                 StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
             ),
-            HTML(
-                """
+            HTML("""
                 {% if form.biographie.value %}
                     {% include "misc/preview.part.html" with text=form.biographie.value %}
                 {% endif %}
-            """
-            ),
+            """),
             Field("site"),
             Field("avatar_url"),
-            HTML(
-                _(
-                    """
+            HTML(_("""
                 <p>
                     <a href="{% url "gallery:list" %}">Choisir un avatar dans une galerie</a><br/>
                     Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
                     Créez une galerie et importez votre avatar si ce n'est pas déjà fait !
                 </p>
-            """
-                )
-            ),
+            """)),
             Field("sign"),
             Field("licence"),
             Field("options"),
@@ -431,15 +425,11 @@ class UnregisterForm(PasswordRequiredForm):
 
         self.helper.layout = Layout(
             self.insert_password_required_field(),
-            HTML(
-                _(
-                    """
+            HTML(_("""
                 <p>
                     C’est votre dernière chance de rester parmi nous ...
                 </p>
-            """
-                )
-            ),
+            """)),
             ButtonHolder(
                 StrictButton(_("Me désinscrire"), type="submit"),
             ),

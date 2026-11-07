@@ -112,7 +112,9 @@ class ContentsByGoalMixin:
     def get_queryset(self):
         self.current_filter_pk = None
 
-        self.base_queryset = PublishableContent.objects.exclude(public_version=None).prefetch_related("goals")
+        self.base_queryset = (
+            PublishableContent.objects.exclude(public_version=None).prefetch_related("goals").order_by("-creation_date")
+        )
         self.num_all = self.base_queryset.count()
 
         queryset_not_classified = self.base_queryset.filter(goals=None)
@@ -148,7 +150,6 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, C
     template_name = "tutorialv2/goals/mass-edit-goals.html"
     permission_required = "tutorialv2.change_publishablecontent"
     form_class = MassEditGoalsForm
-    ordering = ["-creation_date"]
     paginate_by = settings.ZDS_APP["content"]["mass_edit_goals_content_per_page"]
 
     def get_context_data(self, **kwargs):
@@ -174,7 +175,6 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, C
 
 class ViewContentsByGoal(ContentsByGoalMixin, ZdSPagingListView):
     template_name = "tutorialv2/goals/view-goals.html"
-    ordering = ["-creation_date"]
     paginate_by = settings.ZDS_APP["content"]["view_contents_by_goal_content_per_page"]
 
     def get_context_data(self, **kwargs):
