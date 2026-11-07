@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,6 +8,9 @@ from django.db import models
 from zds.forum.models import Topic
 from zds.notification import signals
 from zds.utils import get_current_user
+
+if TYPE_CHECKING:
+    from zds.notification.models import NewTopicSubscription
 
 
 class SubscriptionManager(models.Manager):
@@ -175,6 +180,19 @@ class NewPublicationSubscriptionManager(SubscriptionManager):
 
 
 class NewTopicSubscriptionManager(SubscriptionManager):
+    def get_subscriptions_to_tags_of(
+        self, topic: Topic, is_active: bool = True
+    ) -> "models.QuerySet[NewTopicSubscription]":
+        """
+        Gets subscriptions to the tags of a topic, with their users already loaded.
+        """
+        tag_content_type = ContentType.objects.get_for_model(topic.tags.model)
+        return self.filter(
+            object_id__in=topic.tags.values_list("pk", flat=True),
+            content_type=tag_content_type,
+            is_active=is_active,
+        ).select_related("user")
+
     def mark_read_everybody_at(self, topic):
         """
         Mark every unaccessible notifications as read.
@@ -266,21 +284,16 @@ class NotificationManager(models.Manager):
         content_subscription_type = ContentType.objects.get_for_model(model)
         return self.filter(subscription__content_type__pk=content_subscription_type.pk)
 
-    def get_users_for_unread_notification_on(self, content_object):
+    def get_users_notified_on(self, content_object: models.Model) -> models.QuerySet[User]:
         """
-        Gets all users who have an notification unread on the given content object.
-
-        :param content_object: generic content object.
-        :type content_object: instance concerned by notifications
-        :return: an iterable list of users.
+        Gets all users who have been notified about the given content object,
+        whatever the subscription the notification comes from.
         """
         content_type = ContentType.objects.get_for_model(content_object)
-        notifications = (
-            self.filter(object_id=content_object.pk, content_type__pk=content_type.pk)
-            .select_related("subscription")
-            .select_related("subscription__user")
-        )
-        return [notification.subscription.user for notification in notifications]
+        return User.objects.filter(
+            subscriber__subscription__object_id=content_object.pk,
+            subscriber__subscription__content_type=content_type,
+        ).distinct()
 
 
 class TopicFollowedManager(models.Manager):

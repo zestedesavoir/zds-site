@@ -133,6 +133,54 @@ class Subscription(models.Model):
         return Subscription.has_read_permission(request) and self.user == request.user
 
 
+class Notification(models.Model):
+    """
+    A notification
+    """
+
+    class Meta:
+        verbose_name = _("Notification")
+        verbose_name_plural = _("Notifications")
+
+    subscription = models.ForeignKey(Subscription, related_name="subscription", db_index=True, on_delete=models.CASCADE)
+    pubdate = models.DateTimeField(_("Date de création"), auto_now_add=True, db_index=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(db_index=True)
+    content_object = GenericForeignKey("content_type", "object_id")
+    is_read = models.BooleanField(_("Lue"), default=False, db_index=True)
+    is_dead = models.BooleanField(_("Morte"), default=False)
+    url = models.CharField("URL", max_length=255)
+    sender = models.ForeignKey(User, related_name="sender", db_index=True, on_delete=models.CASCADE)
+    title = models.CharField("Titre", max_length=200)
+    objects = NotificationManager()
+
+    def __str__(self):
+        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})').format(
+            self.subscription.user, self.content_type, self.content_object.pk, self.subscription
+        )
+
+    def __copy__(self):
+        return Notification(
+            subscription=self.subscription,
+            pubdate=self.pubdate,
+            content_type=self.content_type,
+            object_id=self.object_id,
+            content_object=self.content_object,
+            is_read=self.is_read,
+            is_dead=self.is_dead,
+            url=self.url,
+            sender=self.sender,
+            title=self.title,
+        )
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated
+
+    def has_object_read_permission(self, request):
+        return Notification.has_read_permission(request) and self.subscription.user == request.user
+
+
 class SingleNotificationMixin:
     """
     Mixin for the subscription that can only have one active notification at a time
@@ -196,19 +244,18 @@ class SingleNotificationMixin:
 
 
 class MultipleNotificationsMixin:
-    def send_notification(self, content=None, send_email=True, sender=None):
+    def send_notification(
+        self, content: models.Model | None = None, send_email: bool = True, sender: User | None = None
+    ) -> Notification | None:
         """
         Sends the notification about the given content
-        :param content:  the content the notification is about
-        :param sender: the user whose action triggered the notification
-        :param send_email : whether an email must be sent if the subscription by email is active
         """
 
         assert hasattr(self, "get_notification_url")
         assert hasattr(self, "get_notification_title")
         assert hasattr(self, "send_email")
         if self.last_notification and not self.last_notification.is_read:
-            return
+            return None
 
         notification = self.build_notification(content, sender)
         with transaction.atomic():
@@ -218,6 +265,8 @@ class MultipleNotificationsMixin:
 
         if send_email and self.by_email:
             self.send_email(notification)
+
+        return notification
 
     def build_notification(self, content, sender):
         notification = Notification(subscription=self, content_object=content, sender=sender)
@@ -390,54 +439,6 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
         assert hasattr(answer, "get_notification_title")
 
         return _("{0} vous a mentionné sur {1}.").format(answer.author, answer.get_notification_title())
-
-
-class Notification(models.Model):
-    """
-    A notification
-    """
-
-    class Meta:
-        verbose_name = _("Notification")
-        verbose_name_plural = _("Notifications")
-
-    subscription = models.ForeignKey(Subscription, related_name="subscription", db_index=True, on_delete=models.CASCADE)
-    pubdate = models.DateTimeField(_("Date de création"), auto_now_add=True, db_index=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(db_index=True)
-    content_object = GenericForeignKey("content_type", "object_id")
-    is_read = models.BooleanField(_("Lue"), default=False, db_index=True)
-    is_dead = models.BooleanField(_("Morte"), default=False)
-    url = models.CharField("URL", max_length=255)
-    sender = models.ForeignKey(User, related_name="sender", db_index=True, on_delete=models.CASCADE)
-    title = models.CharField("Titre", max_length=200)
-    objects = NotificationManager()
-
-    def __str__(self):
-        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})').format(
-            self.subscription.user, self.content_type, self.content_object.pk, self.subscription
-        )
-
-    def __copy__(self):
-        return Notification(
-            subscription=self.subscription,
-            pubdate=self.pubdate,
-            content_type=self.content_type,
-            object_id=self.object_id,
-            content_object=self.content_object,
-            is_read=self.is_read,
-            is_dead=self.is_dead,
-            url=self.url,
-            sender=self.sender,
-            title=self.title,
-        )
-
-    @staticmethod
-    def has_read_permission(request):
-        return request.user.is_authenticated
-
-    def has_object_read_permission(self, request):
-        return Notification.has_read_permission(request) and self.subscription.user == request.user
 
 
 class TopicFollowed(models.Model):
