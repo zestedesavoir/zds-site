@@ -58,6 +58,13 @@
 {% endif %}
 
 
+{% block json_ld %}
+    {% if display_config.online_config.show_json_ld %}
+        <script type="application/ld+json">{{ public_object.get_json_ld|safe }}</script>
+    {% endif %}
+{% endblock %}
+
+
 {% block breadcrumb %}
     <li>{{ content.title }}</li>
 {% endblock %}

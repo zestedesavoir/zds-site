@@ -233,6 +233,9 @@ class OnlineState:
     def show_opengraph(self) -> bool:
         return self.enabled
 
+    def show_json_ld(self) -> bool:
+        return self.enabled
+
     def show_canonical_link(self) -> bool:
         return self.enabled
 
