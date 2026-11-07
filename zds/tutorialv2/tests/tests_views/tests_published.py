@@ -1,4 +1,5 @@
 import datetime
+import re
 from copy import deepcopy
 from json import loads
 
@@ -11,7 +12,12 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds import json_handler
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.forum.tests.factories import (
+    ForumCategoryFactory,
+    ForumFactory,
+    create_category_and_forum,
+    create_topic_in_forum,
+)
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
@@ -1840,6 +1846,89 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 200)
         self.check_images_socials(result, "media/galleries/", self.chapter1.title, self.tuto.description)
+
+    def extract_json_ld(self, result):
+        match = re.search(
+            r'<script type="application/ld\+json">(.*?)</script>', result.content.decode("utf-8"), re.DOTALL
+        )
+        self.assertIsNotNone(match, "No JSON-LD script found in the page")
+        return loads(match.group(1))
+
+    def test_json_ld_on_online_pages(self):
+        """JSON-LD structured data must be present on the online pages of published contents"""
+        self.client.logout()
+
+        # online tutorial page
+        result = self.client.get(reverse("tutorial:view", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        data = self.extract_json_ld(result)
+        self.assertEqual(data["@context"], "https://schema.org")
+        self.assertEqual(data["@type"], "NewsArticle")
+        self.assertEqual(data["headline"], self.tuto.title)
+        self.assertEqual(data["datePublished"], self.published.publication_date.isoformat())
+        expected_update_date = self.published.update_date or self.published.publication_date
+        self.assertEqual(data["dateModified"], expected_update_date.isoformat())
+        self.assertEqual(len(data["image"]), 1)
+        self.assertIn("images/tutorial-illu.png", data["image"][0])
+        self.assertEqual(
+            data["author"],
+            [
+                {
+                    "@type": "Person",
+                    "name": self.user_author.username,
+                    "url": "{}{}".format(
+                        settings.ZDS_APP["site"]["url"],
+                        reverse("member-detail", kwargs={"user_name": self.user_author.username}),
+                    ),
+                }
+            ],
+        )
+
+        # online page of a container (part) of the tutorial
+        result = self.client.get(
+            reverse(
+                "tutorial:view-container",
+                kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug, "container_slug": self.part1.slug},
+            )
+        )
+        self.assertEqual(result.status_code, 200)
+        data = self.extract_json_ld(result)
+        self.assertEqual(data["@context"], "https://schema.org")
+        self.assertEqual(data["headline"], self.tuto.title)
+
+        # online article page
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author])
+        url = PublishedContent.objects.get(content__pk=article.pk).get_absolute_url_online()
+        result = self.client.get(url)
+        self.assertEqual(result.status_code, 200)
+        data = self.extract_json_ld(result)
+        self.assertEqual(data["headline"], article.title)
+        self.assertEqual([author["name"] for author in data["author"]], [self.user_author.username])
+
+        # online opinion page
+        opinion = PublishedContentFactory(type="OPINION", author_list=[self.user_author])
+        url = PublishedContent.objects.get(content__pk=opinion.pk).get_absolute_url_online()
+        result = self.client.get(url)
+        self.assertEqual(result.status_code, 200)
+        data = self.extract_json_ld(result)
+        self.assertEqual(data["headline"], opinion.title)
+
+    def test_json_ld_is_cached(self):
+        """The JSON-LD of a published content is cached until the publication changes"""
+        published = PublishedContent.objects.get(pk=self.published.pk)
+        json_ld = published.get_json_ld()
+
+        # the second call is served from the cache, without any database query
+        with self.assertNumQueries(0):
+            self.assertEqual(published.get_json_ld(), json_ld)
+
+        # a republication (here a new update date) invalidates the cached value
+        published.update_date = datetime.datetime.now()
+        published.save()
+        new_json_ld = published.get_json_ld()
+        self.assertNotEqual(new_json_ld, json_ld)
+        self.assertIn(published.update_date.isoformat(), new_json_ld)
 
     def test_add_help_tuto(self):
         self.client.force_login(self.user_author)
