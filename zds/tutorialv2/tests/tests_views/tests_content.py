@@ -13,7 +13,6 @@ from django.http import HttpResponseNotAllowed
 from django.test import TestCase
 from django.urls import reverse
 
-from zds import json_handler
 from zds.forum.models import Post, Topic, TopicRead
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.models import Gallery, Image, UserGallery
@@ -2654,73 +2653,51 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
-    def test_import_old_version(self):
-        fixture_base = settings.BASE_DIR / "fixtures" / "tuto"
-        tmp_dir = Path(tempfile.gettempdir())
-
+    def test_import_bad_archive(self):
         self.client.force_login(self.user_author)
 
-        for name in ["article_v1", "balise_audio", "big_tuto_v1"]:
-            content_source_path = fixture_base / name
-            shutil.make_archive(tmp_dir / name, "zip", content_source_path)
-            draft_zip_path = (tmp_dir / name).with_suffix(".zip")
+        # build a valid v2 archive from an existing content
+        opinion = PublishableContentFactory(type="OPINION", author_list=[self.user_author], licence=self.licence)
+        result = self.client.get(reverse("content:download-zip", args=[opinion.pk, opinion.slug]), follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), "__draft_bad_archive.zip")
+        with open(draft_zip_path, "wb") as f:
+            f.write(result.content)
+        missing_file_zip_path = os.path.join(tempfile.gettempdir(), "__draft_bad_archive_missing_file.zip")
+        bad_manifest_zip_path = os.path.join(tempfile.gettempdir(), "__draft_bad_archive_bad_manifest.zip")
 
-            result = self.client.post(
+        def post_archive(zip_path):
+            return self.client.post(
                 reverse("content:import-new"),
-                {"archive": draft_zip_path.open("rb"), "subcategory": self.subcategory.pk},
+                {"archive": open(zip_path, "rb"), "subcategory": self.subcategory.pk},
                 follow=False,
             )
-            self.assertEqual(result.status_code, 302)
 
-            manifest = (content_source_path / "manifest.json").open("rb")
-            json = json_handler.loads(manifest.read())
-            manifest.close()
-            self.assertEqual(json["title"], PublishableContent.objects.last().title)
+        try:
+            # 1. a file referenced by the manifest is missing from the archive
+            with zipfile.ZipFile(draft_zip_path, "r") as zip_in, zipfile.ZipFile(missing_file_zip_path, "w") as zip_out:
+                for item in zip_in.infolist():
+                    if item.filename != "introduction.md":
+                        zip_out.writestr(item, zip_in.read(item.filename))
+            result = post_archive(missing_file_zip_path)
+            self.assertEqual(result.status_code, 200)
+            self.assertLastMessageLevel(result, messages.ERROR)
 
-            os.remove(draft_zip_path)
-
-    def test_import_bad_archive(self):
-        fixture_base = settings.BASE_DIR / "fixtures" / "tuto"
-        old_path = fixture_base / "article_v1"
-        tmp_dir = Path(tempfile.gettempdir())
-        new_path = tmp_dir / "article_v1"
-        draft_zip = new_path.with_suffix(".zip")
-
-        self.client.force_login(self.user_author)
-
-        # First bad archive: a file mentionned in the manifest is missing
-        shutil.copytree(old_path, new_path)
-        shutil.move(new_path / "text.md", new_path / "text2.md")
-        shutil.make_archive(new_path, "zip", new_path)
-        shutil.move(new_path / "text2.md", new_path / "text.md")
-        result = self.client.post(
-            reverse("content:import-new"),
-            {"archive": draft_zip.open("rb"), "subcategory": self.subcategory.pk},
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 200)
-        msgs = result.context["messages"]
-        levels = [msg.level for msg in msgs]
-        self.assertIn(messages.ERROR, levels)
-
-        # Second bad archive: the manifest contains an invalid content type
-        shutil.copyfile(new_path / "manifest.json", new_path / "manifest2.json")
-        with (new_path / "manifest.json").open("w") as man_file:
-            man_file.write('{"version":2, "type":"Kitty Cat"}')
-        shutil.make_archive(new_path, "zip", new_path)
-        shutil.copyfile(new_path / "manifest2.json", new_path / "manifest.json")
-        result = self.client.post(
-            reverse("content:import-new"),
-            {"archive": draft_zip.open("rb"), "subcategory": self.subcategory.pk},
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 200)
-        msgs = result.context["messages"]
-        levels = [msg.level for msg in msgs]
-        self.assertIn(messages.ERROR, levels)
-
-        shutil.rmtree(new_path, ignore_errors=True)
-        os.remove(draft_zip)
+            # 2. the manifest itself is broken
+            with zipfile.ZipFile(draft_zip_path, "r") as zip_in, zipfile.ZipFile(bad_manifest_zip_path, "w") as zip_out:
+                for item in zip_in.infolist():
+                    if item.filename == "manifest.json":
+                        zip_out.writestr(item, '{"version": 2, "type": "Kitty Cat"}')
+                    else:
+                        zip_out.writestr(item, zip_in.read(item.filename))
+            result = post_archive(bad_manifest_zip_path)
+            self.assertEqual(result.status_code, 200)
+            self.assertLastMessageLevel(result, messages.ERROR)
+        finally:
+            # clean up, even if the test fails
+            for zip_path in (draft_zip_path, missing_file_zip_path, bad_manifest_zip_path):
+                if os.path.exists(zip_path):
+                    os.remove(zip_path)
 
     def test_publication_make_extra_contents(self):
         """This test makes sure that the 'extra contents' (PDF, EPUB, ...) are generated by a publication
