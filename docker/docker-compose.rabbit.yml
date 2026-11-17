@@ -1,0 +1,21 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "${QUEUE_PORT:-5672}:5672"   # AMQP
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672" # Interface web de management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER manquant dans .env}
+      RABBITMQ_DEFAULT_PASS: ${PASSWORD:?PASSWORD manquant dans .env}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rabbitmq_data:

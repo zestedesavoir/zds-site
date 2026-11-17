@@ -1,0 +1,2 @@
+include:
+  - docker/docker-compose.rabbit.yml
