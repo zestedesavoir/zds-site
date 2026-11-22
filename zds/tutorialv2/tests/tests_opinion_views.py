@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.tests.factories import TagFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TagFactory, TopicFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.notification.models import Notification
@@ -609,7 +609,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 )
                 self.assertEqual(result.status_code, 403)  # back
 
-    def test_defenitely_unpublish_alerted_opinion(self):
+    def test_definitively_unpublish_alerted_opinion(self):
         opinion = PublishableContentFactory(type="OPINION")
 
         opinion.authors.add(self.user_author)
@@ -673,6 +673,45 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, len(resp.context["alerts"]))
         self.assertEqual(1, len(resp.context["solved"]))
+
+        # Alert again on the same content, which is not published anymore
+        self.client.force_login(alerter)
+        result = self.client.post(
+            reverse("content:alert-content", kwargs={"pk": opinion.pk}), {"signal_text": "Yeurk !"}, follow=False
+        )
+        self.assertEqual(result.status_code, 404)
+
+    def test_alert_only_on_opinion(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+
+        alerter = ProfileFactory().user
+        self.client.force_login(alerter)
+        result = self.client.post(
+            reverse("content:alert-content", kwargs={"pk": article.pk}), {"signal_text": "Yeurk !"}, follow=False
+        )
+        self.assertEqual(result.status_code, 404)
+
+    def test_solve_only_alert_on_content(self):
+        """
+        We can't use the SolveContentAlert view to solve an alert which is not related to content
+        """
+        opinion = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+
+        forumcat = ForumCategoryFactory()
+        forum = ForumFactory(category=forumcat)
+        forumtopic = TopicFactory(forum=forum, author=self.user_staff)
+        post = PostFactory(topic=forumtopic, author=self.user_author, position=1)
+        alert = Alert.objects.create(
+            author=self.user_author, comment=post, scope="FORUM", pubdate=datetime.datetime.now()
+        )
+
+        self.client.force_login(self.user_staff)
+        result = self.client.post(
+            reverse("content:resolve-content", kwargs={"pk": opinion.pk}),
+            {"alert_pk": alert.pk, "text": "Foo"},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 404)
 
     def test_cancel_pick_operation(self):
         opinion = PublishableContentFactory(type="OPINION")
