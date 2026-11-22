@@ -28,8 +28,6 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
         settings.ZDS_APP["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
 
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
     def logout(self):
         self.client.logout()
         self.client_api.logout()

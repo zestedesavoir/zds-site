@@ -52,7 +52,6 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         overridden_zds_app["member"]["bot_account"] = self.mas.username
 

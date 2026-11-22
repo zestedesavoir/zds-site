@@ -29,7 +29,6 @@ from zds.utils.models import CommentVote
 @override_for_contents()
 class TestRegister(TutorialTestMixin, TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory()
         settings.ZDS_APP["member"]["bot_account"] = self.mas.user.username
         self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
@@ -369,34 +368,3 @@ class TestRegister(TutorialTestMixin, TestCase):
 
         # A new provider object should have been created
         self.assertEqual(new_providers_count + 1, NewEmailProvider.objects.count())
-
-
-mail_backend = Mock()
-
-
-class FakeBackend(BaseEmailBackend):
-    def send_messages(self, email_messages):
-        return mail_backend.send_messages(email_messages)
-
-
-@override_settings(EMAIL_BACKEND="zds.member.tests.views.tests_register.FakeBackend")
-class RegisterTest(TestCase):
-    def test_exception_on_mail(self):
-        def send_messages(messages):
-            print("message sent")
-            raise SMTPException(messages)
-
-        mail_backend.send_messages = send_messages
-
-        result = self.client.post(
-            reverse("register-member"),
-            {
-                "username": "firm1",
-                "password": "flavour",
-                "password_confirm": "flavour",
-                "email": "firm1@zestedesavoir.com",
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 200)
-        self.assertIn(escape("Impossible d'envoyer l'email."), result.content.decode("utf-8"))

@@ -37,7 +37,6 @@ overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "content
 @override_for_contents(SEARCH_ENABLED=True)
 class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def setUp(self):
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         settings.ZDS_APP["member"]["bot_account"] = self.mas.username
 
