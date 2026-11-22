@@ -50,3 +50,27 @@ class MemberTests(TestCase):
         result = self.client.get(settings.ZDS_APP["site"]["url"] + token.get_absolute_url(), follow=False)
 
         self.assertEqual(result.status_code, 200)
+
+    def test_forgot_password_one_field_is_enough(self):
+        """Additional (useless) fields in POST data should not trigger errors
+        as long as we have at least username **or** email field"""
+
+        result = self.client.post(
+            reverse("member-forgot-password"),
+            {
+                "username": self.mas.user.username,
+                "foo": "bar",
+            },
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.post(
+            reverse("member-forgot-password"),
+            {
+                "foo": "bar",
+                "email": self.mas.user.email,
+            },
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 200)

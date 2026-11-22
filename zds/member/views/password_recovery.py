@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -19,19 +18,18 @@ def forgot_password(request):
 
     if request.method == "POST":
         form = UsernameAndEmailForm(request.POST)
+
         if form.is_valid():
-            # Get data from form
-            data = form.data
-            username = data["username"]
-            email = data["email"]
+            username = form.cleaned_data.get("username")
+            email = form.cleaned_data.get("email")
 
-            # Fetch the user, we need his email address
             usr = None
+            # if the user doesn't exist, a validator in the form fails and the form
+            # is not valid, and this function is not called
             if username:
-                usr = get_object_or_404(User, Q(username=username))
-
+                usr = get_object_or_404(User, username=username)
             if email:
-                usr = get_object_or_404(User, Q(email=email))
+                usr = get_object_or_404(User, email=email)
 
             # Generate a valid token during one hour
             uuid_token = str(uuid.uuid4())
@@ -56,9 +54,11 @@ def forgot_password(request):
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
+
             return render(request, "member/forgot_password/success.html")
         else:
             return render(request, "member/forgot_password/index.html", {"form": form})
+
     form = UsernameAndEmailForm()
     return render(request, "member/forgot_password/index.html", {"form": form})
 
