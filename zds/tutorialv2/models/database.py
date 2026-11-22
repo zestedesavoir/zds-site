@@ -1,4 +1,5 @@
 import contextlib
+import json
 import logging
 import os
 import shutil
@@ -8,11 +9,13 @@ from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models
 from django.db.models import CASCADE
 from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.http import Http404
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
@@ -1030,6 +1033,63 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
     @property
     def last_publication_date(self):
         return max(self.publication_date, self.update_date or datetime.min)
+
+    def get_json_ld(self):
+        """
+        Build the JSON-LD structured data (schema.org) of the published content, as recommended by Google
+        (https://developers.google.com/search/docs/appearance/structured-data/article).
+
+        The result only changes when the publication changes (or when the thumbnail is edited), so it is
+        cached: the cache key embeds the primary key, the publication/update dates and the thumbnail, which
+        invalidates the entry as soon as the content is republished. Default TTL is 30d.
+
+        :return: the structured data serialized as a JSON string, safe to embed in a ``<script>`` tag
+        :rtype: str
+        """
+        site_url = settings.ZDS_APP["site"]["url"].rstrip("/")
+        publication_date = self.publication_date or self.content.creation_date
+        update_date = self.update_date or publication_date
+        # use publication_date, update date and thumbnail as main key as the jsonld will only
+        # change if the content is re-published or if the thumbnail change.
+        # creating json can take time at the scale of request so caching seems to be a good thing here.
+        cache_key = "json_ld_{}_{}_{}_{}".format(
+            self.pk,
+            publication_date.timestamp(),
+            update_date.timestamp(),
+            self.content.image_id,
+        )
+        json_ld = cache.get(cache_key)
+        if json_ld is not None:
+            return json_ld
+
+        if self.content.image:
+            images = [
+                f"{site_url}{self.content.image.physical[alias].url}"
+                for alias in ("social_network", "social_network_large")
+            ]
+        else:
+            images = ["{}{}".format(site_url, static(f"images/{self.content_type.lower()}-illu.png"))]
+
+        data = {
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": self.title(),
+            "image": images,
+            "datePublished": publication_date.isoformat(),
+            "dateModified": update_date.isoformat(),
+            "author": [
+                {
+                    "@type": "Person",
+                    "name": author.username,
+                    "url": "{}{}".format(site_url, reverse("member-detail", kwargs={"user_name": author.username})),
+                }
+                for author in self.authors.all()
+            ],
+        }
+        # prevent json from breaking HTML as the json_ld is marked as safe
+        json_ld = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+        cache.set(cache_key, json_ld, 30 * 24 * 60 * 60)
+        return json_ld
 
     @classmethod
     def get_search_document_schema(cls):
