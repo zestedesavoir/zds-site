@@ -1,1 +1,0 @@
-Au travers ce chapitre, nous avons pu toucher à différents éléments de la programmation en ASP.NET afin de construire notre première application. Certains éléments peuvent sembler flous, mais ce tutoriel est là pour enseigner la majeure partie de la programmation Web en ASP.NET.

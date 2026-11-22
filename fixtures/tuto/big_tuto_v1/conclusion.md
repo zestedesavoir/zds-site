@@ -1,1 +1,0 @@
-Ce tutoriel est en cours de rédaction. La route est encore longue pour devenir un maître du web. Nous espérons que vous apprenez au moins autant de choses que vous ne l'espériez, alors faites-nous de jolies applications !
