@@ -64,9 +64,13 @@ class SolveContentAlert(LoginRequiredMixin, FormView):
             raise PermissionDenied
         try:
             alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
-            content = PublishableContent.objects.get(pk=alert.content.id)
         except (KeyError, ValueError):
             raise Http404("L'alerte n'existe pas.")
+
+        if alert.scope != "CONTENT":
+            raise Http404(_("L'alerte ne concerne pas un contenu."))
+
+        content = get_object_or_404(PublishableContent, pk=alert.content.id)
 
         if alert.solved:
             raise Http404("L'alerte a déjà été résolue.")
