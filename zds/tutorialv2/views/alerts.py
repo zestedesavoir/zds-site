@@ -27,8 +27,13 @@ class SendContentAlert(LoginRequiredMixin, FormView):
         try:
             content_pk = int(self.kwargs["pk"])
         except (KeyError, ValueError):
-            raise Http404("Identifiant manquant ou conversion en entier impossible.")
+            raise Http404(_("Identifiant manquant ou conversion en entier impossible."))
+
         content = get_object_or_404(PublishableContent, pk=content_pk)
+        human_content_type = TYPE_CHOICES_DICT[content.type].lower()
+
+        if not content.in_public():
+            raise Http404(_("Ce {} n'a pas (plus ?) de version publique.").format(human_content_type))
 
         if len(request.POST["signal_text"].strip()) == 0:
             messages.error(request, _("La raison du signalement ne peut pas être vide."))
@@ -42,7 +47,6 @@ class SendContentAlert(LoginRequiredMixin, FormView):
             )
             alert.save()
 
-            human_content_type = TYPE_CHOICES_DICT[content.type].lower()
             messages.success(self.request, _("Ce {} a bien été signalé aux modérateurs.").format(human_content_type))
 
         return redirect(content.get_absolute_url_online())

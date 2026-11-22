@@ -609,7 +609,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 )
                 self.assertEqual(result.status_code, 403)  # back
 
-    def test_defenitely_unpublish_alerted_opinion(self):
+    def test_definitively_unpublish_alerted_opinion(self):
         opinion = PublishableContentFactory(type="OPINION")
 
         opinion.authors.add(self.user_author)
@@ -673,6 +673,13 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(200, resp.status_code)
         self.assertEqual(0, len(resp.context["alerts"]))
         self.assertEqual(1, len(resp.context["solved"]))
+
+        # Alert again on the same content, which is not published anymore
+        self.client.force_login(alerter)
+        result = self.client.post(
+            reverse("content:alert-content", kwargs={"pk": opinion.pk}), {"signal_text": "Yeurk !"}, follow=False
+        )
+        self.assertEqual(result.status_code, 404)
 
     def test_cancel_pick_operation(self):
         opinion = PublishableContentFactory(type="OPINION")
