@@ -4,6 +4,7 @@ from hashlib import md5
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.test import TestCase
+from django.utils.translation import gettext_lazy as _
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory
@@ -301,16 +302,10 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertIn(self.forumtopic, self.user1.get_followed_topics())
 
     def test_get_city_with_wrong_ip(self):
-        # Set a local IP to the user
-        self.user1.last_ip_address = "127.0.0.1"
-        # Then the get_city is not found and return empty string
-        self.assertEqual("", self.user1.get_city())
-
-        # Same goes for IPV6
-        # Set a local IP to the user
-        self.user1.last_ip_address = "0000:0000:0000:0000:0000:0000:0000:0001"
-        # Then the get_city is not found and return empty string
-        self.assertEqual("", self.user1.get_city())
+        for ip in ["127.0.0.1", "0000:0000:0000:0000:0000:0000:0000:0001", None]:
+            with self.subTest(msg=f"IP {ip}"):
+                self.user1.last_ip_address = ip
+                self.assertEqual(_("Adresse inconnue"), self.user1.get_city())
 
     def test_remove_token_on_removing_from_dev_group(self):
         dev = DevProfileFactory()
