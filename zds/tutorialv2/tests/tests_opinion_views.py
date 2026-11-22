@@ -681,6 +681,16 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 404)
 
+    def test_alert_only_on_opinion(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+
+        alerter = ProfileFactory().user
+        self.client.force_login(alerter)
+        result = self.client.post(
+            reverse("content:alert-content", kwargs={"pk": article.pk}), {"signal_text": "Yeurk !"}, follow=False
+        )
+        self.assertEqual(result.status_code, 404)
+
     def test_cancel_pick_operation(self):
         opinion = PublishableContentFactory(type="OPINION")
 

@@ -11,7 +11,6 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert
 
@@ -30,10 +29,12 @@ class SendContentAlert(LoginRequiredMixin, FormView):
             raise Http404(_("Identifiant manquant ou conversion en entier impossible."))
 
         content = get_object_or_404(PublishableContent, pk=content_pk)
-        human_content_type = TYPE_CHOICES_DICT[content.type].lower()
+
+        if content.type != "OPINION":
+            raise Http404(_("Il n'est possible de signaler que des billets."))
 
         if not content.in_public():
-            raise Http404(_("Ce {} n'a pas (plus ?) de version publique.").format(human_content_type))
+            raise Http404(_("Ce billet n'a pas (plus ?) de version publique."))
 
         if len(request.POST["signal_text"].strip()) == 0:
             messages.error(request, _("La raison du signalement ne peut pas être vide."))
@@ -47,7 +48,7 @@ class SendContentAlert(LoginRequiredMixin, FormView):
             )
             alert.save()
 
-            messages.success(self.request, _("Ce {} a bien été signalé aux modérateurs.").format(human_content_type))
+            messages.success(self.request, _("Ce billet a bien été signalé aux modérateurs."))
 
         return redirect(content.get_absolute_url_online())
 
