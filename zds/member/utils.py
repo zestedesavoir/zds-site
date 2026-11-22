@@ -73,14 +73,18 @@ def get_geo_location_from_ip(ip: str) -> str:
     try:
         geo = GeoIP2().city(ip)
     except AddressNotFoundError:
-        return ""
+        return _("Adresse inconnue")
     except GeoIP2Exception as e:
         logger.warning(
             f"GeoIP2 failed with the following message: '{e}'. "
             "The Geolite2 database might not be installed or configured correctly. "
             "Check the documentation for guidance on how to install it properly."
         )
-        return ""
+        return _("Adresse inconnue")
+    except Exception as e:
+        # For instance, TypeError can be raised if ip is None
+        logger.warning(f"GeoIP2 failed for the IP '{ip}' with the following message: '{e}'.")
+        return _("Adresse inconnue")
     else:
         city = geo["city"]
         country = geo["country_name"]

@@ -39,11 +39,15 @@
 {% block content_out %}
     {% captureas ip %}
         {% if perms.member.show_ip %}
-            {% url "members-from-ip" profile.last_ip_address as url_check_multi_ips %}
-            {% captureas city %}{% if profile.get_city %} ({{ profile.get_city }}){% endif %}{% endcaptureas %}
-            {% blocktrans with ip=profile.last_ip_address city=city url_check_multi_ips=url_check_multi_ips %}
-                via <a href="{{ url_check_multi_ips }}">{{ ip }}</a> {{ city }}
-            {% endblocktrans %}
+            {% if profile.last_ip_address %}
+                {% url "members-from-ip" profile.last_ip_address as url_check_multi_ips %}
+                {% captureas city %}{% if profile.get_city %} ({{ profile.get_city }}){% endif %}{% endcaptureas %}
+                {% blocktrans with ip=profile.last_ip_address city=city url_check_multi_ips=url_check_multi_ips %}
+                    via <a href="{{ url_check_multi_ips }}">{{ ip }}</a> {{ city }}
+                {% endblocktrans %}
+            {% else %}
+                {% trans "via une adresse IP inconnue" %}
+            {% endif %}
         {% endif %}
     {% endcaptureas %}
 
