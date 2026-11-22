@@ -5,7 +5,7 @@ if [[ $ZDS_VENV == "" ]]; then
 fi
 
 if [[ $ZDS_PIP_VERSION == "" ]]; then
-    ZDS_PIP_VERSION="25.1.1" # needs to be also updated in .github/workflows/ci.yml
+    ZDS_PIP_VERSION="26.3" # needs to be also updated in .github/workflows/ci.yml
 fi
 
 ZDS_NODE_VERSION=$(head -n 1 $ZDSSITE_DIR/.nvmrc)
