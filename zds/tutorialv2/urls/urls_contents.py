@@ -58,6 +58,7 @@ from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, TagsListView
 from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent
+from zds.tutorialv2.views.obsolescence import EditObsolescenceView
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
 from zds.tutorialv2.views.shareable_links import (
     CreateShareableLinkView,
@@ -256,6 +257,7 @@ urlpatterns = (
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
         path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),
+        path("modifier-l-obsolescence/<int:pk>", EditObsolescenceView.as_view(), name="edit-obsolescence"),
         path("modifier-categories/<int:pk>/", EditCategoriesView.as_view(), name="edit-categories"),
         # beta:
         path("activer-beta/<int:pk>/<slug:slug>/", ManageBetaContent.as_view(action="set"), name="set-beta"),

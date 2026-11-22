@@ -52,7 +52,7 @@
     {% include "tutorialv2/includes/headline/header.part.html" with show_thumbnail=False content=content title=container.title %}
 
     {% if display_config.online_config.show_obsolescence_warning %}
-        {% include "tutorialv2/includes/headline/obsolescence_warning.part.html" with is_obsolete=is_obsolete %}
+        {% include "tutorialv2/includes/headline/obsolescence_warning.part.html" with is_obsolete=is_obsolete description=obsolescence_description %}
     {% endif %}
 
     {% if display_config.info_config.show_beta_info %}
